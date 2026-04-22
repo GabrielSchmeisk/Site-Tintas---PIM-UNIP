@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso | FixTintas</title>
+	<link rel="icon" type="image/png" href="https://i.imgur.com/zLZeeV9.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+		<div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" class="logo-header me-2">
+                <span class="fw-bold h3 mb-0">Fix<span class="text-warning">Tintas</span></span>
+            </a>
+			
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav mx-auto">
+					<li class="nav-item"><a class="nav-link active" href="index.html">Início</a></li>
+					<li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
+					<li class="nav-item"><a class="nav-link" href="#contato">Contatos</a></li>
+					<li class="nav-item">
+						<a class="nav-link text-warning fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#calcModal">
+							<i class="fas fa-calculator me-1"></i> Calculadora
+						</a>
+					</li>
+					
+				</ul>
+				
+				<form class="d-flex mx-lg-4 my-2 my-lg-0 flex-grow-1" role="search">
+					<div class="input-group">
+						<input class="form-control border-light" type="search" placeholder="Buscar tintas, rolos..." aria-label="Search">
+						<button class="btn btn-warning" type="submit"><i class="fas fa-search"></i></button>
+					</div>
+				</form>
+                
+                <div class="d-flex align-items-center gap-2">
+					<button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+						<i class="fas fa-user me-md-2"></i>
+						<span class="d-none d-md-inline">Minha Conta</span>
+					</button>
+					<button class="btn btn-outline-light position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+						<i class="fas fa-shopping-cart"></i>
+						<span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<main class="container my-5 py-5">
+		<div class="bg-white p-5 rounded-4 shadow-sm border">
+			<h2 class="fw-bold text-primary mb-4">Termos de Uso - FixTintas</h2>
+			
+			<div class="terms-content" style="line-height: 1.8;">
+				<p><strong>1.</strong> Ao navegar neste site, você concorda em usar as informações apenas para fins de compra lícita.</p>
+				<p><strong>2.</strong> Todas as imagens de produtos são meramente ilustrativas e podem sofrer variações de cor dependendo da calibração do seu monitor.</p>
+				<p><strong>3.</strong> As promoções são válidas por tempo limitado ou enquanto durarem os estoques.</p>
+				<p><strong>4.</strong> A FixTintas reserva-se o direito de corrigir eventuais erros de digitação nos preços a qualquer momento.</p>
+				<p><strong>5.</strong> O cadastro no site é de inteira responsabilidade do usuário, que deve garantir a veracidade dos dados informados.</p>
+				<p><strong>6.</strong> A senha de acesso é pessoal e intransferível, sendo o usuário responsável por manter sua confidencialidade.</p>
+				<p><strong>7.</strong> O prazo de entrega começa a contar apenas após a confirmação do pagamento pela instituição financeira.</p>
+				<p><strong>8.</strong> Pedidos realizados após o horário comercial ou em finais de semana serão processados no próximo dia útil.</p>
+				<p><strong>9.</strong> Em caso de desistência da compra, o cliente tem até 7 dias corridos após o recebimento para solicitar a devolução (conforme o Código de Defesa do Consumidor).</p>
+				<p><strong>10.</strong> Produtos devolvidos devem estar com a embalagem original lacrada e sem sinais de uso ou violação.</p>
+				<p><strong>11.</strong> Tintas preparadas em máquinas tintométricas (cores personalizadas) podem ter regras específicas de troca por serem itens feitos sob encomenda.</p>
+				<p><strong>12.</strong> A FixTintas não se responsabiliza por mau uso ou aplicação incorreta dos produtos adquiridos.</p>
+				<p><strong>13.</strong> Recomendamos sempre a contratação de profissionais qualificados para a aplicação das tintas e revestimentos.</p>
+				<p><strong>14.</strong> O frete é calculado com base no peso, volume e distância; o valor será exibido antes da finalização do pedido.</p>
+				<p><strong>15.</strong> Tentativas de fraude ou uso indevido do sistema de pagamentos resultarão no cancelamento imediato da conta e medidas legais cabíveis.</p>
+				<p><strong>16.</strong> O uso da nossa "Calculadora de Tintas" fornece apenas uma estimativa; a FixTintas não garante a precisão absoluta da metragem informada pelo usuário.</p>
+				<p><strong>17.</strong> Todo o conteúdo deste site (textos, logos e design) é de propriedade exclusiva da FixTintas e não pode ser reproduzido sem autorização.</p>
+				<p><strong>18.</strong> Reservamo-nos o direito de alterar estes termos a qualquer momento, visando a melhoria dos nossos serviços.</p>
+				<p><strong>19.</strong> Em caso de divergência de preços no site, o valor válido será sempre o exibido no carrinho de compras no momento do checkout.</p>
+				<p><strong>20.</strong> Fica eleito o foro da comarca de São Paulo para dirimir quaisquer dúvidas ou controvérsias oriundas deste contrato.</p>
+			</div>
+			
+			<div class="mt-4 pt-3 border-top">
+				<a href="index.html" class="btn btn-primary">Voltar para a Loja</a>
+			</div>
+		</div>
+	</main>
+	
+	<div class="modal fade" id="minhaContaModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 rounded-4">
+				<div class="modal-header border-0 pb-0">
+					<h5 class="fw-bold">Minha Conta</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body p-4">
+                    <div class="text-center mb-4">
+						<div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 80px; height: 80px; overflow: hidden;">
+							<img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" style="width: 100%; height: 100%; object-fit: cover;">
+						</div>
+						<p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
+						<p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
+					</div>
+
+                    <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
+						<i class="fas fa-shopping-bag text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Meus Pedidos</span>
+							<small class="text-muted">Histórico e rastreio</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapsePedidos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
+						</div>
+					</div>
+
+					<a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-heart text-danger"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Favoritos</span>
+							<small class="text-muted">Sua lista de desejos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseFavoritos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
+						</div>
+					</div>
+					
+					<a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-map-marker-alt text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Endereço de Entrega</span>
+							<small class="text-muted">Configure onde receber seus produtos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseEndereco">
+						<div class="p-3 bg-light rounded-3 mb-3 border">
+							<h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
+							<div class="row g-2">
+								<div class="col-8"><input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro"></div>
+								<div class="col-4"><input type="text" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123"></div>
+								<div class="col-12"><input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento"></div>
+								<div class="col-6"><input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro"></div>
+								<div class="col-6"><input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade"></div>
+							</div>
+							<button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
+						</div>
+					</div>
+
+                    <div id="authOptions" class="mt-4">
+						<button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
+						<button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	<div class="modal fade" id="minhaContaModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 rounded-4">
+				<div class="modal-header border-0 pb-0">
+					<h5 class="fw-bold">Minha Conta</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body p-4">
+                    <div class="text-center mb-4">
+						<div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 80px; height: 80px; overflow: hidden;">
+							<img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" style="width: 100%; height: 100%; object-fit: cover;">
+						</div>
+						<p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
+						<p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
+					</div>
+
+                    <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
+						<i class="fas fa-shopping-bag text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Meus Pedidos</span>
+							<small class="text-muted">Histórico e rastreio</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapsePedidos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
+						</div>
+					</div>
+
+					<a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-heart text-danger"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Favoritos</span>
+							<small class="text-muted">Sua lista de desejos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseFavoritos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
+						</div>
+					</div>
+					
+					<a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-map-marker-alt text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Endereço de Entrega</span>
+							<small class="text-muted">Configure onde receber seus produtos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseEndereco">
+						<div class="p-3 bg-light rounded-3 mb-3 border">
+							<h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
+							<div class="row g-2">
+								<div class="col-8"><input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro"></div>
+								<div class="col-4"><input type="text" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123"></div>
+								<div class="col-12"><input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento"></div>
+								<div class="col-6"><input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro"></div>
+								<div class="col-6"><input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade"></div>
+							</div>
+							<button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
+						</div>
+					</div>
+
+                    <div id="authOptions" class="mt-4">
+						<button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
+						<button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<a href="https://wa.me/551600000000" 
+	   target="_blank" 
+	   class="btn btn-success position-fixed bottom-0 end-0 m-3 rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+	   style="width: 45px; height: 45px; z-index: 1050; transition: transform 0.3s;">
+		<i class="fab fa-whatsapp fa-lg"></i>
+	</a>
+	
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Meu Carrinho</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="cart-items-container"></div>
+                <div class="modal-footer border-0 p-4">
+                    <div class="w-100 d-flex justify-content-between mb-3">
+                        <span class="h5">Total:</span>
+                        <span class="h4 text-primary fw-bold" id="cart-total">R$ 0,00</span>
+                    </div>
+                    <button class="btn btn-warning w-100 py-3 fw-bold" onclick="checkout()">FINALIZAR COMPRA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 shadow">
+				<div class="modal-header bg-dark text-white">
+					<h5 class="modal-title fw-bold"><i class="fas fa-paint-roller me-2"></i>Calculadora de Tinta</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body p-4">
+					<p class="small text-muted">Descubra a quantidade ideal para sua pintura (considerando 2 demãos).</p>
+					<form id="calcForm">
+						<div class="row g-3">
+							<div class="col-6">
+								<label class="form-label small fw-bold">Largura da Parede (m)</label>
+								<input type="number" id="calcLargura" class="form-control" placeholder="Ex: 4.5" step="0.1">
+							</div>
+							<div class="col-6">
+								<label class="form-label small fw-bold">Altura da Parede (m)</label>
+								<input type="number" id="calcAltura" class="form-control" placeholder="Ex: 2.8" step="0.1">
+							</div>
+							<div class="col-12">
+								<button type="button" class="btn btn-primary w-100 fw-bold" onclick="calcularTinta()">CALCULAR AGORA</button>
+							</div>
+						</div>
+					</form>
+
+					<div id="resultadoCalc" class="mt-4 d-none">
+						<div class="alert alert-info border-0 shadow-sm">
+							<h6 class="fw-bold mb-1">Resultado Estimado:</h6>
+							<p class="mb-0" id="textoResultado"></p>
+						</div>
+						<small class="text-muted d-block" style="font-size: 0.7rem;">
+							*Cálculo baseado em um rendimento médio de 10m² por litro/demão.
+						</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+	  <div id="globalToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+		  <div class="toast-body" id="globalToastMessage">
+			</div>
+		  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+		</div>
+	  </div>
+	</div>
+	
+	<div class="modal fade" id="confirmAddressModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header bg-primary text-white">
+					<h5 class="modal-title"><i class="fas fa-truck me-2"></i>Confirmar Endereço</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body text-center">
+					<p class="mb-2">O pedido será entregue em:</p>
+					<div class="p-3 bg-light rounded border mb-3">
+						<strong id="displayConfirmEndereco" class="text-dark">---</strong>
+					</div>
+					<p class="small text-muted">Deseja prosseguir com a compra?</p>
+				</div>
+				<div class="modal-footer justify-content-center">
+					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#minhaContaModal">Alterar Endereço</button>
+					<button type="button" class="btn btn-success" onclick="processarCompraFinal()">Confirmar e Finalizar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer id="contato" class="text-white pt-5 pb-4">
+			<div class="container">
+				<div class="row g-5">
+					<div class="col-lg-4 col-md-6">
+						<div class="d-flex align-items-center mb-3">
+							<img src="https://i.imgur.com/PmT6Skb.png" 
+								 alt="Logo FixTintas" 
+								 width="40" 
+								 height="40" 
+								 class="me-2 rounded-circle bg-white p-1 shadow-sm">
+							
+							<span class="fw-bold text-white h4 mb-0">Fix<span class="text-warning">Tintas</span></span>
+						</div>
+						<p class="text" style="line-height: 1.8;">
+							A maior variedade de tintas e acessórios para sua obra. Qualidade que você confia para transformar seus ambientes com cores que inspiram.
+						</p>
+						<div class="social-icons mt-4">
+							<a href="#"><i class="fab fa-instagram"></i></a>
+							<a href="#"><i class="fab fa-facebook-f"></i></a>
+							<a href="#"><i class="fab fa-whatsapp"></i></a>
+						</div>
+					</div>
+
+					<div class="col-lg-2 col-md-6">
+						<h5 class="fw-bold">Loja</h5>
+						<ul class="list-unstyled">
+							<li><a href="#produtos" class="footer-link">Produtos</a></li>
+							<li><a href="sobre.html" class="footer-link">Sobre Nós</a></li>
+							<li><a href="index.html#nossas-marcas" class="footer-link">Marcas</a></li>
+							<li><a href="#" class="footer-link">Promoções</a></li>
+						</ul>
+					</div>
+
+					<div class="col-lg-2 col-md-6">
+						<h5 class="fw-bold">Suporte</h5>
+						<ul class="list-unstyled">
+							<li><a href="#" data-bs-toggle="modal" data-bs-target="#minhaContaModal" class="footer-link">Minha Conta</a></li>
+							<li><a href="termos.html" class="footer-link">Termos de Uso</a></li>
+							<li><a href="politicas.html" class="footer-link">Políticas</a></li>
+							<li><a href="politicas.html" class="footer-link">Privacidade</a></li>
+						</ul>
+					</div>
+
+					<div class="col-lg-4 col-md-6">
+						<h5 class="fw-bold">Contato</h5>
+						<p class="text mb-2"><i class="fas fa-phone-alt text-warning me-2"></i> (16) 0000-0000</p>
+						<p class="text mb-2"><i class="fas fa-envelope text-warning me-2"></i> sac@fixtintas.com.br</p>
+						<p class="text mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Avenida Carlos Consoni, 10 - RP</p>
+						<p class="text mb-0 small opacity-75"><i class="fas fa-clock text-warning me-2"></i> Seg. a Sex. das 08h às 18h</p>
+						
+						<div class="mt-4">
+							<i class="fab fa-cc-visa fa-2x me-2 opacity-50"></i>
+							<i class="fab fa-cc-mastercard fa-2x me-2 opacity-50"></i>
+							<i class="fas fa-barcode fa-2x opacity-50"></i>
+							<i class="fab fa-pix fa-2x ms-2 opacity-50"></i> </div>
+					</div>
+				</div>
+				
+				<hr class="mt-5 border-secondary opacity-25">
+				
+				<div class="row align-items-center">
+					<div class="col-md-6 text-center text-md-start">
+						<p class="text mb-1">© 2026 <strong>FixTintas Comércio de Tintas LTDA.</strong></p>
+						<p class="text small opacity-50 mb-0">CNPJ: 12.345.678/0001-90 | Todos os direitos reservados.</p>
+					</div>
+					<div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+						<p class="text mb-0">Transformando ambientes com você.</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

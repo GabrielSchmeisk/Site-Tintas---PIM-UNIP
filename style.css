@@ -1,0 +1,418 @@
+/* ==========================================================================
+   1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   ========================================================================== */
+:root {
+    --primary-blue: #005eff;
+    --primary-orange: #ff7a00;
+}
+
+body {
+    background-color: #f4f7f6;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ==========================================================================
+   2. HEADER E NAVEGAÇÃO
+   ========================================================================== */
+header { 
+    background-color: var(--primary-blue); 
+    z-index: 1100 !important; /* Garante que a header fique no topo */
+}
+
+.logo-header {
+    width: 45px;          
+    height: 45px;
+    object-fit: contain;  
+    border-radius: 50%;   
+    background: #fff;     
+    padding: 2px;         
+    border: 2px solid #ffc107; 
+}
+
+.navbar-brand {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.nav-link:hover { 
+    color: var(--primary-orange) !important; 
+}
+
+/* ==========================================================================
+   3. MENU LATERAL E SUBMENUS (CATEGORIAS)
+   ========================================================================== */
+.filter-sidebar {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    z-index: 1000;
+}
+
+.custom-menu .list-group-item {
+    border: none;
+    margin-bottom: 5px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px !important;
+}
+
+.custom-menu .list-group-item:hover {
+    background-color: #f0f7ff;
+    color: var(--primary-blue);
+}
+
+/* Lógica de Clique no Submenu */
+.dropdown-side .submenu {
+    display: none; 
+    position: absolute;
+    left: 95%;
+    top: 0;
+    background: #ffffff;
+    min-width: 220px;
+    border-radius: 15px;
+    box-shadow: 15px 15px 35px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+    z-index: 1200 !important;
+    padding: 10px;
+    list-style: none;
+    margin-left: 5px;
+    animation: fadeInSlide 0.3s ease;
+}
+
+.dropdown-side.active .submenu {
+    display: block !important;
+}
+
+.submenu li {
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #555;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.submenu li:hover {
+    background: #f0f7ff !important;
+    color: var(--primary-blue) !important;
+}
+
+/* ==========================================================================
+   4. CARROSSEL E PAGE HEADERS
+   ========================================================================== */
+#heroCarousel .carousel-item { height: 400px; }
+#heroCarousel img { height: 100%; object-fit: cover; filter: brightness(0.6); }
+
+.page-header {
+    background: linear-gradient(rgba(0, 94, 255, 0.8), rgba(0, 94, 255, 0.8)), 
+                url('https://images.unsplash.com/photo-1589939705384-5185138a04b9?q=80&w=1470');
+    background-size: cover;
+    background-position: center;
+    padding: 80px 0;
+    color: white;
+    margin-bottom: 50px;
+}
+
+.content-body {
+    line-height: 1.8;
+    color: #444;
+    padding-bottom: 80px;
+}
+
+.content-body h2 {
+    color: var(--primary-blue);
+    font-weight: 700;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   5. CARDS DE PRODUTOS E INTERAÇÕES
+   ========================================================================== */
+.product-card { border-radius: 15px; border: none; transition: 0.3s; overflow: hidden; }
+.product-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
+
+.btn-add-cart { background: var(--primary-orange); color: #fff; font-weight: bold; border: none; }
+.btn-add-cart:hover { background: #e66e00; color: #fff; }
+
+.btn-favorite {
+    position: absolute;
+    top: 10px;
+    left: 10px; 
+    background: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    color: #ff4757;
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 5;
+}
+
+.btn-favorite:hover { transform: scale(1.1); }
+
+/* Regras de Cores de Tinta */
+.color-dot {
+	width: 45px !important;
+	height: 45px !important;
+	border-width: 2px;
+}
+
+.btn-check:checked + .rounded-circle {
+    border: 3px solid #ffc107 !important; 
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.btn-check:checked ~ .small {
+	color: var(--primary-blue) !important;
+	font-weight: bold;
+}
+
+#product-preview {
+    width: 100%;
+    height: 120px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    border: 2px solid #eee;
+    transition: all 0.4s ease; 
+    overflow: hidden;
+}
+
+#preview-text {
+    font-weight: bold;
+    text-shadow: 0px 1px 3px rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.4);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+#product-list { transition: opacity 0.3s ease; }
+
+/* ==========================================================================
+   6. SEÇÃO DE MARCAS (BRANDS)
+   ========================================================================== */
+.brand-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer;
+}
+
+.brand-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    border-color: #ffc107; 
+}
+
+.brand-logo {
+    max-height: 50px;
+    filter: grayscale(100%); 
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover .brand-logo {
+    filter: grayscale(0%); 
+    opacity: 1;
+    transform: scale(1.1); 
+}
+
+/* ==========================================================================
+   7. ÁREA DO USUÁRIO E MODAIS
+   ========================================================================== */
+.account-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #333 !important;
+    transition: 0.3s;
+    gap: 15px;
+}
+
+.account-option:hover {
+    background: #f0f7ff;
+    border-color: #005eff;
+    transform: translateX(5px);
+}
+
+.account-option i {
+    font-size: 1.4rem;
+    width: 30px;
+    text-align: center;
+}
+
+.account-option span {
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+/* Endereço e Listas */
+#userAddress { resize: none; font-size: 0.85rem; border: 1px solid #dee2e6; }
+#userAddress:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 0.2rem rgba(0, 94, 255, 0.25); }
+
+.account-option input:focus {
+    background-color: transparent;
+    border-bottom: 1px solid var(--primary-blue) !important;
+    border-radius: 0;
+}
+
+#orders-list { border: 1px inset rgba(0,0,0,0.03); }
+#orders-list::-webkit-scrollbar { width: 4px; }
+#orders-list::-webkit-scrollbar-thumb { background: #005eff; border-radius: 10px; }
+
+#favorites-list { max-height: 250px; overflow-y: auto; padding-right: 5px; }
+#favorites-list::-webkit-scrollbar { width: 5px; }
+#favorites-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+
+.account-option[aria-expanded="true"] .fa-chevron-down { transform: rotate(180deg); }
+.account-option .fa-chevron-down { transition: transform 0.3s ease; }
+
+/* ==========================================================================
+   8. FOOTER
+   ========================================================================== */
+footer {
+    background-color: #0f172a !important;
+    position: relative;
+    overflow: hidden;
+}
+
+footer h5 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    color: #fff;
+}
+
+footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 30px;
+    height: 2px;
+    background: var(--primary-orange);
+}
+
+.footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: 0.3s;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.footer-link:hover {
+    color: var(--primary-orange);
+    transform: translateX(5px);
+}
+
+.social-icons a {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    color: #fff;
+    margin-right: 10px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.social-icons a:hover {
+    background: var(--primary-orange);
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   9. WHATSAPP
+   ========================================================================== */
+
+.btn-success.position-fixed:hover {
+    transform: scale(1.1);
+    background-color: #25d366; /* Cor oficial do WhatsApp */
+    filter: brightness(1.1);
+}
+
+/* ==========================================================================
+   9. ANIMAÇÕES E RESPONSIVIDADE
+   ========================================================================== */
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (min-width: 992px) {
+    .filter-sidebar.sticky-top { top: 100px !important; }
+}
+
+@media (max-width: 991.98px) {
+    #heroCarousel .carousel-item { height: 250px; }
+    .filter-sidebar { margin-bottom: 30px; padding: 15px; }
+
+    .dropdown-side .submenu {
+        position: static; 
+        left: 0;
+        width: 100%;
+        min-width: 100%;
+        margin-left: 0;
+        box-shadow: none;
+        border: none;
+        border-left: 3px solid var(--primary-orange);
+        background: #f8f9fa;
+        animation: none; 
+    }
+
+    .product-card { margin-bottom: 20px; }
+    footer { text-align: center; }
+    footer h5::after { left: 50%; transform: translateX(-50%); }
+    .social-icons { justify-content: center; margin-bottom: 20px; }
+}
+
+@media (max-width: 575.98px) {
+    .display-5 { font-size: 1.8rem; }
+    .page-header { padding: 40px 0; }
+    .btn-add-cart { padding: 12px; font-size: 0.9rem; }
+    .logo-header { width: 35px; height: 35px; }
+}
+
+@media (pointer: coarse) {
+    .nav-link, .custom-menu .list-group-item, .footer-link { padding: 12px 10px; }
+}
+
+@media (max-width: 576px) {
+    .btn-success.position-fixed {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .btn-success.position-fixed i {
+        font-size: 1.2rem;
+    }
+}
