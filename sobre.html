@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre Nós | FixTintas</title>
+	<link rel="icon" type="image/png" href="https://i.imgur.com/zLZeeV9.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+	<header class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+		<div class="container">
+			<a class="navbar-brand d-flex align-items-center" href="index.html">
+				<i class="fas fa-paint-roller me-2 text-warning"></i>
+				<span class="fw-bold">Fix<span class="text-warning">Tintas</span></span>
+			</a>
+			
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav mx-auto">
+					<li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+					<li class="nav-item"><a class="nav-link" href="index.html#produtos">Produtos</a></li>
+					<li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
+					<li class="nav-item"><a class="nav-link" href="#contato">Contatos</a></li>
+				</ul>
+
+				<div class="d-flex align-items-center gap-2">
+					<button class="btn btn-outline-light d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#minhaContaModal">
+						<i class="fas fa-user me-md-2"></i>
+						<span class="d-none d-md-inline">Minha Conta</span>
+					</button>
+
+					<button class="btn btn-outline-light position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+						<i class="fas fa-shopping-cart"></i>
+						<span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</header>
+
+    <main class="container my-5 py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-5 fw-bold text-primary mb-4">Quem Somos</h1>
+                <p class="lead">A FixTintas é referência em soluções de pintura desde 2026.</p>
+                <p>Nossa missão é transformar ambientes através das cores, oferecendo produtos de alta performance e tecnologia tintométrica de ponta.</p>
+                <p>Trabalhamos com as melhores marcas (Suvinil, Coral, Sherwin-Williams) para garantir que sua obra tenha o acabamento que você merece.</p>
+            </div>
+            <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1595844730298-b960ff98fee0?q=80&w=1470" class="img-fluid rounded-4 shadow-lg" alt="Nossa Loja">
+            </div>
+        </div>
+    </main>
+	
+	<section class="py-5">
+		<div class="container">
+			<div class="text-center mb-5">
+				<h2 class="fw-bold text-primary">Nossa Equipe de Desenvolvedores</h2>
+				<p class="text-muted">Os talentos por trás da tecnologia da FixTintas</p>
+			</div>
+
+			<div class="row g-4">
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-code fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Bruno</h6>
+						<p class="small text-muted">Arquiteto de Sistemas e Especialista em Backend.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-laptop-code fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Gustavo</h6>
+						<p class="small text-muted">Desenvolvedor Frontend e Especialista em UX Design.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-database fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Gustavo</h6>
+						<p class="small text-muted">Mestre em Banco de Dados e Segurança da Informação.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-terminal fa-3x text-primary"></i></div>
+						<h6 class="fw-bold text-uppercase">Igor</h6>
+						<p class="small text-muted">Engenheiro de Software focado em Performance.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-cogs fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Rogerio</h6>
+						<p class="small text-muted">Especialista em DevOps e Infraestrutura em Nuvem.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-mobile-alt fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Gabriel</h6>
+						<p class="small text-muted">Desenvolvedor Mobile e Integrações de API.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-paint-brush fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Gaby</h6>
+						<p class="small text-muted">Designer de Interface e Especialista em Cores.</p>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card border-0 shadow-sm text-center p-3 h-100">
+						<div class="mb-3"><i class="fas fa-search-code fa-3x text-primary"></i></div>
+						<h6 class="fw-bold">Guilherme</h6>
+						<p class="small text-muted">Analista de QA e Garantia de Qualidade de Código.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+		<footer id="contato" class="text-white pt-5 pb-4">
+			<div class="container">
+				<div class="row g-5">
+					<div class="col-lg-4 col-md-6">
+					<div class="d-flex align-items-center mb-3">
+						<img src="https://i.imgur.com/PmT6Skb.png" 
+							 alt="Logo FixTintas" 
+							 width="40" 
+							 height="40" 
+							 class="me-2 rounded-circle bg-white p-1 shadow-sm">
+						
+						<span class="fw-bold text-white h4 mb-0">Fix<span class="text-warning">Tintas</span></span>
+					</div>
+						<p class="text" style="line-height: 1.8;">
+							A maior variedade de tintas e acessórios para sua obra. Qualidade que você confia para transformar seus ambientes com cores que inspiram.
+						</p>
+						<div class="social-icons mt-4">
+							<a href="#"><i class="fab fa-instagram"></i></a>
+							<a href="#"><i class="fab fa-facebook-f"></i></a>
+							<a href="#"><i class="fab fa-whatsapp"></i></a>
+						</div>
+					</div>
+
+					<div class="col-lg-2 col-md-6">
+						<h5 class="fw-bold">Loja</h5>
+						<ul class="list-unstyled">
+							<li><a href="#produtos" class="footer-link">Produtos</a></li>
+							<li><a href="sobre.html" class="footer-link">Sobre Nós</a></li>
+							<li><a href="#" class="footer-link">Marcas</a></li>
+							<li><a href="#" class="footer-link">Promoções</a></li>
+						</ul>
+					</div>
+
+					<div class="col-lg-2 col-md-6">
+						<h5 class="fw-bold">Suporte</h5>
+						<ul class="list-unstyled">
+							<li><a href="#" data-bs-toggle="modal" data-bs-target="#minhaContaModal" class="footer-link">Minha Conta</a></li>
+							<li><a href="politicas.html" class="footer-link">Políticas</a></li>
+							<li><a href="termos.html" class="footer-link">Termos de Uso</a></li>
+							<li><a href="politicas.html" class="footer-link">Privacidade</a></li>
+						</ul>
+					</div>
+
+					<div class="col-lg-4 col-md-6">
+						<h5 class="fw-bold">Contato</h5>
+						<p class="text mb-2"><i class="fas fa-phone-alt text-warning me-2"></i> (11) 98888-7777</p>
+						<p class="text mb-2"><i class="fas fa-envelope text-warning me-2"></i> sac@fixtintas.com.br</p>
+						<p class="text"><i class="fas fa-map-marker-alt text-warning me-2"></i> Av. Principal, 1000 - SP</p>
+						<div class="mt-4">
+							<i class="fab fa-cc-visa fa-2x me-2 opacity-50"></i>
+							<i class="fab fa-cc-mastercard fa-2x me-2 opacity-50"></i>
+							<i class="fas fa-barcode fa-2x opacity-50"></i>
+						</div>
+					</div>
+				</div>
+				<hr class="mt-5 border-secondary opacity-25">
+				<div class="row align-items-center">
+					<div class="col-md-6 text-center text-md-start">
+						<p class="small text-muted mb-0">© 2026 FixTintas - Todos os direitos reservados.</p>
+					</div>
+					<div class="col-md-6 text-center text-md-end">
+						<p class="small text-muted mb-0">Transformando ambientes com você.</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
