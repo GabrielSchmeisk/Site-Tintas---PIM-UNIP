@@ -230,3 +230,17 @@ window.addEventListener('scroll', () => {
     }
 }, { passive: true });
 
+function scrollToBrands() {
+    const section = document.getElementById('nossas-marcas');
+    if (section) {
+        // Pega a distância do topo da seção em relação à página
+        const yOffset = -100; // Ajuste para compensar sua header fixa
+        const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+        window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+        });
+    }
+}
+
