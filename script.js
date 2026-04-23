@@ -1774,22 +1774,6 @@ function showCart() {
 }
 
 
-function calcularPrecoConfigurado() {
-    if (!tempProduct) return 0;
-
-    const selectedColorInput = document.querySelector('input[name="color"]:checked');
-    const textureSelect = document.getElementById('selectTexture');
-    const sizeSelect = document.getElementById('selectSize');
-
-    // Se ainda não selecionou cor, retorna apenas o preço base
-    const colorPrice = selectedColorInput ? Number(selectedColorInput.getAttribute('data-price-color')) || 0 : 0;
-    
-    const texturePrice = textureSelect ? Number(textureSelect.options[textureSelect.selectedIndex].getAttribute('data-price-texture')) || 0 : 0;
-    
-    const sizePrice = sizeSelect ? Number(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-price-add')) || 0 : 0;
-
-    return Number(tempProduct.price) + colorPrice + texturePrice + sizePrice;
-}
 function atualizarSubtotalModal() {
     if (!tempProduct) return;
 
