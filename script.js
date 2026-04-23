@@ -1829,9 +1829,10 @@ function atualizarSubtotalModal() {
         style: 'currency',
         currency: 'BRL'
     });
-}
+    
+console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${ajusteExtras}) = ${valorFinal}`);
+} 
 
-    console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${ajusteExtras}) = ${valorFinal}`);
 /* ==========================================================================
    7. FAVORITOS E HISTÓRICO DE PEDIDOS
    ========================================================================== */
