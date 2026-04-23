@@ -769,9 +769,11 @@ function openConfigModal(id) {
                 labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
             }
 
-            sprayModal.show();
-            setTimeout(atualizarSubtotalModal, 150); 
-            sprayModalEl.addEventListener('shown.bs.modal', () => updateSprayPreview(), { once: true });
+            sprayModalEl.addEventListener('shown.bs.modal', () => {
+            updateSprayPreview();
+            atualizarSubtotalModal();
+            }, { once: true });
+
         }
         return; 
     }
@@ -829,7 +831,7 @@ function modalTamanhos(product) {
     sizeModal.show();
 
     // Atualiza o subtotal inicial baseado no data-extra do primeiro item
-    setTimeout(atualizarSubtotalModal, 150);
+    sizeModalEl.addEventListener('shown.bs.modal', () => atualizarSubtotalModal(), { once: true });
 	
 	renderizarSugestoes(tempProduct, 'sugestoes-config');
 }
