@@ -860,7 +860,6 @@ function confirmAddToCartSizeOnly() {
     save();
     updateCartUI();
 
-    // Fecha o modal e gerencia a fila
     const modalEl = document.getElementById('modalTamanhos');
     const instance = bootstrap.Modal.getInstance(modalEl);
     if (instance) instance.hide();
@@ -880,6 +879,7 @@ function confirmAddToCartSizeOnly() {
         if (typeof limparBackdropsTravados === "function") limparBackdropsTravados();
     }
 }
+
 
 function updatePreview() {
     const selectedColorInput = document.querySelector('input[name="color"]:checked');
