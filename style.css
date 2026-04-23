@@ -4,7 +4,6 @@
 :root {
     --primary-blue: #005eff;
     --primary-orange: #ff7a00;
-    /* Novas variáveis para facilitar a troca de temas */
     --bg-body: #f4f7f6;
     --text-main: #333;
     --card-bg: #fff;
@@ -162,7 +161,6 @@ header {
     overflow: hidden;
 }
 
-/* O Segredo do deslize: aumentado o tempo e usando uma curva suave */
 #heroCarousel .carousel-item {
     height: 400px;
     /* Remove qualquer transição antiga e força o deslize */
@@ -257,13 +255,9 @@ header {
 
 #preview-text {
     font-weight: bold;
-    /* 1. Mudamos a sombra para preta para não brilhar no fundo escuro */
     text-shadow: 0px 1px 3px rgba(0,0,0,0.5); 
-    
-    /* 2. Mudamos o fundo para preto (0,0,0) com 60% de opacidade (0.6) */
     background: rgba(0, 0, 0, 0.6); 
     
-    /* 3. IMPORTANTE: Como o fundo agora é escuro, a letra PRECISA ser clara */
     color: #ffffff !important; 
     
     padding: 4px 12px;
@@ -434,8 +428,6 @@ body.dark-mode .btn-nav-wall {
     z-index: 1050 !important;
 }
 
-/* Ajuste opcional: se o seu header tiver um z-index muito alto, 
-   verifique se ele é menor que 1050. Exemplo: */
 header, .navbar {
     z-index: 1040 !important;
 }
@@ -497,12 +489,12 @@ header, .navbar {
     left: 0;
     width: 100%;
     height: 100%;
-    background: black; /* Fundo totalmente preto */
-    pointer-events: none; /* Permite clicar nos botões por baixo */
+    background: black; 
+    pointer-events: none; 
     z-index: 10;
-    opacity: 0; /* Começa invisível */
+    opacity: 0; 
     transition: opacity 0.5s ease;
-    mix-blend-mode: multiply; /* Faz a luz interagir melhor com a cor */
+    mix-blend-mode: multiply; 
 }
 
 /* Quando ativa, a lanterna aparece através de uma máscara */
@@ -562,7 +554,6 @@ footer h5::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Alteração aqui: usa um cinza leve no modo claro e as variáveis no modo escuro */
     background: rgba(0, 0, 0, 0.05); 
     border-radius: 50%;
     color: var(--text-main); /* USA A COR DO TEXTO (Preto no claro, Branco no escuro) */
@@ -752,9 +743,6 @@ body.dark-mode hr {
     opacity: 0.5;
 }
 
-/* ==========================================================================
-   CORREÇÃO DEFINITIVA PARA TODOS OS MODAIS (CONTA E SELEÇÃO)
-   ========================================================================== */
 
 /* 1. Fundo do Modal e áreas de conteúdo */
 body.dark-mode .modal-content,
@@ -801,7 +789,7 @@ body.dark-mode .btn-close {
 }
 
 /* ==========================================================================
-   CORREÇÃO PARA MODAL DE PERFIL (MINHA CONTA) E FORMULÁRIOS
+   MODAL DE PERFIL (MINHA CONTA) E FORMULÁRIOS
    ========================================================================== */
 
 /* Garante que as abas laterais e itens de lista fiquem escuros */
