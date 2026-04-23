@@ -25,7 +25,7 @@
 				<ul class="navbar-nav mx-auto">
 					<li class="nav-item"><a class="nav-link active" href="index.html">Início</a></li>
 					<li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
-					<li class="nav-item"><a class="nav-link" href="#contato">Contatos</a></li>
+					<li class="nav-item"><a class="nav-link" href="contato.html">Contatos</a></li>
 					<li class="nav-item">
 						<a class="nav-link text-warning fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#calcModal">
 							<i class="fas fa-calculator me-1"></i> Calculadora
@@ -34,22 +34,15 @@
 					
 				</ul>
 				
-				<form class="d-flex mx-lg-4 my-2 my-lg-0 flex-grow-1" role="search">
-					<div class="input-group">
-						<input class="form-control border-light" type="search" placeholder="Buscar tintas, rolos..." aria-label="Search">
-						<button class="btn btn-warning" type="submit"><i class="fas fa-search"></i></button>
-					</div>
-				</form>
+				
+				<div class="dark-mode-toggle" onclick="toggleDarkMode()">
+					<i class="fas fa-moon" id="dark-mode-icon"></i>
+				</div>
                 
                 <div class="d-flex align-items-center gap-2">
-					<button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+					<button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" onclick="handleProfileClick()">
 						<i class="fas fa-user me-md-2"></i>
 						<span class="d-none d-md-inline">Minha Conta</span>
-					</button>
-					<button class="btn btn-outline-light position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
-						<i class="fas fa-shopping-cart"></i>
-						<span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-					</button>
 				</div>
 			</div>
 		</div>
@@ -243,24 +236,6 @@
 		<i class="fab fa-whatsapp fa-lg"></i>
 	</a>
 	
-    <div class="modal fade" id="cartModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Meu Carrinho</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4" id="cart-items-container"></div>
-                <div class="modal-footer border-0 p-4">
-                    <div class="w-100 d-flex justify-content-between mb-3">
-                        <span class="h5">Total:</span>
-                        <span class="h4 text-primary fw-bold" id="cart-total">R$ 0,00</span>
-                    </div>
-                    <button class="btn btn-warning w-100 py-3 fw-bold" onclick="checkout()">FINALIZAR COMPRA</button>
-                </div>
-            </div>
-        </div>
-    </div>
 	
 	<div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
@@ -311,27 +286,6 @@
 	  </div>
 	</div>
 	
-	<div class="modal fade" id="confirmAddressModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header bg-primary text-white">
-					<h5 class="modal-title"><i class="fas fa-truck me-2"></i>Confirmar Endereço</h5>
-					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body text-center">
-					<p class="mb-2">O pedido será entregue em:</p>
-					<div class="p-3 bg-light rounded border mb-3">
-						<strong id="displayConfirmEndereco" class="text-dark">---</strong>
-					</div>
-					<p class="small text-muted">Deseja prosseguir com a compra?</p>
-				</div>
-				<div class="modal-footer justify-content-center">
-					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#minhaContaModal">Alterar Endereço</button>
-					<button type="button" class="btn btn-success" onclick="processarCompraFinal()">Confirmar e Finalizar</button>
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<footer id="contato" class="text-white pt-5 pb-4">
 			<div class="container">
