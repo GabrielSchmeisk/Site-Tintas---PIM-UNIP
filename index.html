@@ -359,153 +359,164 @@
 	
 	<!-- MODAL CONFIGURAÇÃO TINTA -->
 	
-	<div class="modal fade" id="productConfigModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content border-0 shadow">
-				<div class="modal-header bg-primary text-white">
-					<h5 class="modal-title" id="productConfigModalLabel">Configurar Tinta</h5>
-					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body">
-					<div id="preview-container" class="text-center mb-4" style="perspective: 1000px; padding: 10px;">
-						<label class="form-label fw-bold small text-uppercase d-block mb-3">Simulação de Superfície:</label>
-						
-						<div class="position-relative d-inline-block w-100">
-							<button type="button" class="btn-nav-wall left" onclick="changeWall(-1)" title="Superfície anterior">
-								<i class="fas fa-chevron-left"></i>
-							</button>
-							<button type="button" class="btn-nav-wall right" onclick="changeWall(1)" title="Próxima superfície">
-								<i class="fas fa-chevron-right"></i>
-							</button>
+<div class="modal fade" id="productConfigModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
 
-							<div id="product-preview" style="
-								width: 100%; height: 180px; border-radius: 4px; 
-								transform: rotateY(-8deg) rotateX(2deg); 
-								box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
-								display: flex; align-items: center; justify-content: center;
-								transition: all 0.4s ease; position: relative; overflow: hidden;
-								background-color: #eee;">
-								
-								<div id="flashlight-normal" class="flashlight-overlay"></div>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productConfigModalLabel">Configurar Tinta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
 
-								<span id="preview-text" class="fw-bold px-3" style="text-shadow: 0 1px 2px rgba(255,255,255,0.5); z-index: 5;">
-									Selecione as opções
-								</span>
-							</div>
-							
-							<div class="preview-floor" style="
-								width: 100%; height: 12px; background: #ddd; 
-								margin-top: -2px; border-radius: 0 0 4px 4px; 
-								transform: rotateY(-8deg); border-bottom: 2px solid #bbb;">
-							</div>
+            <div class="modal-body">
 
-							<div id="wall-type-label" class="mt-2 small fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
-								Parede Lisa
-							</div>
+                <div id="preview-container" class="text-center mb-4" style="perspective: 1000px; padding: 10px;">
+                    <label class="form-label fw-bold small text-uppercase d-block mb-3">Simulação de Superfície:</label>
+                    
+                    <div class="position-relative d-inline-block w-100">
+                        <button type="button" class="btn-nav-wall left" onclick="changeWall(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="btn-nav-wall right" onclick="changeWall(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
 
-							<div class="text-center mt-2">
-								<button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleFlashlight('normal')" style="font-size: 0.7rem; border-radius: 20px;">
-									<i class="fas fa-lightbulb"></i> Testar no Escuro
-								</button>
-							</div>
-						</div>
-					</div>
+                        <div id="product-preview" style="
+                            width: 100%; height: 180px; border-radius: 4px;
+                            transform: rotateY(-8deg) rotateX(2deg);
+                            box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
+                            display: flex; align-items: center; justify-content: center;
+                            transition: all 0.4s ease; position: relative; overflow: hidden;
+                            background-color: #eee;">
+                            <div id="flashlight-normal" class="flashlight-overlay"></div>
+                            <span id="preview-text" class="fw-bold px-3" style="z-index: 5;">
+                                Selecione as opções
+                            </span>
+                        </div>
 
-						<form id="productConfigForm">
-							<div class="mb-3">
-								<label class="form-label fw-bold small text-uppercase">Selecione a Cor:</label>
-									<div class="d-flex gap-3 flex-wrap justify-content-center" id="colorPicker">
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="white" value="Branco" data-price-color="0" checked>
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="white" style="background: #ffffff;"></label>
-											<div class="small mt-1 text-muted">Branco</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="offwhite" value="Pérola" data-price-color="5">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="offwhite" style="background: #fdf5e6;"></label>
-											<div class="small mt-1 text-muted">+ R$ 5</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="gray" value="Cinza Platina" data-price-color="10">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="gray" style="background: #bdc3c7;"></label>
-											<div class="small mt-1 text-muted">+ R$ 10</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="black" value="Preto Absoluto" data-price-color="25">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="black" style="background: #2c3e50;"></label>
-											<div class="small mt-1 text-muted">+ R$ 25</div>
-										</div>
+                        <div class="preview-floor" style="
+                            width: 100%; height: 12px; background: #ddd;
+                            margin-top: -2px; border-radius: 0 0 4px 4px;
+                            transform: rotateY(-8deg); border-bottom: 2px solid #bbb;">
+                        </div>
 
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="blue" value="Azul Naval" data-price-color="15">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="blue" style="background: #005eff;"></label>
-											<div class="small mt-1 text-muted">+ R$ 15</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="green" value="Verde Floresta" data-price-color="15">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="green" style="background: #27ae60;"></label>
-											<div class="small mt-1 text-muted">+ R$ 15</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="yellow" value="Amarelo Sol" data-price-color="20">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="yellow" style="background: #f1c40f;"></label>
-											<div class="small mt-1 text-muted">+ R$ 20</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="red" value="Vermelho Rubi" data-price-color="30">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="red" style="background: #e74c3c;"></label>
-											<div class="small mt-1 text-muted">+ R$ 30</div>
-										</div>
-										<div class="text-center">
-											<input type="radio" class="btn-check" name="color" id="terracota" value="Terracota" data-price-color="18">
-											<label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="terracota" style="background: #e67e22;"></label>
-											<div class="small mt-1 text-muted">+ R$ 18</div>
-										</div>
-									</div>
-							</div>
-								<div class="mb-3">
-									<label class="form-label fw-bold small text-uppercase">Acabamento e Efeitos:</label>
-									<select class="form-select" id="selectTexture">
-										<option value="Fosco" data-price-texture="0">Fosco (Esconde imperfeições) - Padrão</option>
-										<option value="Acetinado" data-price-texture="25">Acetinado (Toque de seda) + R$ 25,00</option>
-										<option value="Semibrilho" data-price-texture="40">Semibrilho (Fácil de limpar) + R$ 40,00</option>
-										<option value="Cimento Queimado" data-price-texture="60">Efeito Cimento Queimado + R$ 60,00</option>
-										<option value="Metalizado" data-price-texture="85">Brilho Metalizado Premium + R$ 85,00</option>
-									</select>
-								</div>
-							<div class="mb-3">
-								<label class="form-label fw-bold small text-uppercase">Tamanho (Volume):</label>
-								<select class="form-select" id="selectSize">
-									<option value="Quarto 800ml" data-price-add="-15">Quarto 800ml (Pequenos reparos) - Desconto R$ 15,00</option>
-									<option value="Galão 3,6L" data-price-add="0" selected>Galão 3,6L (Padrão) - Preço Base</option>
-									<option value="Balde 10L" data-price-add="80">Balde 10L + R$ 80,00</option>
-									<option value="Lata 18L" data-price-add="165">Lata 18L (Grande porte) + R$ 165,00</option>
-								</select>
-								<div class="form-text mt-1" style="font-size: 0.75rem;">
-									* O rendimento varia conforme o tamanho escolhido.
-								</div>
-							<hr class="my-4">
-							<h6 class="fw-bold mb-3"><i class="fas fa-magic me-2 text-warning"></i>Combine com estes itens:</h6>
-							<div id="sugestoes-container" class="row gx-2 gy-3">
-								</div>
-							</div>
-						</form>
-					</div>
-					<div class="d-flex justify-content-between align-items-center my-3 p-2 bg-light rounded">
-						<span class="text-muted small">Subtotal do item:</span>
-						<span class="h5 mb-0 text-primary" id="modalSubtotal">R$ 0,00</span>
-					</div>
-					<div class="modal-footer">
-						<button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
-							Confirmar todas
-						</button>
-						<button type="button" class="btn btn-primary" onclick="confirmAddToCart()">
-							Confirmar esta lata
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
+                        <div id="wall-type-label" class="mt-2 small fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
+                            Parede Lisa
+                        </div>
+
+                        <div class="text-center mt-2">
+                            <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleFlashlight('normal')" style="font-size: 0.7rem; border-radius: 20px;">
+                                <i class="fas fa-lightbulb"></i> Testar no Escuro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="productConfigForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Selecione a Cor:</label>
+                        <div class="d-flex gap-3 flex-wrap justify-content-center" id="colorPicker">
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="white" value="Branco" data-price-color="0" checked>
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="white" style="background: #ffffff;"></label>
+                                <div class="small mt-1 text-muted">Branco</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="offwhite" value="Pérola" data-price-color="5">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="offwhite" style="background: #fdf5e6;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 5</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="gray" value="Cinza Platina" data-price-color="10">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="gray" style="background: #bdc3c7;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 10</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="black" value="Preto Absoluto" data-price-color="25">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="black" style="background: #2c3e50;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 25</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="blue" value="Azul Naval" data-price-color="15">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="blue" style="background: #005eff;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 15</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="green" value="Verde Floresta" data-price-color="15">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="green" style="background: #27ae60;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 15</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="yellow" value="Amarelo Sol" data-price-color="20">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="yellow" style="background: #f1c40f;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 20</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="red" value="Vermelho Rubi" data-price-color="30">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="red" style="background: #e74c3c;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 30</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="terracota" value="Terracota" data-price-color="18">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="terracota" style="background: #e67e22;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 18</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Acabamento e Efeitos:</label>
+                        <select class="form-select" id="selectTexture">
+                            <option value="Fosco" data-price-texture="0">Fosco (Esconde imperfeições) - Padrão</option>
+                            <option value="Acetinado" data-price-texture="25">Acetinado (Toque de seda) + R$ 25,00</option>
+                            <option value="Semibrilho" data-price-texture="40">Semibrilho (Fácil de limpar) + R$ 40,00</option>
+                            <option value="Cimento Queimado" data-price-texture="60">Efeito Cimento Queimado + R$ 60,00</option>
+                            <option value="Metalizado" data-price-texture="85">Brilho Metalizado Premium + R$ 85,00</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Tamanho (Volume):</label>
+                        <select class="form-select" id="selectSize" onchange="atualizarSubtotalModal()">
+                            <option value="Quarto 800ml" data-price-add="-15">Quarto 800ml (Pequenos reparos) - Desconto R$ 15,00</option>
+                            <option value="Galão 3,6L" data-price-add="0" selected>Galão 3,6L (Padrão) - Preço Base</option>
+                            <option value="Balde 10L" data-price-add="80">Balde 10L + R$ 80,00</option>
+                            <option value="Lata 18L" data-price-add="165">Lata 18L (Grande porte) + R$ 165,00</option>
+                        </select>
+                        <div class="form-text mt-1" style="font-size: 0.75rem;">
+                            * O rendimento varia conforme o tamanho escolhido.
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-magic me-2 text-warning"></i>Combine com estes itens:
+                    </h6>
+                    <div id="sugestoes-container" class="row gx-2 gy-3"></div>
+
+                </form>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 p-2 bg-light rounded">
+                    <span class="text-muted small">Subtotal do item:</span>
+                    <span class="h5 mb-0 text-primary" id="modalSubtotal">R$ 0,00</span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
+                    Confirmar todas
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmAddToCart()">
+                    Confirmar esta lata
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 		
 		<!-- MODAL CONFIGURAÇÃO SPRAY -->
 	
