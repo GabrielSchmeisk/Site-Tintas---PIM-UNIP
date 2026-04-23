@@ -51,7 +51,6 @@ const products = [
 let cart = JSON.parse(localStorage.getItem('fixtintas_cart')) || [];
 let tempProduct = null;
 let currentWallIndex = 0;
-let spraySelecionado = null; // Começa como null para forçar a seleção
 
 
 const wallTypes = [
