@@ -1992,6 +1992,7 @@ function fecharMenuMobile() {
     // Fecha submenus laterais abertos
     document.querySelectorAll('.dropdown-side.active')
         .forEach(el => el.classList.remove('active'));
+
     // Para Navbar padrão (Collapse)
     const navbarCollapse = document.querySelector('.navbar-collapse.show');
     if (navbarCollapse) {
