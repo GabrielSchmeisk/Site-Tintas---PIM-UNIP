@@ -1989,6 +1989,9 @@ function showToast(message, type = 'success', isFixed = false) {
 
 // Função auxiliar para fechar o menu mobile
 function fecharMenuMobile() {
+    // Fecha submenus laterais abertos
+    document.querySelectorAll('.dropdown-side.active')
+        .forEach(el => el.classList.remove('active'));
     // Para Navbar padrão (Collapse)
     const navbarCollapse = document.querySelector('.navbar-collapse.show');
     if (navbarCollapse) {
