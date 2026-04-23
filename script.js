@@ -2115,14 +2115,15 @@ window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
 
     if (currentScrollY > lastScrollY && currentScrollY > 60) {
+        navbar.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
         navbar.style.transform = 'translateY(-100%)';
-        navbar.style.transition = 'transform 0.3s ease';
     } else {
+        navbar.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         navbar.style.transform = 'translateY(0)';
-        navbar.style.transition = 'transform 0.3s ease';
     }
 
     lastScrollY = currentScrollY;
 }, { passive: true });
+
 
 
