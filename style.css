@@ -4,6 +4,24 @@
 :root {
     --primary-blue: #005eff;
     --primary-orange: #ff7a00;
+    /* Novas variáveis para facilitar a troca de temas */
+    --bg-body: #f4f7f6;
+    --text-main: #333;
+    --card-bg: #fff;
+}
+
+/* Quando o corpo tiver a classe .dark-mode, as variáveis mudam */
+body.dark-mode {
+    --bg-body: #121212;
+    --text-main: #e0e0e0;
+    --card-bg: #1e1e1e;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    transition: background-color 0.3s, color 0.3s; /* Transição suave */
 }
 
 body {
@@ -137,6 +155,43 @@ header {
     margin-bottom: 20px;
 }
 
+/* Limpeza: Garante que o container não corte a animação */
+#heroCarousel {
+    overflow: hidden;
+}
+
+/* O Segredo do deslize: aumentado o tempo e usando uma curva suave */
+#heroCarousel .carousel-item {
+    height: 400px;
+    /* Remove qualquer transição antiga e força o deslize */
+    transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+    backface-visibility: hidden; /* Melhora a performance da animação */
+}
+
+/* Imagem com leve zoom para tirar o aspecto estático */
+#heroCarousel img {
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+    transition: transform 1.5s ease;
+}
+
+/* Quando o slide entra, a imagem faz um leve movimento contrário ao deslize */
+.carousel-item-next img, 
+.carousel-item-prev img {
+    transform: scale(1.1);
+}
+
+.carousel-item.active img {
+    transform: scale(1);
+}
+
+/* Suavizando a entrada das legendas (textos) */
+.carousel-caption {
+    transition: transform 1s ease, opacity 1s ease;
+    transition-delay: 0.3s; /* O texto aparece logo após a foto deslizar */
+}
+
 /* ==========================================================================
    5. CARDS DE PRODUTOS E INTERAÇÕES
    ========================================================================== */
@@ -200,8 +255,15 @@ header {
 
 #preview-text {
     font-weight: bold;
-    text-shadow: 0px 1px 3px rgba(255,255,255,0.8);
-    background: rgba(255,255,255,0.4);
+    /* 1. Mudamos a sombra para preta para não brilhar no fundo escuro */
+    text-shadow: 0px 1px 3px rgba(0,0,0,0.5); 
+    
+    /* 2. Mudamos o fundo para preto (0,0,0) com 60% de opacidade (0.6) */
+    background: rgba(0, 0, 0, 0.6); 
+    
+    /* 3. IMPORTANTE: Como o fundo agora é escuro, a letra PRECISA ser clara */
+    color: #ffffff !important; 
+    
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -290,6 +352,22 @@ header {
 
 .account-option[aria-expanded="true"] .fa-chevron-down { transform: rotate(180deg); }
 .account-option .fa-chevron-down { transition: transform 0.3s ease; }
+
+/* Garante que a modal fique acima do header */
+.modal {
+    z-index: 1060 !important;
+}
+
+/* Garante que o fundo escuro da modal também suba */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Ajuste opcional: se o seu header tiver um z-index muito alto, 
+   verifique se ele é menor que 1050. Exemplo: */
+header, .navbar {
+    z-index: 1040 !important;
+}
 
 /* ==========================================================================
    8. FOOTER
@@ -425,3 +503,198 @@ footer h5::after {
         font-size: 1rem !important;
     }
 }
+
+/* ==========================================================================
+   9. MODO ESCURO
+   ========================================================================== */
+   
+   /* Configurações de cores para o Modo Escuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar, 
+body.dark-mode footer {
+    background-color: #000 !important;
+}
+
+body.dark-mode .card, 
+body.dark-mode .filter-sidebar {
+    background-color: #1e1e1e;
+    border-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .text-muted {
+    color: #aaa !important;
+}
+
+/* Botão de alternância (estilo opcional) */
+.dark-mode-toggle {
+    cursor: pointer;
+    padding: 10px;
+    color: white;
+}
+
+/* ==========================================================================
+   AJUSTES PARA COMPONENTES FLUTUANTES (DARK MODE)
+   ========================================================================== */
+
+/* Carrinho Lateral (Offcanvas), Modais e Menus Dropdown */
+body.dark-mode .offcanvas,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu,
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+/* Ajuste para os textos explicativos e preços dentro desses menus */
+body.dark-mode .offcanvas .text-muted,
+body.dark-mode .modal-content .text-muted,
+body.dark-mode .dropdown-menu .dropdown-item {
+    color: #bbb !important;
+}
+
+/* Hover nos itens do menu flutuante */
+body.dark-mode .dropdown-item:hover {
+    background-color: #333 !important;
+    color: var(--primary-orange) !important;
+}
+
+/* Ajuste para inputs (campos de login/senha no modal) */
+body.dark-mode .form-control {
+    background-color: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #777 !important;
+}
+
+/* Botão de fechar (X) nos modais e carrinho */
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+
+/* Linhas divisórias (hr) */
+body.dark-mode hr {
+    border-color: #444 !important;
+    opacity: 0.5;
+}
+
+/* ==========================================================================
+   CORREÇÃO DEFINITIVA PARA TODOS OS MODAIS (CONTA E SELEÇÃO)
+   ========================================================================== */
+
+/* 1. Fundo do Modal e áreas de conteúdo */
+body.dark-mode .modal-content,
+body.dark-mode .modal-header,
+body.dark-mode .modal-body,
+body.dark-mode .modal-footer {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+/* 2. Áreas de seleção e Itens de Lista (Onde você escolhe a tinta) */
+body.dark-mode .list-group-item {
+    background-color: #242424 !important; /* Um cinza levemente mais claro que o fundo */
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+/* 3. Inputs de texto, Selects e áreas de formulário (Login/Conta) */
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .input-group-text {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+    color: #ffffff !important;
+}
+
+/* 4. Efeito de seleção/hover nos itens (Para saber o que está clicando) */
+body.dark-mode .list-group-item-action:hover,
+body.dark-mode .list-group-item-action:focus {
+    background-color: #333 !important;
+    color: var(--primary-orange) !important;
+}
+
+/* 5. Ajuste para textos secundários que ficam "sumidos" */
+body.dark-mode .text-muted, 
+body.dark-mode .small {
+    color: #aaa !important;
+}
+
+/* 6. Inverter ícones pretos (como o 'X' de fechar) */
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+
+/* ==========================================================================
+   CORREÇÃO PARA MODAL DE PERFIL (MINHA CONTA) E FORMULÁRIOS
+   ========================================================================== */
+
+/* Garante que as abas laterais e itens de lista fiquem escuros */
+body.dark-mode .modal-body .list-group-item,
+body.dark-mode .modal-body .card {
+    background-color: #242424 !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+/* Força os campos de entrada (nome, e-mail, etc.) a ficarem escuros */
+body.dark-mode .modal-body input,
+body.dark-mode .modal-body select,
+body.dark-mode .modal-body textarea {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+}
+
+/* Ajusta o placeholder (texto de exemplo) para não sumir */
+body.dark-mode .modal-body input::placeholder {
+    color: #888 !important;
+}
+
+/* Ajusta as abas/links ativos dentro do modal de perfil */
+body.dark-mode .modal-body .list-group-item.active {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+    color: #fff !important;
+}
+
+/* Remove fundos brancos de containers internos do Bootstrap */
+body.dark-mode .bg-white, 
+body.dark-mode .bg-light {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Ajusta as labels (títulos dos campos) */
+body.dark-mode label {
+    color: #eee !important;
+}
+
+/* Corrigir o fundo do submenu das categorias no Modo Escuro */
+body.dark-mode .dropdown-side .submenu {
+    background-color: #1e1e1e !important; /* Mesmo cinza escuro dos cards */
+    border-color: #333 !important;
+    box-shadow: 15px 15px 35px rgba(0,0,0,0.5) !important;
+}
+
+/* Corrigir o texto dos itens do submenu no Modo Escuro */
+body.dark-mode .submenu li {
+    color: #e0e0e0 !important;
+}
+
+/* Efeito de hover (passar o mouse) nos itens do submenu no Modo Escuro */
+body.dark-mode .submenu li:hover {
+    background-color: #333 !important;
+    color: var(--primary-orange) !important; /* Destaque em laranja ao passar o mouse */
+}
+
+
