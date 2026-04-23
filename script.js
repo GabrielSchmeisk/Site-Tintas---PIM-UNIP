@@ -753,30 +753,31 @@ function openConfigModal(id) {
         return; 
     }
 
-    // 3. SPRAY
-    if (isSpray) {
-        const sprayModalEl = document.getElementById('sprayConfigModal');
-        if (sprayModalEl) {
-            renderCoresNoModalSpray(); 
-            const sprayModal = new bootstrap.Modal(sprayModalEl);
-            
-            let pending = parseInt(sessionStorage.getItem('pending_configs')) || 1;
-            let total = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
-            const atual = (total - pending) + 1;
-            
-            const labelEl = document.getElementById('sprayModalLabel');
-            if(labelEl) {
-                labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
-            }
+// 3. SPRAY
+if (isSpray) {
+    const sprayModalEl = document.getElementById('sprayConfigModal');
+    if (sprayModalEl) {
+        renderCoresNoModalSpray(); 
+        const sprayModal = new bootstrap.Modal(sprayModalEl);
+        
+        let pending = parseInt(sessionStorage.getItem('pending_configs')) || 1;
+        let total = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
+        const atual = (total - pending) + 1;
+        
+        const labelEl = document.getElementById('sprayModalLabel');
+        if(labelEl) {
+            labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
+        }
 
-            sprayModalEl.addEventListener('shown.bs.modal', () => {
+        sprayModalEl.addEventListener('shown.bs.modal', () => {
             updateSprayPreview();
             atualizarSubtotalModal();
-            }, { once: true });
+        }, { once: true });
 
-        }
-        return; 
+        sprayModal.show(); // ← ESTAVA FALTANDO
     }
+    return; 
+}
 
     // 4. TINTAS PADRÃO (Com cor e textura)
     const configModalEl = document.getElementById('productConfigModal');
