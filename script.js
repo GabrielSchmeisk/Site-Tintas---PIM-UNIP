@@ -2005,20 +2005,6 @@ function fecharMenuMobile() {
 
 
 /* ==========================================================================
-   SISTEMA DE BUSCA (PESQUISA)
-   ========================================================================== */
-
-
-// Função para remover acentos e transformar em minúsculas
-function normalizarTexto(texto) {
-    return texto
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, ""); // Remove os "pedacinhos" dos acentos
-}
-
-
-/* ==========================================================================
    MODO ESCURO
    ========================================================================== */
 
