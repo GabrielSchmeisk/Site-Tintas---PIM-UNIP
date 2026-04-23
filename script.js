@@ -2080,6 +2080,7 @@ let lastScrollY = window.scrollY;
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (!navbar) return;
+    if (document.body.classList.contains('modal-open')) return;
 
     const currentScrollY = window.scrollY;
 
@@ -2093,6 +2094,7 @@ window.addEventListener('scroll', () => {
 
     lastScrollY = currentScrollY;
 }, { passive: true });
+
 
 
 
