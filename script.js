@@ -63,9 +63,7 @@ const wallTypes = [
 	{ 
 		name: 'Grafiato', 
 		apply: (box) => {
-			// Camada 1: Ranhuras principais levemente inclinadas (88deg)
-			// Camada 2: Ranhuras secundárias para dar profundidade e irregularidade (92deg)
-			// Camada 3: Textura de fundo para tirar a cor chapada
+		
 			box.style.backgroundImage = `
 				repeating-linear-gradient(88deg, 
 					rgba(0,0,0,0.08) 0px, 
@@ -83,7 +81,6 @@ const wallTypes = [
 				radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%)
 			`;
 			box.style.backgroundSize = "auto";
-			// O segredo do realismo: um leve contraste para destacar as ranhuras
 			box.style.filter = "contrast(1.1) brightness(0.98)";
 		}
 	},
@@ -136,7 +133,6 @@ function isProdutoAcessorio(product) {
 /* ==========================================================================
    2. INICIALIZAÇÃO (DOMContentLoaded)
    ========================================================================== */
-// --- 1. FUNÇÕES GLOBAIS (Devem vir antes de tudo para serem reconhecidas) ---
 
 function normalizarTexto(texto) {
     if (!texto) return "";
@@ -315,7 +311,7 @@ function saveAddress() {
     // 5. FECHA O MENU AUTOMATICAMENTE (Ação solicitada)
     fecharMenuMobile();
 
-    // Opcional: Se o formulário estiver dentro de um Modal, você pode fechá-lo também:
+    // Se o formulário estiver dentro de um Modal, pode fechá-lo também:
     const modalConta = document.getElementById('minhaContaModal');
     if (modalConta) {
         bootstrap.Modal.getInstance(modalConta)?.hide();
@@ -569,7 +565,7 @@ function showProductDetails(id) {
 // Botão compartilhar
 
 function shareProduct(id, name) {
-    // Cria o link personalizado (ajuste o domínio quando publicar seu site)
+    // Cria o link personalizado
     const url = `${window.location.origin}${window.location.pathname}?produto=${id}`;
     const text = `Confira este produto: ${name}`;
 
@@ -590,10 +586,7 @@ function shareProduct(id, name) {
     }
 }
 
-/**
- * Função auxiliar para tratar o clique no favorito dentro da modal
- * sem precisar recarregar a modal inteira (melhora a performance)
- */
+
 function handleModalFavorite(id, event) {
     // 1. Chama sua função global de toggle (que já deve salvar no localStorage e atualizar a vitrine)
     toggleFavorite(id, event);
@@ -1038,12 +1031,6 @@ function updateSprayPreview() {
 
     if (selectedColorInput) {
         const colorHex = selectedColorInput.getAttribute('data-hex');
-        
-        /* LÓGICA DE COBERTURA (CENTRO):
-           - 1 Demão: Centro pequeno e suave (30%), bordas bem esfumaçadas.
-           - 2 Demãos: Centro maior e mais forte (55%).
-           - 3 Demãos: Centro totalmente fechado (80%) com 100% de opacidade.
-        */
         
         let centroSolido, opacidadeCentro;
 
