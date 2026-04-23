@@ -21,12 +21,7 @@ body {
     background-color: var(--bg-body);
     color: var(--text-main);
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    transition: background-color 0.3s, color 0.3s; /* Transição suave */
-}
-
-body {
-    background-color: #f4f7f6;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 html {
@@ -36,10 +31,17 @@ html {
 /* ==========================================================================
    2. HEADER E NAVEGAÇÃO
    ========================================================================== */
-header { 
-    background-color: var(--primary-blue); 
-    z-index: 1100 !important; /* Garante que a header fique no topo */
+
+header {
+    background-color: var(--primary-blue);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1040;
 }
+
+.modal          { z-index: 1060 !important; }
+.modal-backdrop { z-index: 1050 !important; }
 
 .logo-header {
     width: 45px;          
@@ -666,12 +668,7 @@ input#modal-qty {
     -moz-appearance: textfield;
 }
 
-.navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1030;
-}
+
 
 /* ==========================================================================
    9. MODO ESCURO
