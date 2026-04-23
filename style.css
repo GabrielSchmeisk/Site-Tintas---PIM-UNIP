@@ -271,6 +271,75 @@ header {
 
 #product-list { transition: opacity 0.3s ease; }
 
+/* O container do preview deve ter uma leve perspectiva */
+#product-preview {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Camada de textura (porosidade da parede) */
+#product-preview::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.12; /* Ajuste a intensidade da textura aqui */
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Camada de Iluminação Global (Luz vindo de cima) */
+#product-preview::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.15) 100%);
+    pointer-events: none;
+}
+
+/* Estilo das Setas de Navegação do Preview */
+.btn-nav-wall {
+    position: absolute;
+    top: 45%; /* Centraliza na altura da parede */
+    transform: translateY(-50%);
+    background: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    z-index: 10; /* Garante que fica acima da parede */
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+.btn-nav-wall:hover {
+    background: #f8f9fa;
+    transform: translateY(-50%) scale(1.1);
+    color: #007bff;
+}
+
+.btn-nav-wall.left { left: -10px; }
+.btn-nav-wall.right { right: -10px; }
+
+/* Ajuste para modo noturno */
+body.dark-mode .btn-nav-wall {
+    background: #444;
+    color: #fff;
+}
+
+#product-preview-spray {
+    transition: background 0.3s ease-in-out;
+    border: 8px solid #eee; /* Simula uma moldura ou amostra de parede */
+    position: relative;
+    overflow: hidden;
+}
+
 /* ==========================================================================
    6. SEÇÃO DE MARCAS (BRANDS)
    ========================================================================== */
@@ -369,6 +438,81 @@ header, .navbar {
     z-index: 1040 !important;
 }
 
+/* Estrelas */
+
+.text-warning {
+    color: #ffc107 !important; /* Cor dourada clássica de estrelas */
+}
+
+.fa-star, .fa-star-half-alt {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Dá um leve relevo */
+}
+
+/* Animação suave para os modais */
+.modal.fade .modal-dialog {
+    transform: translateY(30px); /* Começa 30px abaixo */
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: translateY(0); /* Sobe para a posição original */
+}
+
+/* Efeito de zoom suave no conteúdo do modal de produto */
+#productModal .modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Backdrop (fundo escuro) mais suave */
+.modal-backdrop.show {
+    opacity: 0.6;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Aplica a animação ao box de dica quando o modal abre */
+.bg-light.border-warning {
+    animation: slideInRight 0.6s ease-out both;
+    animation-delay: 0.3s; /* Aparece logo após o modal abrir */
+}
+
+/* Camada de escuridão */
+.flashlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black; /* Fundo totalmente preto */
+    pointer-events: none; /* Permite clicar nos botões por baixo */
+    z-index: 10;
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.5s ease;
+    mix-blend-mode: multiply; /* Faz a luz interagir melhor com a cor */
+}
+
+/* Quando ativa, a lanterna aparece através de uma máscara */
+.flashlight-active {
+    opacity: 0.95;
+    background: radial-gradient(
+        circle 100px at var(--x) var(--y), 
+        transparent 10%, 
+        rgba(0,0,0,0.95) 100%
+    );
+}
+
 /* ==========================================================================
    8. FOOTER
    ========================================================================== */
@@ -416,16 +560,24 @@ footer h5::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.05);
+    /* Alteração aqui: usa um cinza leve no modo claro e as variáveis no modo escuro */
+    background: rgba(0, 0, 0, 0.05); 
     border-radius: 50%;
-    color: #fff;
+    color: var(--text-main); /* USA A COR DO TEXTO (Preto no claro, Branco no escuro) */
     margin-right: 10px;
     transition: 0.3s;
     text-decoration: none;
 }
 
+/* Ajuste específico para os ícones que estão dentro do FOOTER continuarem brancos */
+footer .social-icons a {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .social-icons a:hover {
     background: var(--primary-orange);
+    color: #fff !important; /* Sempre branco ao passar o mouse */
     transform: translateY(-3px);
 }
 
@@ -502,6 +654,16 @@ footer h5::after {
     .carousel-caption p {
         font-size: 1rem !important;
     }
+}
+
+/* Remove as setinhas padrão do input number */
+input#modal-qty::-webkit-outer-spin-button,
+input#modal-qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input#modal-qty {
+    -moz-appearance: textfield;
 }
 
 /* ==========================================================================
@@ -698,3 +860,47 @@ body.dark-mode .submenu li:hover {
 }
 
 
+/* Quando o body tiver a classe dark-mode */
+body.dark-mode .accordion-item {
+    background-color: #2b2b2b; /* Um cinza bem escuro */
+    border-color: #444;
+}
+
+body.dark-mode .accordion-button {
+    background-color: #2b2b2b;
+    color: #fff; /* Texto branco no botão */
+}
+
+/* Ajuste para o ícone e texto quando o accordion está aberto */
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #333;
+    color: #ffc107; /* Cor de destaque (amarelo/warning) */
+}
+
+/* Força o fundo escuro nos corpos que usam bg-light */
+body.dark-mode .accordion-body.bg-light {
+    background-color: #1a1a1a !important; 
+    color: #e0e0e0;
+}
+
+/* Ajuste para os cards de endereço e outras áreas de fundo claro */
+body.dark-mode .bg-light {
+    background-color: #2b2b2b !important;
+    color: #fff !important;
+}
+/* Garante que os cards de contato e o mapa fiquem com a borda sutil no modo escuro */
+body.dark-mode .bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border-color: #333 !important;
+}
+
+/* Ajusta os textos secundários (muted) para não sumirem no fundo escuro */
+body.dark-mode .text-muted {
+    color: #aaa !important;
+}
+
+/* Deixa o fundo do iframe do mapa mais integrado antes de carregar */
+body.dark-mode iframe {
+    filter: grayscale(20%) invert(5%) contrast(95%);
+}
