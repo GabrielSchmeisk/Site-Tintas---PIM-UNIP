@@ -802,10 +802,11 @@ if (isSpray) {
         configModal.show();
         renderizarSugestoes(product);
         
-        setTimeout(() => {
+        configModalEl.addEventListener('shown.bs.modal', () => {
             updatePreview();
             atualizarSubtotalModal();
-        }, 200);
+        }, { once: true });
+
     }
 }
 
