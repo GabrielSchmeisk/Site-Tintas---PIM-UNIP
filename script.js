@@ -1829,6 +1829,7 @@ function atualizarSubtotalModal() {
         style: 'currency',
         currency: 'BRL'
     });
+}
 
     console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${ajusteExtras}) = ${valorFinal}`);
 /* ==========================================================================
