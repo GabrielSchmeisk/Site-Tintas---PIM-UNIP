@@ -1789,9 +1789,12 @@ function calcularPrecoConfigurado() {
 function atualizarSubtotalModal() {
     if (!tempProduct) return;
 
-    // Detecta os elementos (compatível com os dois modais)
-    const selectSize = document.getElementById('selectSize') || document.getElementById('selectSizeOnly');
-    const display = document.getElementById('modalSubtotal') || document.getElementById('modalProductPriceOnly');
+    // Busca o select que está dentro do modal VISÍVEL no momento
+    const modalVisivel = document.querySelector('.modal.show');
+    if (!modalVisivel) return;
+
+    const selectSize = modalVisivel.querySelector('#selectSize, #selectSizeOnly');
+    const display = modalVisivel.querySelector('#modalSubtotal, #modalProductPriceOnly');
 
     if (!selectSize || !display) return;
 
@@ -1807,13 +1810,13 @@ function atualizarSubtotalModal() {
     let ajusteExtras = 0;
     
     // Cor
-    const radioCor = document.querySelector('input[name="color"]:checked');
+    const radioCor = modalVisivel.querySelector('input[name="color"]:checked');
     if (radioCor) {
         ajusteExtras += Number(radioCor.getAttribute('data-price-color')) || 0;
     }
 
     // Textura
-    const selectTex = document.getElementById('selectTexture');
+    const selectTex = modalVisivel.querySelector('#selectTexture');
     if (selectTex) {
         ajusteExtras += Number(selectTex.options[selectTex.selectedIndex].getAttribute('data-price-texture')) || 0;
     }
@@ -1828,7 +1831,6 @@ function atualizarSubtotalModal() {
     });
 
     console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${ajusteExtras}) = ${valorFinal}`);
-}
 /* ==========================================================================
    7. FAVORITOS E HISTÓRICO DE PEDIDOS
    ========================================================================== */
