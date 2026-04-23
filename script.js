@@ -1448,7 +1448,12 @@ function checkout() {
     }
 
     const nomeSalvo = localStorage.getItem('usuario_nome');
-    const enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
+    let enderecoObj = null;
+    try {
+        enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
+    } catch (e) {
+        enderecoObj = null;
+}
 
     if (!nomeSalvo) {
         showToast("Você precisa fazer login para finalizar.", "warning");
