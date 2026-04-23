@@ -2102,4 +2102,27 @@ function renderizarSugestoes(produtoAtual, containerId) {
     container.innerHTML = htmlGerado;
 }
 
+/* ==========================================================================
+   NAVBAR - ESCONDE NO SCROLL
+   ========================================================================== */
+
+let lastScrollY = window.scrollY;
+
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+
+    const currentScrollY = window.scrollY;
+
+    if (currentScrollY > lastScrollY && currentScrollY > 60) {
+        navbar.style.transform = 'translateY(-100%)';
+        navbar.style.transition = 'transform 0.3s ease';
+    } else {
+        navbar.style.transform = 'translateY(0)';
+        navbar.style.transition = 'transform 0.3s ease';
+    }
+
+    lastScrollY = currentScrollY;
+}, { passive: true });
+
 
