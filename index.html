@@ -42,6 +42,10 @@
 						<button class="btn btn-warning" type="submit"><i class="fas fa-search"></i></button>
 					</div>
 				</form>
+				
+				<div class="dark-mode-toggle" onclick="toggleDarkMode()">
+					<i class="fas fa-moon" id="dark-mode-icon"></i>
+				</div>
                 
                 <div class="d-flex align-items-center gap-2">
 					<button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -181,14 +185,27 @@
                 </div>
             </aside>
 
-            <main class="col-lg-9">
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                    <h3 id="category-title" class="fw-bold">Produtos em Oferta</h3>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="filterProducts('all')">Limpar Filtros</button>
-                </div>
-                <div class="row g-4" id="product-list">
-                    </div>
-            </main>
+			<main class="col-lg-9">
+				<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-3">
+					<h3 id="category-title" class="fw-bold mb-0">Todos os produtos</h3>
+					
+				<div class="d-flex align-items-center gap-2">
+							<select id="filterPrice" class="form-select form-select-sm shadow-none" style="width: auto; min-width: 160px;" onchange="filterByPrice(this.value)">
+								<option value="all">Todos os preços</option>
+								<option value="0-50">R$ 0,00 - R$ 50,00</option>
+								<option value="51-100">R$ 51,00 - R$ 100,00</option>
+								<option value="101-150">R$ 101,00 - R$ 150,00</option>
+								<option value="151-9999">Acima de R$ 150,00</option>
+							</select>
+
+							<button class="btn btn-sm btn-outline-secondary" onclick="filterProducts('all')">Limpar Filtros</button>
+						</button>
+					</div>
+				</div>
+
+				<div class="row g-4" id="product-list">
+					</div>
+			</main>
         </div>
     </div>
 	
@@ -386,16 +403,25 @@
 							<div class="form-text mt-1" style="font-size: 0.75rem;">
 								* O rendimento varia conforme o tamanho escolhido.
 							</div>
+						<hr class="my-4">
+						<h6 class="fw-bold mb-3"><i class="fas fa-magic me-2 text-warning"></i>Combine com estes itens:</h6>
+						<div id="sugestoes-container" class="row gx-2 gy-3">
+							</div>
 						</div>
                     </form>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary fw-bold" onclick="confirmAddToCart()">ADICIONAR AO CARRINHO</button>
-                </div>
+				<div class="modal-footer">
+					<button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
+						Confirmar todas
+					</button>
+					<button type="button" class="btn btn-primary" onclick="confirmAddToCart()">
+						Confirmar esta lata
+					</button>
+				</div>
             </div>
         </div>
     </div>
+	
 	
 	<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
 		<div id="itemAddedToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -571,6 +597,15 @@
         </div>
     </div>
 </div>
+
+	<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content" id="modal-content-details">
+				</div>
+		</div>
+	</div>
+	
+
 
 	<footer id="contato" class="text-white pt-5 pb-4">
 			<div class="container">
