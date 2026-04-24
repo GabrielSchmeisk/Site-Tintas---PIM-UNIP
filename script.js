@@ -1246,8 +1246,18 @@ let flashlightAngle = 0;
 function animateFlashlight(overlayId) {
     const overlay = document.getElementById(overlayId);
     if (!overlay || !overlay.classList.contains('flashlight-active')) return;
+
+    // SE estiver sendo tocado (mobile), pausa a animação automática
+    // pois o touchmove já cuida da posição
     if (overlay.dataset.touching === 'true') {
         flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
+        return;
+    }
+
+    // SÓ anima automaticamente em dispositivos touch (sem mouse)
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (!isTouchDevice) {
+        // No desktop o mouse já cuida disso — encerra o loop
         return;
     }
 
@@ -1256,9 +1266,9 @@ function animateFlashlight(overlayId) {
     const cy = parent.offsetHeight / 2;
     const radius = Math.min(cx, cy) * 0.6;
 
-    flashlightAngle += 0.012; // velocidade do movimento
+    flashlightAngle += 0.012;
     const x = cx + Math.cos(flashlightAngle) * radius;
-    const y = cy + Math.sin(flashlightAngle * 0.7) * radius; // elipse suave
+    const y = cy + Math.sin(flashlightAngle * 0.7) * radius;
 
     overlay.style.setProperty('--x', `${x}px`);
     overlay.style.setProperty('--y', `${y}px`);
@@ -1273,25 +1283,30 @@ function toggleFlashlight(type) {
 
     overlay.classList.toggle('flashlight-active');
     const isActive = overlay.classList.contains('flashlight-active');
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
     if (isActive) {
-        // Toque — pausa a animação
-        overlay.parentElement.addEventListener('touchstart', () => {
-            overlay.dataset.touching = 'true';
-        }, { passive: true });
+        if (isTouchDevice) {
+            // MOBILE: eventos de toque para mover + animação automática quando parado
+            overlay.parentElement.addEventListener('touchstart', () => {
+                overlay.dataset.touching = 'true';
+            }, { passive: true });
 
-        overlay.parentElement.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const rect = overlay.parentElement.getBoundingClientRect();
-            overlay.style.setProperty('--x', `${touch.clientX - rect.left}px`);
-            overlay.style.setProperty('--y', `${touch.clientY - rect.top}px`);
-        }, { passive: true });
+            overlay.parentElement.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const rect = overlay.parentElement.getBoundingClientRect();
+                overlay.style.setProperty('--x', `${touch.clientX - rect.left}px`);
+                overlay.style.setProperty('--y', `${touch.clientY - rect.top}px`);
+            }, { passive: true });
 
-        overlay.parentElement.addEventListener('touchend', () => {
-            overlay.dataset.touching = 'false';
-        }, { passive: true });
+            overlay.parentElement.addEventListener('touchend', () => {
+                overlay.dataset.touching = 'false';
+            }, { passive: true });
 
-        animateFlashlight(id); // inicia o loop
+            // Inicia animação automática só no mobile
+            animateFlashlight(id);
+        }
+        // No desktop o mousemove global já cuida da posição — não precisa fazer nada aqui
     } else {
         cancelAnimationFrame(flashlightAnimFrame);
     }
