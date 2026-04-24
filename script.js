@@ -901,11 +901,13 @@ function updatePreview() {
     const texture   = textureSelect.value;
 
     // --- CAMADA DE TINTA (product-preview) ---
-    const modoFoto = fotoParede &&
-        document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
-
-    previewBox.style.backgroundColor  = colorHex;
-    previewBox.style.opacity           = modoFoto ? '0.55' : '1';
+	const modoFoto = fotoParede &&
+	document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
+	
+	previewBox.style.backgroundColor = colorHex;
+	// Modo foto: mais transparente (55%) para ver a parede real
+	// Modo simulado: levemente transparente (82%) para dar sensação de tinta
+	previewBox.style.opacity = modoFoto ? '0.55' : '0.82';
     previewBox.style.filter            = 'none';
     previewBox.style.backgroundImage   = 'none';   // tinta não tem textura de parede
     previewBox.style.backgroundSize    = 'auto';
