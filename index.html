@@ -255,6 +255,11 @@
                     <span class="h5 mb-0">Total:</span>
                     <span class="h4 text-primary fw-bold mb-0" id="cart-total">R$ 0,00</span>
                 </div>
+				
+				<button class="btn btn-outline-primary btn-sm w-100 mt-2" 
+						onclick="gerarListaMateriais()">
+					<i class="fas fa-clipboard-list me-1"></i> Ver Lista de Materiais
+				</button>
                 
                 <button class="btn btn-warning w-100 py-3 fw-bold shadow-sm" onclick="checkout()">
                     FINALIZAR COMPRA
@@ -356,6 +361,37 @@
 			</div>
 		</div>
 	</div>
+
+
+	<!-- MODAL LOGIN -->
+		
+	<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Acesse sua Conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nome Completo</label>
+                            <input type="text" id="loginNome" class="form-control" placeholder="Seu nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">E-mail</label>
+                            <input type="email" id="loginEmail" class="form-control" placeholder="exemplo@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Senha</label>
+                            <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Entrar na Conta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 	
 	<!-- MODAL CONFIGURAÇÃO TINTA -->
 	
@@ -411,6 +447,20 @@
                         </div>
                     </div>
                 </div>
+				
+				<div class="mb-2 text-center">
+					<label class="btn btn-sm btn-outline-secondary w-100">
+						<i class="fas fa-camera me-1"></i> Usar minha parede (INCOMPLETO)
+						<input type="file" id="uploadWall" accept="image/*" capture="environment" hidden 
+							   onchange="aplicarFotoParede(this)">
+					</label>
+					<button class="btn btn-sm btn-outline-danger w-100 mt-1 d-none" 
+							id="btnRemoverFoto" onclick="removerFotoParede()">
+						<i class="fas fa-times me-1"></i> Remover foto
+					</button>
+				</div>
+				
+
 
                 <form id="productConfigForm">
                     <div class="mb-3">
@@ -501,9 +551,8 @@
                     <span class="text-muted small">Subtotal do item:</span>
                     <span class="h5 mb-0 text-primary" id="modalSubtotal">R$ 0,00</span>
                 </div>
-
             </div>
-
+			
             <div class="modal-footer">
                 <button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
                     Confirmar todas
@@ -620,35 +669,6 @@
 		</div>
 	</div>
 	
-	<!-- MODAL LOGIN -->
-		
-	<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Acesse sua Conta</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Nome Completo</label>
-                            <input type="text" id="loginNome" class="form-control" placeholder="Seu nome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">E-mail</label>
-                            <input type="email" id="loginEmail" class="form-control" placeholder="exemplo@email.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Senha</label>
-                            <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Entrar na Conta</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 	
 		<!-- MODAL TAMANHOS -->
 	
