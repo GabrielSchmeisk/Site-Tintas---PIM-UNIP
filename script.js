@@ -795,6 +795,11 @@ if (isSpray) {
         if (previewContainer) {
             previewContainer.style.display = subsComParede.includes(product.sub) ? 'block' : 'none';
         }
+		
+		fotoParede = null;
+		selecionarModoParede('simulada');
+		document.getElementById('btnTabSimulada')?.classList.replace('btn-outline-secondary','btn-primary');
+		document.getElementById('btnTabMinhaParede')?.classList.replace('btn-primary','btn-outline-secondary');
 
         configModal.show();
         renderizarSugestoes(product);
@@ -895,7 +900,18 @@ function updatePreview() {
     const texture = textureSelect.value;
     
     // 2. PARTE VISUAL (TINTA E PAREDE)
+    const modoFoto = fotoParede && 
+    document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
+
+	if (modoFoto) {
+    // Modo foto: tinta com 55% de opacidade para parecer pintada
     previewBox.style.backgroundColor = colorHex;
+    previewBox.style.opacity = '0.55';
+	} else {
+    // Modo normal: tinta totalmente opaca
+    previewBox.style.backgroundColor = colorHex;
+    previewBox.style.opacity = '1';
+	}
     previewBox.style.filter = "none";
     previewBox.style.backgroundSize = "auto";
     previewBox.style.backgroundPosition = "0 0";
@@ -2166,49 +2182,99 @@ window.addEventListener('scroll', () => {
    ========================================================================== */
 
 
+// Estado global da foto
+let fotoParede = null; // guarda o dataURL da foto
+
+function selecionarModoParede(modo) {
+    const btnSim = document.getElementById('btnTabSimulada');
+    const btnFoto = document.getElementById('btnTabMinhaParede');
+    const painelSim = document.getElementById('painelSimulada');
+    const painelFoto = document.getElementById('painelMinhaParede');
+    const navBtns = document.querySelectorAll('.btn-nav-wall');
+    const wallLabel = document.getElementById('wall-type-label');
+
+    if (modo === 'foto') {
+        btnSim.classList.replace('btn-primary', 'btn-outline-secondary');
+        btnFoto.classList.replace('btn-outline-secondary', 'btn-primary');
+        painelSim.classList.add('d-none');
+        painelFoto.classList.remove('d-none');
+        navBtns.forEach(b => b.style.display = 'none');
+        if (wallLabel) wallLabel.innerText = 'Sua Parede';
+        
+        // Se já tem foto carregada, aplica
+        if (fotoParede) aplicarFundoFoto();
+
+    } else {
+        btnFoto.classList.replace('btn-primary', 'btn-outline-secondary');
+        btnSim.classList.replace('btn-outline-secondary', 'btn-primary');
+        painelFoto.classList.add('d-none');
+        painelSim.classList.remove('d-none');
+        navBtns.forEach(b => b.style.display = '');
+        
+        // Volta para a parede simulada
+        const wallLayer = document.getElementById('preview-wall-layer');
+        if (wallLayer) {
+            wallLayer.style.backgroundImage = 'none';
+            wallLayer.style.backgroundColor = '#eee';
+        }
+        if (wallLabel) wallLabel.innerText = wallTypes[currentWallIndex].name;
+        updatePreview();
+    }
+}
+
 function aplicarFotoParede(input) {
     const file = input.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        const previewBox = document.getElementById('product-preview') 
-                        || document.getElementById('product-preview-spray');
-        if (!previewBox) return;
+        fotoParede = e.target.result;
+        aplicarFundoFoto();
 
-        // Salva o estilo original para poder restaurar
-        previewBox.dataset.originalBg = previewBox.style.backgroundColor;
-
-        // Aplica a foto como fundo
-        previewBox.style.backgroundImage = `url('${e.target.result}')`;
-        previewBox.style.backgroundSize = 'cover';
-        previewBox.style.backgroundPosition = 'center';
-
-        // Sobrepõe a cor da tinta com transparência (~50%)
-        const corAtual = previewBox.style.backgroundColor;
-        if (corAtual) {
-            previewBox.style.boxShadow = `inset 0 0 0 9999px ${corAtual}80`;
+        // Mostra thumbnail
+        const thumb = document.getElementById('thumbMinhaParede');
+        const imgThumb = document.getElementById('imgThumbParede');
+        if (thumb && imgThumb) {
+            imgThumb.src = fotoParede;
+            thumb.classList.remove('d-none');
         }
 
         document.getElementById('btnRemoverFoto')?.classList.remove('d-none');
-        showToast("Foto da parede aplicada! Selecione uma cor para visualizar.", "success");
+        showToast("Foto carregada! Selecione uma cor para ver na sua parede.", "success");
     };
     reader.readAsDataURL(file);
 }
 
-function removerFotoParede() {
-    const previewBox = document.getElementById('product-preview') 
-                    || document.getElementById('product-preview-spray');
-    if (!previewBox) return;
+function aplicarFundoFoto() {
+    const wallLayer = document.getElementById('preview-wall-layer');
+    if (!wallLayer || !fotoParede) return;
 
-    previewBox.style.backgroundImage = 'none';
-    previewBox.style.boxShadow = 'inset 0 0 50px rgba(0,0,0,0.1)';
-    previewBox.style.backgroundColor = previewBox.dataset.originalBg || '#ffffff';
+    wallLayer.style.backgroundImage = `url('${fotoParede}')`;
+    wallLayer.style.backgroundSize = 'cover';
+    wallLayer.style.backgroundPosition = 'center';
+    wallLayer.style.backgroundColor = 'transparent';
+
+    // Atualiza a camada de tinta por cima
+    updatePreview();
+}
+
+function removerFotoParede() {
+    fotoParede = null;
+
+    const wallLayer = document.getElementById('preview-wall-layer');
+    if (wallLayer) {
+        wallLayer.style.backgroundImage = 'none';
+        wallLayer.style.backgroundColor = '#eee';
+    }
 
     document.getElementById('btnRemoverFoto')?.classList.add('d-none');
-    document.getElementById('uploadWall').value = '';
+    document.getElementById('thumbMinhaParede')?.classList.add('d-none');
+    
+    const uploadInput = document.getElementById('uploadWall');
+    if (uploadInput) uploadInput.value = '';
 
-    updatePreview(); // Restaura o estado normal
+    // Volta para modo simulado
+    selecionarModoParede('simulada');
 }
 
 
