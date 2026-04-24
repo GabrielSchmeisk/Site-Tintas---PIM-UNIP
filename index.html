@@ -401,9 +401,9 @@
 
             <div class="modal-body">
 
-                <div id="preview-container" class="text-center mb-4" style="perspective: 1000px; padding: 10px;">
+                <div id="preview-container" class="text-center mb-3" style="perspective: 1000px; padding: 10px;">
                     <label class="form-label fw-bold small text-uppercase d-block mb-3">Simulação de Superfície:</label>
-                    
+
                     <div class="position-relative d-inline-block w-100">
                         <button type="button" class="btn-nav-wall left" onclick="changeWall(-1)">
                             <i class="fas fa-chevron-left"></i>
@@ -412,15 +412,30 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
 
-                        <div id="product-preview" style="
+                        <!-- CAMADA EXTERNA: aplica a perspectiva 3D e a sombra -->
+                        <div id="preview-wall-layer" style="
                             width: 100%; height: 180px; border-radius: 4px;
                             transform: rotateY(-8deg) rotateX(2deg);
                             box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
-                            display: flex; align-items: center; justify-content: center;
-                            transition: all 0.4s ease; position: relative; overflow: hidden;
-                            background-color: #eee;">
+                            position: relative; overflow: hidden;
+                            background-color: #eee;
+                            transition: background-image 0.4s ease;">
+
+                            <!-- CAMADA DA TINTA: fica por cima da foto/parede -->
+                            <div id="product-preview" style="
+                                position: absolute; inset: 0;
+                                border-radius: 4px;
+                                opacity: 1;
+                                transition: background-color 0.3s ease, opacity 0.3s ease;">
+                            </div>
+
                             <div id="flashlight-normal" class="flashlight-overlay"></div>
-                            <span id="preview-text" class="fw-bold px-3" style="z-index: 5;">
+
+                            <span id="preview-text" class="fw-bold px-3" style="
+                                position: absolute; inset: 0;
+                                display: flex; align-items: center; justify-content: center;
+                                z-index: 5; color: white;
+                                text-shadow: 0 1px 4px rgba(0,0,0,0.7);">
                                 Selecione as opções
                             </span>
                         </div>
@@ -436,24 +451,70 @@
                         </div>
 
                         <div class="text-center mt-2">
-                            <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleFlashlight('normal')" style="font-size: 0.7rem; border-radius: 20px;">
+                            <button type="button" class="btn btn-xs btn-outline-secondary"
+                                    onclick="toggleFlashlight('normal')"
+                                    style="font-size: 0.7rem; border-radius: 20px;">
                                 <i class="fas fa-lightbulb"></i> Testar no Escuro
                             </button>
                         </div>
                     </div>
-                </div>
 
-				<div class="mb-2 text-center">
-				    <label class="btn btn-sm btn-outline-secondary w-100">
-				        <i class="fas fa-camera me-1"></i> Usar minha parede
-				        <input type="file" id="uploadWall" accept="image/*" capture="environment" hidden 
-				               onchange="aplicarFotoParede(this)">
-				    </label>
-				    <button class="btn btn-sm btn-outline-danger w-100 mt-1 d-none" 
-				            id="btnRemoverFoto" onclick="removerFotoParede()">
-				        <i class="fas fa-times me-1"></i> Remover foto
-				    </button>
-				</div>
+                    <!-- ABAS: Parede Simulada | Minha Parede -->
+                    <div class="d-flex rounded overflow-hidden border mt-3" style="font-size: 0.8rem;">
+                        <button id="btnTabSimulada"
+                                onclick="selecionarModoParede('simulada')"
+                                class="btn btn-primary flex-fill py-1 fw-bold rounded-0">
+                            <i class="fas fa-paint-roller me-1"></i> Parede Simulada
+                        </button>
+                        <button id="btnTabMinhaParede"
+                                onclick="selecionarModoParede('foto')"
+                                class="btn btn-outline-secondary flex-fill py-1 fw-bold rounded-0">
+                            <i class="fas fa-camera me-1"></i> Minha Parede
+                        </button>
+                    </div>
+
+                    <!-- PAINEL: Parede Simulada -->
+                    <div id="painelSimulada" class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-arrows-alt-h me-1"></i>
+                            Use as setas para trocar o tipo de superfície.
+                        </small>
+                    </div>
+
+                    <!-- PAINEL: Minha Parede -->
+                    <div id="painelMinhaParede" class="d-none mt-2">
+
+                        <label class="btn btn-sm btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-upload me-1"></i> Carregar foto da minha parede
+                            <input type="file" id="uploadWall" accept="image/*"
+                                   capture="environment" hidden
+                                   onchange="aplicarFotoParede(this)">
+                        </label>
+
+                        <!-- Thumbnail da foto carregada -->
+                        <div id="thumbMinhaParede" class="d-none text-center mb-2">
+                            <img id="imgThumbParede" src="" alt="Sua parede"
+                                 class="rounded shadow-sm"
+                                 style="max-height: 60px; max-width: 100%;
+                                        object-fit: cover; border: 2px solid #0d6efd;">
+                            <div class="small text-success fw-bold mt-1">
+                                <i class="fas fa-check-circle me-1"></i>Foto carregada!
+                            </div>
+                        </div>
+
+                        <button class="btn btn-sm btn-outline-danger w-100 d-none"
+                                id="btnRemoverFoto" onclick="removerFotoParede()">
+                            <i class="fas fa-times me-1"></i> Remover foto
+                        </button>
+
+                        <div class="alert alert-info py-1 px-2 mt-2 mb-0 text-start"
+                             style="font-size: 0.72rem;">
+                            <i class="fas fa-magic me-1"></i>
+                            Selecione uma cor ao lado e veja como ficará
+                            <strong>pintada na sua parede</strong>.
+                        </div>
+                    </div>
+                </div>
 
                 <form id="productConfigForm">
                     <div class="mb-3">
@@ -537,7 +598,6 @@
                         <i class="fas fa-magic me-2 text-warning"></i>Combine com estes itens:
                     </h6>
                     <div id="sugestoes-container" class="row gx-2 gy-3"></div>
-
                 </form>
 
                 <div class="d-flex justify-content-between align-items-center mt-3 p-2 bg-light rounded">
@@ -548,7 +608,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
+                <button type="button" id="btnApplyToAll" class="btn btn-outline-primary"
+                        onclick="applyConfigToAll()" style="display:none;">
                     Confirmar todas
                 </button>
                 <button type="button" class="btn btn-primary" onclick="confirmAddToCart()">
