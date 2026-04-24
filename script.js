@@ -778,6 +778,11 @@ if (isSpray) {
         let total = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
         const atual = (total - pending) + 1;
 
+		const btnApplyAll = document.getElementById('btnApplyToAll');
+    	if (btnApplyAll) {
+        btnApplyAll.style.display = total > 1 ? 'block' : 'none';
+    }
+
         const labelEl = document.getElementById('productConfigModalLabel');
         if (labelEl) {
             labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
@@ -1712,6 +1717,9 @@ function processarFilaConfiguracao(modalEl) {
 						// Acabou? Limpa tudo
 						sessionStorage.removeItem('pending_configs');
 						sessionStorage.removeItem('total_to_configure');
+
+    					const btnApplyAll = document.getElementById('btnApplyToAll');
+					    if (btnApplyAll) btnApplyAll.style.display = 'none';
 						
 						document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 						document.body.classList.remove('modal-open');
