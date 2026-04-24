@@ -443,6 +443,18 @@
                     </div>
                 </div>
 
+				<div class="mb-2 text-center">
+				    <label class="btn btn-sm btn-outline-secondary w-100">
+				        <i class="fas fa-camera me-1"></i> Usar minha parede
+				        <input type="file" id="uploadWall" accept="image/*" capture="environment" hidden 
+				               onchange="aplicarFotoParede(this)">
+				    </label>
+				    <button class="btn btn-sm btn-outline-danger w-100 mt-1 d-none" 
+				            id="btnRemoverFoto" onclick="removerFotoParede()">
+				        <i class="fas fa-times me-1"></i> Remover foto
+				    </button>
+				</div>
+
                 <form id="productConfigForm">
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-uppercase">Selecione a Cor:</label>
