@@ -887,102 +887,85 @@ function updatePreview() {
     const selectedColorInput = document.querySelector('input[name="color"]:checked');
     const textureSelect = document.getElementById('selectTexture');
     const sizeSelect = document.getElementById('selectSize'); 
-    const previewBox = document.getElementById('product-preview');
+    const previewBox = document.getElementById('product-preview');       // camada da TINTA
+    const wallLayer  = document.getElementById('preview-wall-layer');    // camada do FUNDO
     const previewText = document.getElementById('preview-text');
     const wallLabel = document.getElementById('wall-type-label');
     const modalPriceElement = document.getElementById('modalProductPrice');
 
     if (!selectedColorInput || !previewBox || !textureSelect || !tempProduct) return;
 
-    // 1. CAPTURA DOS VALORES SELECIONADOS
-    const colorHex = selectedColorInput.nextElementSibling.style.backgroundColor || selectedColorInput.nextElementSibling.style.background;
+    const colorHex  = selectedColorInput.nextElementSibling.style.backgroundColor 
+                   || selectedColorInput.nextElementSibling.style.background;
     const colorName = selectedColorInput.value;
-    const texture = textureSelect.value;
-    
-    // 2. PARTE VISUAL (TINTA E PAREDE)
-    const modoFoto = fotoParede && 
-    document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
+    const texture   = textureSelect.value;
 
-	if (modoFoto) {
-    // Modo foto: tinta com 55% de opacidade para parecer pintada
-    previewBox.style.backgroundColor = colorHex;
-    previewBox.style.opacity = '0.55';
-	} else {
-    // Modo normal: tinta totalmente opaca
-    previewBox.style.backgroundColor = colorHex;
-    previewBox.style.opacity = '1';
-	}
-    previewBox.style.filter = "none";
-    previewBox.style.backgroundSize = "auto";
-    previewBox.style.backgroundPosition = "0 0";
-    previewBox.style.animation = "none";
-    previewBox.style.boxShadow = "inset 0 0 50px rgba(0,0,0,0.1)"; 
+    // --- CAMADA DE TINTA (product-preview) ---
+    const modoFoto = fotoParede &&
+        document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
 
-    const currentWall = wallTypes[currentWallIndex];
-    if (wallLabel) wallLabel.innerText = currentWall.name;
-    currentWall.apply(previewBox);
-    
-    const baseWallTexture = previewBox.style.backgroundImage;
+    previewBox.style.backgroundColor  = colorHex;
+    previewBox.style.opacity           = modoFoto ? '0.55' : '1';
+    previewBox.style.filter            = 'none';
+    previewBox.style.backgroundImage   = 'none';   // tinta não tem textura de parede
+    previewBox.style.backgroundSize    = 'auto';
+    previewBox.style.backgroundPosition = '0 0';
+    previewBox.style.boxShadow         = 'inset 0 0 50px rgba(0,0,0,0.1)';
 
-    // Aplicação dos efeitos visuais de acabamento
-    switch(texture) {
-        case "Fosco":
-            previewBox.style.filter = "saturate(0.9) brightness(0.95)";
+    // --- CAMADA DE FUNDO (preview-wall-layer) — textura da parede ---
+    if (!modoFoto && wallLayer) {
+        // Reseta antes de aplicar
+        wallLayer.style.backgroundImage   = 'none';
+        wallLayer.style.backgroundSize    = 'auto';
+        wallLayer.style.backgroundPosition = '0 0';
+        wallLayer.style.filter             = 'none';
+        // Aplica a textura no layer de fundo
+        wallTypes[currentWallIndex].apply(wallLayer);
+    }
+
+    if (wallLabel) wallLabel.innerText = wallTypes[currentWallIndex].name;
+
+    // --- EFEITOS DE ACABAMENTO (aplicados na camada de tinta) ---
+    switch (texture) {
+        case 'Fosco':
+            previewBox.style.filter = 'saturate(0.9) brightness(0.95)';
             break;
-        case "Acetinado":
-            previewBox.style.boxShadow = "inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)";
+        case 'Acetinado':
+            previewBox.style.boxShadow = 'inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)';
             break;
-        case "Semibrilho":
-            previewBox.style.boxShadow = "inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)";
-            previewBox.style.filter = "brightness(1.05)";
+        case 'Semibrilho':
+            previewBox.style.boxShadow = 'inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)';
+            previewBox.style.filter = 'brightness(1.05)';
             break;
-        case "Cimento Queimado":
-            const cimento = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
-            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${cimento}, ${baseWallTexture}` : cimento;
-            previewBox.style.filter = "contrast(1.2) grayscale(0.1)";
+        case 'Cimento Queimado':
+            previewBox.style.backgroundImage = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%), 
+                                                radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
+            previewBox.style.filter = 'contrast(1.2) grayscale(0.1)';
             break;
-        case "Metalizado":
-            const metal = `linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`;
-            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${metal}, ${baseWallTexture}` : metal;
-            previewBox.style.filter = "contrast(1.1) brightness(1.1) saturate(1.2)";
+        case 'Metalizado':
+            previewBox.style.backgroundImage = `linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`;
+            previewBox.style.filter = 'contrast(1.1) brightness(1.1) saturate(1.2)';
             break;
     }
 
-    previewText.innerText = `${colorName} - ${texture}`;
+    if (previewText) previewText.innerText = `${colorName} - ${texture}`;
 
-    // 3. LÓGICA DE CÁLCULO DE PREÇO AGREGADO
-    
-    const basePrice = Number(tempProduct.price) || 0;
-    
-    // Adicional da Cor (data-price-color)
-    const colorExtra = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
-
-    // Adicional da Textura (data-price-texture)
-    const textureOption = textureSelect.options[textureSelect.selectedIndex];
-    const textureExtra = Number(textureOption.getAttribute('data-price-texture')) || 0;
-
-    // Adicional do Tamanho/Lata (data-price-add)
-    let sizeExtra = 0;
+    // --- PREÇO ---
+    const basePrice    = Number(tempProduct.price) || 0;
+    const colorExtra   = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
+    const textureExtra = Number(textureSelect.options[textureSelect.selectedIndex].getAttribute('data-price-texture')) || 0;
+    let   sizeExtra    = 0;
     if (sizeSelect) {
-        const sizeOption = sizeSelect.options[sizeSelect.selectedIndex];
-        sizeExtra = Number(sizeOption.getAttribute('data-price-add')) || 0;
+        sizeExtra = Number(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-price-add')) || 0;
     }
-
-    // Soma Total Final
     const totalPrice = basePrice + colorExtra + textureExtra + sizeExtra;
 
-    // 4. ATUALIZAÇÃO DA INTERFACE E OBJETO
-    if (modalPriceElement) {
-        modalPriceElement.innerText = `R$ ${totalPrice.toFixed(2)}`;
-    }
+    if (modalPriceElement) modalPriceElement.innerText = `R$ ${totalPrice.toFixed(2)}`;
 
-    // Salva o preço calculado para o carrinho usar
     tempProduct.currentCalculatedPrice = totalPrice;
-    
-    // Salva as escolhas atuais para o carrinho
-    tempProduct.selectedColorName = colorName;
-    tempProduct.selectedTextureName = texture;
-    tempProduct.selectedSizeName = sizeSelect ? sizeSelect.value : "Padrão";
+    tempProduct.selectedColorName      = colorName;
+    tempProduct.selectedTextureName    = texture;
+    tempProduct.selectedSizeName       = sizeSelect ? sizeSelect.value : 'Padrão';
 }
 
 function changeWall(direction) {
