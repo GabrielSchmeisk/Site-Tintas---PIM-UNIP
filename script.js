@@ -1355,15 +1355,77 @@ function addToCartSimple(id, quantity = 1) {
    ========================================================================== */
 
 // 1. Esvaziar todo o carrinho
-function clearCart() {
+async function clearCart() {
     if (cart.length === 0) return;
 
-    if (confirm("Tem certeza que deseja esvaziar todo o seu carrinho?")) {
+    // Criamos uma Promise internamente para aguardar a ação do usuário
+    const userConfirmed = await new Promise((resolve) => {
+        // 1. Cria o fundo escuro (Overlay)
+        const overlay = document.createElement('div');
+        Object.assign(overlay.style, {
+            position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', zIndex: '9999'
+        });
+
+        // 2. Cria a caixa do modal
+        const modal = document.createElement('div');
+        Object.assign(modal.style, {
+            backgroundColor: '#fff', padding: '24px', borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)', textAlign: 'center',
+            fontFamily: 'sans-serif', minWidth: '300px'
+        });
+
+        // 3. Cria a mensagem de texto
+        const message = document.createElement('p');
+        message.innerText = "Tem certeza que deseja esvaziar todo o seu carrinho?";
+        message.style.margin = '0 0 20px 0';
+        modal.appendChild(message);
+
+        // 4. Cria o container dos botões
+        const btnContainer = document.createElement('div');
+        btnContainer.style.display = 'flex';
+        btnContainer.style.justifyContent = 'space-between';
+        btnContainer.style.gap = '10px';
+
+        // 5. Cria o botão de Cancelar
+        const btnCancel = document.createElement('button');
+        btnCancel.innerText = "Cancelar";
+        Object.assign(btnCancel.style, {
+            padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px',
+            backgroundColor: '#fff', cursor: 'pointer', flex: '1'
+        });
+        btnCancel.onclick = () => {
+            document.body.removeChild(overlay); // Remove o modal da tela
+            resolve(false); // Retorna falso para a Promise
+        };
+
+        // 6. Cria o botão de Confirmar
+        const btnConfirm = document.createElement('button');
+        btnConfirm.innerText = "Sim, esvaziar";
+        Object.assign(btnConfirm.style, {
+            padding: '8px 16px', border: 'none', borderRadius: '4px',
+            backgroundColor: '#d9534f', color: 'white', cursor: 'pointer', flex: '1'
+        });
+        btnConfirm.onclick = () => {
+            document.body.removeChild(overlay); // Remove o modal da tela
+            resolve(true); // Retorna verdadeiro para a Promise
+        };
+
+        // 7. Monta a estrutura e adiciona à tela
+        btnContainer.appendChild(btnCancel);
+        btnContainer.appendChild(btnConfirm);
+        modal.appendChild(btnContainer);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    });
+
+    // 8. Executa a lógica original baseada na resposta
+    if (userConfirmed) {
         cart = []; // Limpa o array global
         save();    // Atualiza o localStorage
         updateCartUI(); // Atualiza a interface
         
-        // Opcional: Feedback visual
         console.log("Carrinho vazio");
     }
 }
