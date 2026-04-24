@@ -178,6 +178,8 @@
 		</div>
 	</main>
 	
+	<!-- MODAL MINHA CONTA -->
+	
 	<div class="modal fade" id="minhaContaModal" tabindex="-1">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content border-0 rounded-4">
@@ -234,11 +236,25 @@
 						<div class="p-3 bg-light rounded-3 mb-3 border">
 							<h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
 							<div class="row g-2">
-								<div class="col-8"><input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro"></div>
-								<div class="col-4"><input type="text" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123"></div>
-								<div class="col-12"><input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento"></div>
-								<div class="col-6"><input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro"></div>
-								<div class="col-6"><input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade"></div>
+								<div class="col-8">
+									<input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro" required>
+								</div>
+
+								<div class="col-4">
+									<input type="number" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+								</div>
+
+								<div class="col-12">
+									<input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento">
+								</div>
+
+								<div class="col-6">
+									<input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro" required>
+								</div>
+
+								<div class="col-6">
+									<input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade" required>
+								</div>
 							</div>
 							<button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
 						</div>
@@ -252,6 +268,37 @@
 			</div>
 		</div>
 	</div>
+
+
+	<!-- MODAL LOGIN -->
+		
+	<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Acesse sua Conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nome Completo</label>
+                            <input type="text" id="loginNome" class="form-control" placeholder="Seu nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">E-mail</label>
+                            <input type="email" id="loginEmail" class="form-control" placeholder="exemplo@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Senha</label>
+                            <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Entrar na Conta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 	
 	<a href="https://wa.me/551600000000" 
 	   target="_blank" 
