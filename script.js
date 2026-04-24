@@ -53,6 +53,7 @@ let tempProduct = null;
 let currentWallIndex = 0;
 let flashlightAnimFrame = null;
 let flashlightAngle = 0;
+let userWallImage = null;
 
 
 const wallTypes = [
@@ -109,7 +110,39 @@ const wallTypes = [
             `;
             box.style.backgroundSize = "auto";
         }
+    },
+// ADICIONAR como última entrada do array wallTypes, antes do fechamento "];"
+{
+    name: 'Sua Parede',
+    isPhotoWall: true,          // flag usada por updatePreview e changeWall
+    apply: (box) => {
+        if (userWallImage) {
+            box.style.backgroundImage = `url('${userWallImage}')`;
+            box.style.backgroundSize  = 'cover';
+            box.style.backgroundPosition = 'center';
+            box.classList.remove('aguardando-foto');
+            
+            // Remove hint de upload se existir
+            document.getElementById('preview-upload-hint')?.remove();
+        } else {
+            // Sem foto: exibe estado visual de "aguardando"
+            box.style.backgroundImage = 'none';
+            box.classList.add('aguardando-foto');
+            
+            // Insere hint se ainda não existir
+            if (!document.getElementById('preview-upload-hint')) {
+                const hint = document.createElement('div');
+                hint.id = 'preview-upload-hint';
+                hint.innerHTML = `
+                    <i class="fas fa-image"></i>
+                    <span>ENVIE UMA FOTO DA SUA PAREDE</span>
+                `;
+                box.appendChild(hint);
+            }
+        }
     }
+}	
+
 ];
 
 // utils.js
@@ -133,7 +166,7 @@ function isProdutoAcessorio(product) {
 }
 
 /* ==========================================================================
-   2. NORMALIZAR TEXTO
+   NORMALIZAR TEXTO
    ========================================================================== */
 
 function normalizarTexto(texto) {
@@ -238,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 /* ==========================================================================
-   3. SISTEMA DE USUÁRIO (LOGIN, LOGOUT, PERSISTÊNCIA)
+   SISTEMA DE USUÁRIO (LOGIN, LOGOUT, PERSISTÊNCIA)
    ========================================================================== */
 function checkLoginPersistence() {
     const nomeCompleto = localStorage.getItem('usuario_nome');
@@ -334,7 +367,7 @@ function loadAddressFields() {
 }
 
 /* ==========================================================================
-   4. VITRINE E FILTRAGEM DE PRODUTOS
+   VITRINE E FILTRAGEM DE PRODUTOS
    ========================================================================== */
 function renderProducts(items) {
     const container = document.getElementById('product-list');
@@ -558,7 +591,6 @@ function showProductDetails(id) {
     const myModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
     myModal.show();
 	
-    if (typeof renderizarSugestoes === "function") renderizarSugestoes(product); 
 
 	modalElement.addEventListener('hidden.bs.modal', () => {
         const urlOriginal = window.location.protocol + "//" + window.location.host + window.location.pathname;
@@ -709,7 +741,7 @@ function filterByPrice(value) {
 
 
 /* ==========================================================================
-   5. CONFIGURAÇÃO DE PRODUTO E PREVIEW
+   CONFIGURAÇÃO DE PRODUTO E PREVIEW
    ========================================================================== */
 function openConfigModal(id) {
     const product = products.find(p => p.id == id);
@@ -801,7 +833,9 @@ if (isSpray) {
         }
 
         configModal.show();
-        renderizarSugestoes(product);
+		atualizarBotaoUploadParede(); // ← ADICIONAR ESTA LINHA
+
+		renderizarSugestoes(product, 'sugestoes-container'); // ver Tarefa 3
         
         configModalEl.addEventListener('shown.bs.modal', () => {
             updatePreview();
@@ -884,109 +918,174 @@ function confirmAddToCartSizeOnly() {
 
 function updatePreview() {
     const selectedColorInput = document.querySelector('input[name="color"]:checked');
-    const textureSelect = document.getElementById('selectTexture');
-    const sizeSelect = document.getElementById('selectSize'); 
-    const previewBox = document.getElementById('product-preview');
-    const previewText = document.getElementById('preview-text');
-    const wallLabel = document.getElementById('wall-type-label');
-    const modalPriceElement = document.getElementById('modalProductPrice');
+    const textureSelect      = document.getElementById('selectTexture');
+    const sizeSelect         = document.getElementById('selectSize');
+    const previewBox         = document.getElementById('product-preview');
+    const previewText        = document.getElementById('preview-text');
+    const wallLabel          = document.getElementById('wall-type-label');
+    const photoOverlay       = document.getElementById('photo-color-overlay');
+    const modalPriceElement  = document.getElementById('modalProductPrice');
 
     if (!selectedColorInput || !previewBox || !textureSelect || !tempProduct) return;
 
     // 1. CAPTURA DOS VALORES SELECIONADOS
-    const colorHex = selectedColorInput.nextElementSibling.style.backgroundColor || selectedColorInput.nextElementSibling.style.background;
+    const colorHex  = selectedColorInput.nextElementSibling.style.backgroundColor
+                   || selectedColorInput.nextElementSibling.style.background;
     const colorName = selectedColorInput.value;
-    const texture = textureSelect.value;
-    
-    // 2. PARTE VISUAL (TINTA E PAREDE)
-    previewBox.style.backgroundColor = colorHex;
-    previewBox.style.filter = "none";
-    previewBox.style.backgroundSize = "auto";
-    previewBox.style.backgroundPosition = "0 0";
-    previewBox.style.animation = "none";
-    previewBox.style.boxShadow = "inset 0 0 50px rgba(0,0,0,0.1)"; 
+    const texture   = textureSelect.value;
 
-    const currentWall = wallTypes[currentWallIndex];
+    // 2. IDENTIFICA O TIPO DE PAREDE
+    const currentWall  = wallTypes[currentWallIndex];
+    const isPhotoWall  = currentWall.isPhotoWall === true;
+    const temFoto      = isPhotoWall && !!userWallImage;
+
     if (wallLabel) wallLabel.innerText = currentWall.name;
+
+	// 3. RESET DO ESTADO VISUAL + LIMPEZA DO ESTADO DE FOTO
+	previewBox.style.filter            = "none";
+	previewBox.style.backgroundSize    = "auto";
+	previewBox.style.backgroundPosition = "0 0";
+	previewBox.style.animation         = "none";
+
+	// Se a parede ATUAL não for "Sua Parede", limpa todos os resquícios
+	// do estado de foto (classe, hint visual e overlay de cor)
+	if (!isPhotoWall) {
+		previewBox.classList.remove('aguardando-foto');
+		document.getElementById('preview-upload-hint')?.remove();
+
+		if (photoOverlay) {
+			photoOverlay.style.display = 'none';
+		}
+	}
+
+    // 4. APLICA COR — via backgroundColor (paredes normais) ou overlay (foto)
+    if (temFoto) {
+        // Foto: cor aplicada via overlay para não tapar a imagem
+        previewBox.style.backgroundColor = 'transparent';
+        previewBox.style.boxShadow       = 'none';
+        if (photoOverlay) {
+            photoOverlay.style.display         = 'block';
+            photoOverlay.style.backgroundColor = colorHex;
+        }
+    } else {
+        // Parede normal ou "SUA PAREDE" sem foto ainda
+        previewBox.style.backgroundColor = isPhotoWall ? '#e8e8e8' : colorHex;
+        previewBox.style.boxShadow       = "inset 0 0 50px rgba(0,0,0,0.1)";
+        if (photoOverlay) photoOverlay.style.display = 'none';
+    }
+
+    // 5. APLICA O PADRÃO DE TEXTURA DA PAREDE
     currentWall.apply(previewBox);
-    
+
+    // Lê o backgroundImage após o apply (pode ter sido setado pela parede)
     const baseWallTexture = previewBox.style.backgroundImage;
 
-    // Aplicação dos efeitos visuais de acabamento
-    switch(texture) {
+    // 6. EFEITOS DE ACABAMENTO (aplicados sobre qualquer parede, incluindo foto)
+    switch (texture) {
         case "Fosco":
             previewBox.style.filter = "saturate(0.9) brightness(0.95)";
             break;
         case "Acetinado":
-            previewBox.style.boxShadow = "inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)";
+            if (!temFoto) {
+                previewBox.style.boxShadow =
+                    "inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)";
+            }
             break;
         case "Semibrilho":
-            previewBox.style.boxShadow = "inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)";
+            if (!temFoto) {
+                previewBox.style.boxShadow =
+                    "inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)";
+            }
             previewBox.style.filter = "brightness(1.05)";
             break;
-        case "Cimento Queimado":
-            const cimento = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
-            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${cimento}, ${baseWallTexture}` : cimento;
+        case "Cimento Queimado": {
+            const cimento = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%),
+                             radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
+            if (!temFoto) {
+                previewBox.style.backgroundImage =
+                    (baseWallTexture && baseWallTexture !== "none")
+                        ? `${cimento}, ${baseWallTexture}` : cimento;
+            }
             previewBox.style.filter = "contrast(1.2) grayscale(0.1)";
             break;
-        case "Metalizado":
+        }
+        case "Metalizado": {
             const metal = `linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`;
-            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${metal}, ${baseWallTexture}` : metal;
+            if (!temFoto) {
+                previewBox.style.backgroundImage =
+                    (baseWallTexture && baseWallTexture !== "none")
+                        ? `${metal}, ${baseWallTexture}` : metal;
+            }
             previewBox.style.filter = "contrast(1.1) brightness(1.1) saturate(1.2)";
             break;
+        }
     }
 
-    previewText.innerText = `${colorName} - ${texture}`;
+    // 7. TEXTO DO PREVIEW
+    if (temFoto) {
+        previewText.innerText = `${colorName} — ${texture} (sua parede)`;
+    } else if (isPhotoWall) {
+        previewText.innerText = 'Envie uma foto';
+    } else {
+        previewText.innerText = `${colorName} - ${texture}`;
+    }
 
-    // 3. LÓGICA DE CÁLCULO DE PREÇO AGREGADO
-    
-    const basePrice = Number(tempProduct.price) || 0;
-    
-    // Adicional da Cor (data-price-color)
-    const colorExtra = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
-
-    // Adicional da Textura (data-price-texture)
+    // 8. CÁLCULO DE PREÇO AGREGADO
+    const basePrice    = Number(tempProduct.price) || 0;
+    const colorExtra   = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
     const textureOption = textureSelect.options[textureSelect.selectedIndex];
     const textureExtra = Number(textureOption.getAttribute('data-price-texture')) || 0;
-
-    // Adicional do Tamanho/Lata (data-price-add)
     let sizeExtra = 0;
     if (sizeSelect) {
         const sizeOption = sizeSelect.options[sizeSelect.selectedIndex];
         sizeExtra = Number(sizeOption.getAttribute('data-price-add')) || 0;
     }
-
-    // Soma Total Final
     const totalPrice = basePrice + colorExtra + textureExtra + sizeExtra;
 
-    // 4. ATUALIZAÇÃO DA INTERFACE E OBJETO
     if (modalPriceElement) {
         modalPriceElement.innerText = `R$ ${totalPrice.toFixed(2)}`;
     }
 
-    // Salva o preço calculado para o carrinho usar
     tempProduct.currentCalculatedPrice = totalPrice;
-    
-    // Salva as escolhas atuais para o carrinho
-    tempProduct.selectedColorName = colorName;
-    tempProduct.selectedTextureName = texture;
-    tempProduct.selectedSizeName = sizeSelect ? sizeSelect.value : "Padrão";
+    tempProduct.selectedColorName      = colorName;
+    tempProduct.selectedTextureName    = texture;
+    tempProduct.selectedSizeName       = sizeSelect ? sizeSelect.value : "Padrão";
+}
+
+/**
+ * Atualiza a visibilidade do container de upload de foto.
+ * Exibe o botão APENAS quando "Sua Parede" está como parede ativa
+ * no modal de configuração de tinta (productConfigModal).
+ * NÃO afeta modal de spray nem modal de tamanhos.
+ */
+function atualizarBotaoUploadParede() {
+    const isPhotoWall     = wallTypes[currentWallIndex]?.isPhotoWall === true;
+    const containerUpload = document.getElementById('foto-parede-container');
+    if (!containerUpload) return;
+
+    if (isPhotoWall) {
+        containerUpload.classList.remove('d-none');
+    } else {
+        containerUpload.classList.add('d-none');
+    }
 }
 
 function changeWall(direction) {
-    // 1. Atualiza o índice global
+    // 1. Atualiza o índice circular
     currentWallIndex += direction;
     if (currentWallIndex >= wallTypes.length) currentWallIndex = 0;
     if (currentWallIndex < 0) currentWallIndex = wallTypes.length - 1;
 
-    // 2. Atualiza o preview que estiver aberto no momento
-    // Se o modal de spray estiver aberto, atualiza o spray
+    // 2. Atualiza o preview do modal aberto no momento
     const sprayModal = document.getElementById('sprayConfigModal');
     if (sprayModal && sprayModal.classList.contains('show')) {
+        // Spray não usa wallTypes — sem mudança visual, mas reseta o índice
+        // para não "pular" paredes ao voltar para o modal de tinta
         updateSprayPreview();
     } else {
-        // Senão, atualiza o preview normal
         updatePreview();
+        // Atualiza visibilidade do botão de upload APENAS no modal de tinta
+        atualizarBotaoUploadParede();
     }
 }
 
@@ -1299,7 +1398,7 @@ function toggleFlashlight(type) {
 }
 
 /* ==========================================================================
-   6. GESTÃO DO CARRINHO E CHECKOUT
+   GESTÃO DO CARRINHO E CHECKOUT
    ========================================================================== */
    
 
@@ -1693,7 +1792,7 @@ function processarCompraFinal() {
     }
 
     // ======================================================
-    // 2. VALIDAÇÃO ESPECÍFICA PARA CARTÃO DE CRÉDITO
+    // VALIDAÇÃO ESPECÍFICA PARA CARTÃO DE CRÉDITO
     // ======================================================
     if (metodoPagamento === 'Cartão') {
         const cardNum = document.getElementById('cardNum').value.trim();
@@ -1717,7 +1816,7 @@ function processarCompraFinal() {
     }
 
     // ======================================================
-    // 3. CRIAÇÃO DO OBJETO DO PEDIDO
+    // CRIAÇÃO DO OBJETO DO PEDIDO
     // ======================================================
     const novoPedido = {
         id: Math.floor(Math.random() * 9000) + 1000,
@@ -1962,7 +2061,7 @@ console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${aju
 } 
 
 /* ==========================================================================
-   7. FAVORITOS E HISTÓRICO DE PEDIDOS
+   FAVORITOS E HISTÓRICO DE PEDIDOS
    ========================================================================== */
 function toggleFavorite(id, event) {
     if(event) event.stopPropagation();
@@ -2056,7 +2155,7 @@ function handleProfileClick() {
 }
 
 /* ==========================================================================
-   8. CALCULADORA
+   CALCULADORA
    ========================================================================== */
 
 function calcularTinta() {
@@ -2101,7 +2200,7 @@ function calcularTinta() {
 }
 
 /* ==========================================================================
-   9. MENSAGEM EM TOAST
+   MENSAGEM EM TOAST
    ========================================================================== */
 
 function showToast(message, type = 'success', isFixed = false) {
@@ -2125,7 +2224,7 @@ function showToast(message, type = 'success', isFixed = false) {
 }
 
 /* ==========================================================================
-   10. MENU FECHAR NO CELULAR
+   MENU FECHAR NO CELULAR
    ========================================================================== */
 
 // Função auxiliar para fechar o menu mobile
@@ -2249,124 +2348,182 @@ function aplicarFotoParede(input) {
     const file = input.files[0];
     if (!file) return;
 
+    // Valida tamanho máximo (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('Foto muito grande. Use uma imagem menor que 10MB.', 'danger');
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
-        const previewBox = document.getElementById('product-preview') 
-                        || document.getElementById('product-preview-spray');
-        if (!previewBox) return;
+        // 1. Armazena a foto na variável global
+        userWallImage = e.target.result;
 
-        // Salva o estilo original para poder restaurar
-        previewBox.dataset.originalBg = previewBox.style.backgroundColor;
-
-        // Aplica a foto como fundo
-        previewBox.style.backgroundImage = `url('${e.target.result}')`;
-        previewBox.style.backgroundSize = 'cover';
-        previewBox.style.backgroundPosition = 'center';
-
-        // Sobrepõe a cor da tinta com transparência (~50%)
-        const corAtual = previewBox.style.backgroundColor;
-        if (corAtual) {
-            previewBox.style.boxShadow = `inset 0 0 0 9999px ${corAtual}80`;
+        // 2. Navega para a entrada "Sua Parede" no array wallTypes
+        const indexFotoParede = wallTypes.findIndex(w => w.isPhotoWall === true);
+        if (indexFotoParede !== -1) {
+            currentWallIndex = indexFotoParede;
         }
 
+        // 3. Atualiza preview e interface
+        atualizarBotaoUploadParede();
+        updatePreview();
+
+        // 4. Mostra botão de remover
         document.getElementById('btnRemoverFoto')?.classList.remove('d-none');
-        showToast("Foto da parede aplicada! Selecione uma cor para visualizar.", "success");
+
+        showToast('Foto aplicada! Selecione uma cor para ver a simulação.', 'success');
     };
     reader.readAsDataURL(file);
 }
 
 function removerFotoParede() {
-    const previewBox = document.getElementById('product-preview') 
-                    || document.getElementById('product-preview-spray');
-    if (!previewBox) return;
+    // 1. Limpa a variável global
+    userWallImage = null;
 
-    previewBox.style.backgroundImage = 'none';
-    previewBox.style.boxShadow = 'inset 0 0 50px rgba(0,0,0,0.1)';
-    previewBox.style.backgroundColor = previewBox.dataset.originalBg || '#ffffff';
+    // 2. Volta para a primeira parede (Parede Lisa)
+    currentWallIndex = 0;
 
+    // 3. Limpa o overlay e estado visual do preview
+    const previewBox   = document.getElementById('product-preview');
+    const photoOverlay = document.getElementById('photo-color-overlay');
+
+    if (previewBox) {
+        previewBox.classList.remove('aguardando-foto');
+        previewBox.style.backgroundImage = 'none';
+    }
+    if (photoOverlay) {
+        photoOverlay.style.display = 'none';
+    }
+    
+    // Remove hint de upload se existir
+    document.getElementById('preview-upload-hint')?.remove();
+
+    // 4. Oculta botões de remoção e limpa o input
     document.getElementById('btnRemoverFoto')?.classList.add('d-none');
-    document.getElementById('uploadWall').value = '';
+    const inputUpload = document.getElementById('uploadWall');
+    if (inputUpload) inputUpload.value = '';
 
-    updatePreview(); // Restaura o estado normal
+    // 5. Atualiza interface
+    atualizarBotaoUploadParede();
+    updatePreview();
 }
 
 /* ==========================================================================
-   OFERTAS
+   OFERTAS — BANNER DE FAVORITOS EM PROMOÇÃO
    ========================================================================== */
 
-
-
 function verificarOfertasFavoritos() {
+    // 1. Lê favoritos; sai se não houver nenhum
     const favorites = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
     if (favorites.length === 0) return;
 
-    const ofertasNovas = products.filter(p => 
+    // 2. Filtra apenas produtos favoritos que estão em promoção
+    const ofertasNovas = products.filter(p =>
         favorites.includes(p.id) && p.promo === true
     );
+    if (ofertasNovas.length === 0) return;
 
-    // Checa se já notificamos hoje para não irritar o usuário
+    // 3. Evita repetição no mesmo dia
     const ultimaNotif = localStorage.getItem('fixtintas_ultima_notif');
     const hoje = new Date().toDateString();
-    if (ultimaNotif === hoje || ofertasNovas.length === 0) return;
-
+    if (ultimaNotif === hoje) return;
     localStorage.setItem('fixtintas_ultima_notif', hoje);
 
-    // Monta o banner
-    const banner = document.createElement('div');
-    banner.id = 'banner-oferta';
-    banner.innerHTML = `
-        <div style="
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: #fff3cd; border: 2px solid #ffc107;
-            border-radius: 16px; padding: 14px 18px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-            z-index: 9999; min-width: 300px; max-width: 90vw;
-            animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
-        ">
-            <div class="d-flex align-items-start gap-2">
-                <span style="font-size: 1.5rem;">🔥</span>
-                <div class="flex-grow-1">
-                    <strong style="font-size: 0.9rem;">Oferta nos seus favoritos!</strong>
-                    <div class="mt-1">
-                        ${ofertasNovas.map(p => `
-                            <div class="d-flex align-items-center gap-2 mt-1 cursor-pointer"
-                                 onclick="showProductDetails(${p.id}); fecharBannerOferta()">
-                                <img src="${p.img}" width="32" height="32" 
-                                     style="border-radius:8px; object-fit:cover;">
-                                <div>
-                                    <div style="font-size:0.75rem; font-weight:600;">${p.name}</div>
-                                    <div style="font-size:0.7rem;">
-                                        <span class="text-muted text-decoration-line-through">
-                                            R$ ${p.oldPrice?.toFixed(2)}
-                                        </span>
-                                        <span class="text-danger fw-bold ms-1">
-                                            R$ ${p.price.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
+    // 4. Monta os cards de produto
+    const produtosHtml = ofertasNovas.map(p => {
+        // Calcula percentual de desconto (só exibe se tiver oldPrice)
+        const temDesconto = p.oldPrice && p.oldPrice > p.price;
+        const desconto    = temDesconto
+            ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
+            : null;
+
+        const precoAntigoHtml = temDesconto
+            ? `<span class="banner-preco-antigo">R$ ${p.oldPrice.toFixed(2)}</span>`
+            : '';
+
+        const badgeHtml = desconto
+            ? `<span class="banner-badge-desconto">-${desconto}%</span>`
+            : '';
+
+        return `
+            <div class="banner-produto-item"
+                 onclick="showProductDetails(${p.id}); fecharBannerOferta();"
+                 role="button"
+                 title="Ver ${p.name}">
+                <img src="${p.img}"
+                     alt="${p.name}"
+                     class="banner-produto-img"
+                     loading="lazy">
+                <div class="banner-produto-info">
+                    <div class="banner-produto-nome">${p.name}</div>
+                    <div class="banner-produto-precos">
+                        ${precoAntigoHtml}
+                        <span class="banner-preco-atual">R$ ${p.price.toFixed(2)}</span>
                     </div>
                 </div>
-                <button onclick="fecharBannerOferta()" 
-                        class="btn btn-sm border-0 p-0 ms-1 text-muted"
-                        style="font-size: 1.1rem; line-height:1;">×</button>
+                ${badgeHtml}
             </div>
+        `;
+    }).join('');
+
+    // 5. Monta o banner completo
+    const quantidadeTexto = ofertasNovas.length === 1
+        ? '1 favorito em oferta'
+        : `${ofertasNovas.length} favoritos em oferta`;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'banner-oferta-wrapper';
+    wrapper.innerHTML = `
+        <div class="banner-oferta-card">
+
+            <div class="banner-oferta-header">
+                <div class="banner-oferta-header-left">
+                    <img src="https://i.imgur.com/PmT6Skb.png"
+                         alt="FixTintas"
+                         class="banner-oferta-logo">
+                    <div>
+                        <div class="banner-oferta-titulo">
+                            🔥 Oferta nos seus favoritos!
+                        </div>
+                        <div class="banner-oferta-subtitulo">${quantidadeTexto}</div>
+                    </div>
+                </div>
+                <button class="banner-oferta-fechar"
+                        onclick="fecharBannerOferta()"
+                        aria-label="Fechar notificação">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="banner-oferta-body">
+                ${produtosHtml}
+            </div>
+
+            <div class="banner-oferta-timer">
+                <div class="banner-oferta-timer-bar"></div>
+            </div>
+
         </div>
     `;
 
-    document.body.appendChild(banner);
+    // 6. Remove banner anterior se existir e injeta o novo
+    document.getElementById('banner-oferta-wrapper')?.remove();
+    document.body.appendChild(wrapper);
 
-    // Fecha sozinho após 8 segundos
+    // 7. Fecha automaticamente após 8 segundos
     setTimeout(fecharBannerOferta, 8000);
 }
 
 function fecharBannerOferta() {
-    const banner = document.getElementById('banner-oferta');
-    if (banner) {
-        banner.style.animation = 'slideDownBanner 0.3s ease forwards';
-        setTimeout(() => banner.remove(), 300);
-    }
+    const wrapper = document.getElementById('banner-oferta-wrapper');
+    if (!wrapper) return;
+
+    // Adiciona classe de saída (animação slide down)
+    wrapper.classList.add('saindo');
+
+    // Remove do DOM após a animação terminar (350ms)
+    setTimeout(() => wrapper.remove(), 360);
 }
 
 /* ==========================================================================
@@ -2506,4 +2663,317 @@ function compartilharLista() {
     } else {
         copiarLista();
     }
+}
+
+/* ==========================================================================
+   EXPORTAÇÃO PDF — REQUISIÇÃO DE COMPRAS
+   ========================================================================== */
+
+function gerarPDF() {
+    // 1. Validação inicial
+    if (cart.length === 0) {
+        showToast("Seu carrinho está vazio!", "danger");
+        return;
+    }
+
+    // 2. Verifica se jsPDF foi carregado
+    if (typeof window.jspdf === 'undefined') {
+        showToast("Biblioteca de PDF não carregada. Verifique sua conexão.", "danger");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    // ── CONSTANTES DE LAYOUT ──────────────────────────────────────────────
+    const MARGIN_LEFT   = 15;
+    const MARGIN_RIGHT  = 195;
+    const PAGE_WIDTH    = 210;
+    const COR_PRIMARIA  = [0, 94, 255];    // --primary-blue
+    const COR_LARANJA   = [255, 122, 0];   // --primary-orange
+    const COR_ESCURO    = [15, 23, 42];    // footer bg
+    const COR_CINZA     = [100, 116, 139];
+    const COR_CINZA_BG  = [241, 245, 249];
+    const COR_LINHA     = [226, 232, 240];
+
+    // ── DADOS DO PEDIDO ───────────────────────────────────────────────────
+    const dataAtual    = new Date();
+    const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+    const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const numRef       = `FT-${Math.floor(Math.random() * 90000) + 10000}`;
+    const nomeSalvo    = localStorage.getItem('usuario_nome') || 'Não identificado';
+    const enderecoObj  = JSON.parse(localStorage.getItem('usuario_endereco_obj') || 'null');
+    const enderecoStr  = enderecoObj
+        ? `${enderecoObj.rua}, ${enderecoObj.num}${enderecoObj.comp ? ' - ' + enderecoObj.comp : ''} | ${enderecoObj.bairro}, ${enderecoObj.cidade}`
+        : 'Endereço não cadastrado';
+
+    let y = 0; // cursor vertical
+
+    // ════════════════════════════════════════════════════════════════════
+    // HEADER — Faixa azul com nome da empresa
+    // ════════════════════════════════════════════════════════════════════
+    doc.setFillColor(...COR_PRIMARIA);
+    doc.rect(0, 0, PAGE_WIDTH, 38, 'F');
+
+    // Linha de acento em laranja
+    doc.setFillColor(...COR_LARANJA);
+    doc.rect(0, 38, PAGE_WIDTH, 3, 'F');
+
+    // Nome da empresa
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Fix', MARGIN_LEFT, 22);
+
+    // Calcula largura de "Fix" para posicionar "Tintas" em laranja
+    const larguraFix = doc.getTextWidth('Fix');
+    doc.setTextColor(...COR_LARANJA);
+    doc.text('Tintas', MARGIN_LEFT + larguraFix + 1, 22);
+
+    // Slogan
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(200, 220, 255);
+    doc.text('Quem entende de tintas, Vem aqui!', MARGIN_LEFT, 30);
+
+    // Tipo do documento (direita)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(255, 255, 255);
+    doc.text('REQUISIÇÃO DE COMPRAS', MARGIN_RIGHT, 18, { align: 'right' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(200, 220, 255);
+    doc.text(`Ref.: ${numRef}`, MARGIN_RIGHT, 25, { align: 'right' });
+    doc.text(`Emitido em: ${dataFormatada} às ${horaFormatada}`, MARGIN_RIGHT, 31, { align: 'right' });
+
+    y = 52;
+
+    // ════════════════════════════════════════════════════════════════════
+    // DADOS DO CLIENTE / ENTREGA
+    // ════════════════════════════════════════════════════════════════════
+    doc.setFillColor(...COR_CINZA_BG);
+    doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 26, 3, 3, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...COR_PRIMARIA);
+    doc.text('DADOS DO CLIENTE', MARGIN_LEFT + 5, y + 7);
+
+    doc.setDrawColor(...COR_PRIMARIA);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN_LEFT + 5, y + 9, MARGIN_LEFT + 45, y + 9);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...COR_ESCURO);
+    doc.text('Cliente:', MARGIN_LEFT + 5, y + 16);
+    doc.setFont('helvetica', 'normal');
+    doc.text(nomeSalvo, MARGIN_LEFT + 22, y + 16);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Entrega:', MARGIN_LEFT + 5, y + 23);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    // Quebra endereço longo
+    const enderecoLinhas = doc.splitTextToSize(enderecoStr, PAGE_WIDTH - 65);
+    doc.text(enderecoLinhas, MARGIN_LEFT + 22, y + 23);
+
+    y += 35;
+
+    // ════════════════════════════════════════════════════════════════════
+    // TABELA DE ITENS
+    // ════════════════════════════════════════════════════════════════════
+
+    // Agrupa itens por categoria (mesma lógica de gerarListaMateriais)
+    const grupos = {
+        'Tintas e Acabamentos': [],
+        'Ferramentas':          [],
+        'Acessórios e Proteção': [],
+        'Outros':               []
+    };
+    cart.forEach(item => {
+        const cat = (item.category || '').toLowerCase();
+        if (['interior', 'exterior', 'especial', 'moveis'].includes(cat)) {
+            grupos['Tintas e Acabamentos'].push(item);
+        } else if (cat === 'ferramentas') {
+            grupos['Ferramentas'].push(item);
+        } else if (cat === 'acessorios') {
+            grupos['Acessórios e Proteção'].push(item);
+        } else {
+            grupos['Outros'].push(item);
+        }
+    });
+
+    // ── Cabeçalho da tabela ────────────────────────────────────────────
+    const COL = {
+        item:  MARGIN_LEFT,
+        qtd:   130,
+        unit:  152,
+        total: 178
+    };
+
+    doc.setFillColor(...COR_ESCURO);
+    doc.rect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 8, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text('ITEM / ESPECIFICAÇÃO',    COL.item  + 3, y + 5.5);
+    doc.text('QTD.',                    COL.qtd   + 3, y + 5.5);
+    doc.text('UNIT.',                   COL.unit  + 3, y + 5.5);
+    doc.text('TOTAL',                   COL.total + 3, y + 5.5);
+    y += 8;
+
+    // ── Linhas dos grupos e itens ──────────────────────────────────────
+    let totalGeral = 0;
+    let linhaAlternada = false;
+
+    Object.entries(grupos).forEach(([nomeGrupo, itens]) => {
+        if (itens.length === 0) return;
+
+        // Verifica espaço na página (quebra de página se necessário)
+        if (y > 255) {
+            doc.addPage();
+            y = 20;
+        }
+
+        // Linha de categoria
+        doc.setFillColor(235, 242, 255);
+        doc.rect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 6.5, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COR_PRIMARIA);
+        doc.text(nomeGrupo.toUpperCase(), COL.item + 3, y + 4.5);
+        y += 6.5;
+
+        itens.forEach(item => {
+            if (y > 265) {
+                doc.addPage();
+                y = 20;
+                linhaAlternada = false;
+            }
+
+            const subtotalItem = item.price * item.quantity;
+            totalGeral += subtotalItem;
+
+            // Fundo alternado
+            if (linhaAlternada) {
+                doc.setFillColor(248, 250, 252);
+                doc.rect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 7.5, 'F');
+            }
+            linhaAlternada = !linhaAlternada;
+
+            // Nome do item (quebra se muito longo)
+            const nomeItem  = doc.splitTextToSize(item.name, 108);
+            const alturaLinha = Math.max(7.5, nomeItem.length * 4.5);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.setTextColor(...COR_ESCURO);
+            doc.text(nomeItem, COL.item + 3, y + 5);
+
+            doc.text(String(item.quantity),
+                COL.qtd + 3, y + 5);
+
+            doc.text(`R$ ${item.price.toFixed(2)}`,
+                COL.unit + 3, y + 5);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text(`R$ ${subtotalItem.toFixed(2)}`,
+                COL.total + 3, y + 5);
+
+            // Linha divisória
+            doc.setDrawColor(...COR_LINHA);
+            doc.setLineWidth(0.2);
+            doc.line(MARGIN_LEFT, y + alturaLinha, MARGIN_RIGHT, y + alturaLinha);
+
+            y += alturaLinha;
+        });
+    });
+
+    y += 4;
+
+    // ── Totalizador ────────────────────────────────────────────────────
+    if (y > 255) { doc.addPage(); y = 20; }
+
+    const totalItens = cart.reduce((acc, i) => acc + i.quantity, 0);
+
+    doc.setFillColor(...COR_PRIMARIA);
+    doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 12, 2, 2, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`TOTAL GERAL (${totalItens} ${totalItens === 1 ? 'item' : 'itens'})`,
+        COL.item + 3, y + 7.5);
+
+    doc.setFontSize(11);
+    doc.setTextColor(...COR_LARANJA);
+    doc.text(`R$ ${totalGeral.toFixed(2)}`, MARGIN_RIGHT, y + 7.5, { align: 'right' });
+
+    y += 20;
+
+    // ════════════════════════════════════════════════════════════════════
+    // OBSERVAÇÕES / AVISO LEGAL
+    // ════════════════════════════════════════════════════════════════════
+    if (y > 250) { doc.addPage(); y = 20; }
+
+    doc.setFillColor(255, 243, 205);
+    doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 14, 2, 2, 'F');
+
+    doc.setDrawColor(255, 193, 7);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN_LEFT + 4, y + 2, MARGIN_LEFT + 4, y + 12);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(133, 100, 4);
+    doc.text('OBSERVAÇÃO:', MARGIN_LEFT + 8, y + 6);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(101, 77, 4);
+    doc.text(
+        'Este documento é uma requisição de compras gerada automaticamente. Preços sujeitos a alteração sem aviso prévio.',
+        MARGIN_LEFT + 8, y + 11
+    );
+
+    // ════════════════════════════════════════════════════════════════════
+    // RODAPÉ — fixado na parte inferior de cada página
+    // ════════════════════════════════════════════════════════════════════
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+
+        // Faixa escura de rodapé
+        doc.setFillColor(...COR_ESCURO);
+        doc.rect(0, 282, PAGE_WIDTH, 15, 'F');
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(148, 163, 184);
+
+        // Esquerda — contato
+        doc.text('(16) 0000-0000  |  sac@fixtintas.com.br  |  Av. Carlos Consoni, 10 - RP',
+            MARGIN_LEFT, 289);
+
+        // Centro — CNPJ
+        doc.text('CNPJ: 12.345.678/0001-90  |  FixTintas Comércio de Tintas LTDA.',
+            PAGE_WIDTH / 2, 289, { align: 'center' });
+
+        // Direita — paginação
+        doc.text(`Pág. ${i} / ${totalPaginas}`, MARGIN_RIGHT, 289, { align: 'right' });
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // DOWNLOAD
+    // ════════════════════════════════════════════════════════════════════
+    const nomeArquivo = `FixTintas_Requisicao_${numRef}_${dataAtual
+        .toLocaleDateString('pt-BR')
+        .replace(/\//g, '-')}.pdf`;
+
+    doc.save(nomeArquivo);
+    showToast(`PDF gerado com sucesso! <br><small>${nomeArquivo}</small>`, 'success');
 }
