@@ -1186,6 +1186,11 @@ function confirmSprayToCart() {
     if (priceLabel) priceLabel.style.display = 'none';
 }
 
+/* ==========================================================================
+   LANTERNA
+   ========================================================================== */
+   
+
 // Alterna a lanterna entre On/Off
 function toggleFlashlight(type) {
     const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
@@ -1218,6 +1223,63 @@ document.addEventListener('mousemove', (e) => {
         }
     });
 });
+
+let flashlightAnimFrame = null;
+let flashlightAngle = 0;
+
+function animateFlashlight(overlayId) {
+    const overlay = document.getElementById(overlayId);
+    if (!overlay || !overlay.classList.contains('flashlight-active')) return;
+    if (overlay.dataset.touching === 'true') {
+        flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
+        return;
+    }
+
+    const parent = overlay.parentElement;
+    const cx = parent.offsetWidth / 2;
+    const cy = parent.offsetHeight / 2;
+    const radius = Math.min(cx, cy) * 0.6;
+
+    flashlightAngle += 0.012; // velocidade do movimento
+    const x = cx + Math.cos(flashlightAngle) * radius;
+    const y = cy + Math.sin(flashlightAngle * 0.7) * radius; // elipse suave
+
+    overlay.style.setProperty('--x', `${x}px`);
+    overlay.style.setProperty('--y', `${y}px`);
+
+    flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
+}
+
+function toggleFlashlight(type) {
+    const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+
+    overlay.classList.toggle('flashlight-active');
+    const isActive = overlay.classList.contains('flashlight-active');
+
+    if (isActive) {
+        // Toque — pausa a animação
+        overlay.parentElement.addEventListener('touchstart', () => {
+            overlay.dataset.touching = 'true';
+        }, { passive: true });
+
+        overlay.parentElement.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const rect = overlay.parentElement.getBoundingClientRect();
+            overlay.style.setProperty('--x', `${touch.clientX - rect.left}px`);
+            overlay.style.setProperty('--y', `${touch.clientY - rect.top}px`);
+        }, { passive: true });
+
+        overlay.parentElement.addEventListener('touchend', () => {
+            overlay.dataset.touching = 'false';
+        }, { passive: true });
+
+        animateFlashlight(id); // inicia o loop
+    } else {
+        cancelAnimationFrame(flashlightAnimFrame);
+    }
+}
 
 /* ==========================================================================
    6. GESTÃO DO CARRINHO E CHECKOUT
@@ -2098,6 +2160,56 @@ window.addEventListener('scroll', () => {
 
     lastScrollY = currentScrollY;
 }, { passive: true });
+
+/* ==========================================================================
+   ADICIONAR DA PAREDE
+   ========================================================================== */
+
+
+function aplicarFotoParede(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const previewBox = document.getElementById('product-preview') 
+                        || document.getElementById('product-preview-spray');
+        if (!previewBox) return;
+
+        // Salva o estilo original para poder restaurar
+        previewBox.dataset.originalBg = previewBox.style.backgroundColor;
+
+        // Aplica a foto como fundo
+        previewBox.style.backgroundImage = `url('${e.target.result}')`;
+        previewBox.style.backgroundSize = 'cover';
+        previewBox.style.backgroundPosition = 'center';
+
+        // Sobrepõe a cor da tinta com transparência (~50%)
+        const corAtual = previewBox.style.backgroundColor;
+        if (corAtual) {
+            previewBox.style.boxShadow = `inset 0 0 0 9999px ${corAtual}80`;
+        }
+
+        document.getElementById('btnRemoverFoto')?.classList.remove('d-none');
+        showToast("Foto da parede aplicada! Selecione uma cor para visualizar.", "success");
+    };
+    reader.readAsDataURL(file);
+}
+
+function removerFotoParede() {
+    const previewBox = document.getElementById('product-preview') 
+                    || document.getElementById('product-preview-spray');
+    if (!previewBox) return;
+
+    previewBox.style.backgroundImage = 'none';
+    previewBox.style.boxShadow = 'inset 0 0 50px rgba(0,0,0,0.1)';
+    previewBox.style.backgroundColor = previewBox.dataset.originalBg || '#ffffff';
+
+    document.getElementById('btnRemoverFoto')?.classList.add('d-none');
+    document.getElementById('uploadWall').value = '';
+
+    updatePreview(); // Restaura o estado normal
+}
 
 
 
