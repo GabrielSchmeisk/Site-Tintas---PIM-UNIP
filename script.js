@@ -51,7 +51,8 @@ const products = [
 let cart = JSON.parse(localStorage.getItem('fixtintas_cart')) || [];
 let tempProduct = null;
 let currentWallIndex = 0;
-let spraySelecionado = null; // Começa como null para forçar a seleção
+let flashlightAnimFrame = null;
+let flashlightAngle = 0;
 
 
 const wallTypes = [
@@ -64,9 +65,7 @@ const wallTypes = [
 	{ 
 		name: 'Grafiato', 
 		apply: (box) => {
-			// Camada 1: Ranhuras principais levemente inclinadas (88deg)
-			// Camada 2: Ranhuras secundárias para dar profundidade e irregularidade (92deg)
-			// Camada 3: Textura de fundo para tirar a cor chapada
+		
 			box.style.backgroundImage = `
 				repeating-linear-gradient(88deg, 
 					rgba(0,0,0,0.08) 0px, 
@@ -84,7 +83,6 @@ const wallTypes = [
 				radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%)
 			`;
 			box.style.backgroundSize = "auto";
-			// O segredo do realismo: um leve contraste para destacar as ranhuras
 			box.style.filter = "contrast(1.1) brightness(0.98)";
 		}
 	},
@@ -135,9 +133,8 @@ function isProdutoAcessorio(product) {
 }
 
 /* ==========================================================================
-   2. INICIALIZAÇÃO (DOMContentLoaded)
+   2. NORMALIZAR TEXTO
    ========================================================================== */
-// --- 1. FUNÇÕES GLOBAIS (Devem vir antes de tudo para serem reconhecidas) ---
 
 function normalizarTexto(texto) {
     if (!texto) return "";
@@ -224,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) this.classList.add('active');
         });
     });
+	
+	setTimeout(verificarOfertasFavoritos, 2000);
 
     // Parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -316,7 +315,7 @@ function saveAddress() {
     // 5. FECHA O MENU AUTOMATICAMENTE (Ação solicitada)
     fecharMenuMobile();
 
-    // Opcional: Se o formulário estiver dentro de um Modal, você pode fechá-lo também:
+    // Se o formulário estiver dentro de um Modal, pode fechá-lo também:
     const modalConta = document.getElementById('minhaContaModal');
     if (modalConta) {
         bootstrap.Modal.getInstance(modalConta)?.hide();
@@ -570,7 +569,7 @@ function showProductDetails(id) {
 // Botão compartilhar
 
 function shareProduct(id, name) {
-    // Cria o link personalizado (ajuste o domínio quando publicar seu site)
+    // Cria o link personalizado
     const url = `${window.location.origin}${window.location.pathname}?produto=${id}`;
     const text = `Confira este produto: ${name}`;
 
@@ -591,10 +590,7 @@ function shareProduct(id, name) {
     }
 }
 
-/**
- * Função auxiliar para tratar o clique no favorito dentro da modal
- * sem precisar recarregar a modal inteira (melhora a performance)
- */
+
 function handleModalFavorite(id, event) {
     // 1. Chama sua função global de toggle (que já deve salvar no localStorage e atualizar a vitrine)
     toggleFavorite(id, event);
@@ -786,6 +782,11 @@ if (isSpray) {
         let total = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
         const atual = (total - pending) + 1;
 
+		const btnApplyAll = document.getElementById('btnApplyToAll');
+    	if (btnApplyAll) {
+        btnApplyAll.style.display = total > 1 ? 'block' : 'none';
+    }
+
         const labelEl = document.getElementById('productConfigModalLabel');
         if (labelEl) {
             labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
@@ -860,7 +861,6 @@ function confirmAddToCartSizeOnly() {
     save();
     updateCartUI();
 
-    // Fecha o modal e gerencia a fila
     const modalEl = document.getElementById('modalTamanhos');
     const instance = bootstrap.Modal.getInstance(modalEl);
     if (instance) instance.hide();
@@ -880,6 +880,7 @@ function confirmAddToCartSizeOnly() {
         if (typeof limparBackdropsTravados === "function") limparBackdropsTravados();
     }
 }
+
 
 function updatePreview() {
     const selectedColorInput = document.querySelector('input[name="color"]:checked');
@@ -1040,12 +1041,6 @@ function updateSprayPreview() {
     if (selectedColorInput) {
         const colorHex = selectedColorInput.getAttribute('data-hex');
         
-        /* LÓGICA DE COBERTURA (CENTRO):
-           - 1 Demão: Centro pequeno e suave (30%), bordas bem esfumaçadas.
-           - 2 Demãos: Centro maior e mais forte (55%).
-           - 3 Demãos: Centro totalmente fechado (80%) com 100% de opacidade.
-        */
-        
         let centroSolido, opacidadeCentro;
 
         if (demaos === 1) {
@@ -1195,6 +1190,11 @@ function confirmSprayToCart() {
     if (priceLabel) priceLabel.style.display = 'none';
 }
 
+/* ==========================================================================
+   LANTERNA
+   ========================================================================== */
+   
+
 // Alterna a lanterna entre On/Off
 function toggleFlashlight(type) {
     const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
@@ -1227,6 +1227,76 @@ document.addEventListener('mousemove', (e) => {
         }
     });
 });
+
+
+function animateFlashlight(overlayId) {
+    const overlay = document.getElementById(overlayId);
+    if (!overlay || !overlay.classList.contains('flashlight-active')) return;
+
+    // SE estiver sendo tocado (mobile), pausa a animação automática
+    // pois o touchmove já cuida da posição
+    if (overlay.dataset.touching === 'true') {
+        flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
+        return;
+    }
+
+    // SÓ anima automaticamente em dispositivos touch (sem mouse)
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (!isTouchDevice) {
+        // No desktop o mouse já cuida disso — encerra o loop
+        return;
+    }
+
+    const parent = overlay.parentElement;
+    const cx = parent.offsetWidth / 2;
+    const cy = parent.offsetHeight / 2;
+    const radius = Math.min(cx, cy) * 0.6;
+
+    flashlightAngle += 0.012;
+    const x = cx + Math.cos(flashlightAngle) * radius;
+    const y = cy + Math.sin(flashlightAngle * 0.7) * radius;
+
+    overlay.style.setProperty('--x', `${x}px`);
+    overlay.style.setProperty('--y', `${y}px`);
+
+    flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
+}
+
+function toggleFlashlight(type) {
+    const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+
+    overlay.classList.toggle('flashlight-active');
+    const isActive = overlay.classList.contains('flashlight-active');
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+    if (isActive) {
+        if (isTouchDevice) {
+            // MOBILE: eventos de toque para mover + animação automática quando parado
+            overlay.parentElement.addEventListener('touchstart', () => {
+                overlay.dataset.touching = 'true';
+            }, { passive: true });
+
+            overlay.parentElement.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const rect = overlay.parentElement.getBoundingClientRect();
+                overlay.style.setProperty('--x', `${touch.clientX - rect.left}px`);
+                overlay.style.setProperty('--y', `${touch.clientY - rect.top}px`);
+            }, { passive: true });
+
+            overlay.parentElement.addEventListener('touchend', () => {
+                overlay.dataset.touching = 'false';
+            }, { passive: true });
+
+            // Inicia animação automática só no mobile
+            animateFlashlight(id);
+        }
+        // No desktop o mousemove global já cuida da posição — não precisa fazer nada aqui
+    } else {
+        cancelAnimationFrame(flashlightAnimFrame);
+    }
+}
 
 /* ==========================================================================
    6. GESTÃO DO CARRINHO E CHECKOUT
@@ -1449,7 +1519,12 @@ function checkout() {
     }
 
     const nomeSalvo = localStorage.getItem('usuario_nome');
-    const enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
+    let enderecoObj = null;
+    try {
+        enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
+    } catch (e) {
+        enderecoObj = null;
+}
 
     if (!nomeSalvo) {
         showToast("Você precisa fazer login para finalizar.", "warning");
@@ -1721,6 +1796,9 @@ function processarFilaConfiguracao(modalEl) {
 						// Acabou? Limpa tudo
 						sessionStorage.removeItem('pending_configs');
 						sessionStorage.removeItem('total_to_configure');
+
+    					const btnApplyAll = document.getElementById('btnApplyToAll');
+					    if (btnApplyAll) btnApplyAll.style.display = 'none';
 						
 						document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 						document.body.classList.remove('modal-open');
@@ -1774,22 +1852,6 @@ function showCart() {
 }
 
 
-function calcularPrecoConfigurado() {
-    if (!tempProduct) return 0;
-
-    const selectedColorInput = document.querySelector('input[name="color"]:checked');
-    const textureSelect = document.getElementById('selectTexture');
-    const sizeSelect = document.getElementById('selectSize');
-
-    // Se ainda não selecionou cor, retorna apenas o preço base
-    const colorPrice = selectedColorInput ? Number(selectedColorInput.getAttribute('data-price-color')) || 0 : 0;
-    
-    const texturePrice = textureSelect ? Number(textureSelect.options[textureSelect.selectedIndex].getAttribute('data-price-texture')) || 0 : 0;
-    
-    const sizePrice = sizeSelect ? Number(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-price-add')) || 0 : 0;
-
-    return Number(tempProduct.price) + colorPrice + texturePrice + sizePrice;
-}
 function atualizarSubtotalModal() {
     if (!tempProduct) return;
 
@@ -2006,6 +2068,10 @@ function showToast(message, type = 'success', isFixed = false) {
 
 // Função auxiliar para fechar o menu mobile
 function fecharMenuMobile() {
+    // Fecha submenus laterais abertos
+    document.querySelectorAll('.dropdown-side.active')
+        .forEach(el => el.classList.remove('active'));
+
     // Para Navbar padrão (Collapse)
     const navbarCollapse = document.querySelector('.navbar-collapse.show');
     if (navbarCollapse) {
@@ -2018,20 +2084,6 @@ function fecharMenuMobile() {
         const instance = bootstrap.Offcanvas.getInstance(offcanvasEl);
         if (instance) instance.hide();
     }
-}
-
-
-/* ==========================================================================
-   SISTEMA DE BUSCA (PESQUISA)
-   ========================================================================== */
-
-
-// Função para remover acentos e transformar em minúsculas
-function normalizarTexto(texto) {
-    return texto
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, ""); // Remove os "pedacinhos" dos acentos
 }
 
 
@@ -2111,6 +2163,7 @@ let lastScrollY = window.scrollY;
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (!navbar) return;
+    if (document.body.classList.contains('modal-open')) return;
 
     const currentScrollY = window.scrollY;
 
@@ -2125,5 +2178,270 @@ window.addEventListener('scroll', () => {
     lastScrollY = currentScrollY;
 }, { passive: true });
 
+/* ==========================================================================
+   ADICIONAR DA PAREDE
+   ========================================================================== */
 
 
+function aplicarFotoParede(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const previewBox = document.getElementById('product-preview') 
+                        || document.getElementById('product-preview-spray');
+        if (!previewBox) return;
+
+        // Salva o estilo original para poder restaurar
+        previewBox.dataset.originalBg = previewBox.style.backgroundColor;
+
+        // Aplica a foto como fundo
+        previewBox.style.backgroundImage = `url('${e.target.result}')`;
+        previewBox.style.backgroundSize = 'cover';
+        previewBox.style.backgroundPosition = 'center';
+
+        // Sobrepõe a cor da tinta com transparência (~50%)
+        const corAtual = previewBox.style.backgroundColor;
+        if (corAtual) {
+            previewBox.style.boxShadow = `inset 0 0 0 9999px ${corAtual}80`;
+        }
+
+        document.getElementById('btnRemoverFoto')?.classList.remove('d-none');
+        showToast("Foto da parede aplicada! Selecione uma cor para visualizar.", "success");
+    };
+    reader.readAsDataURL(file);
+}
+
+function removerFotoParede() {
+    const previewBox = document.getElementById('product-preview') 
+                    || document.getElementById('product-preview-spray');
+    if (!previewBox) return;
+
+    previewBox.style.backgroundImage = 'none';
+    previewBox.style.boxShadow = 'inset 0 0 50px rgba(0,0,0,0.1)';
+    previewBox.style.backgroundColor = previewBox.dataset.originalBg || '#ffffff';
+
+    document.getElementById('btnRemoverFoto')?.classList.add('d-none');
+    document.getElementById('uploadWall').value = '';
+
+    updatePreview(); // Restaura o estado normal
+}
+
+/* ==========================================================================
+   OFERTAS
+   ========================================================================== */
+
+
+
+function verificarOfertasFavoritos() {
+    const favorites = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
+    if (favorites.length === 0) return;
+
+    const ofertasNovas = products.filter(p => 
+        favorites.includes(p.id) && p.promo === true
+    );
+
+    // Checa se já notificamos hoje para não irritar o usuário
+    const ultimaNotif = localStorage.getItem('fixtintas_ultima_notif');
+    const hoje = new Date().toDateString();
+    if (ultimaNotif === hoje || ofertasNovas.length === 0) return;
+
+    localStorage.setItem('fixtintas_ultima_notif', hoje);
+
+    // Monta o banner
+    const banner = document.createElement('div');
+    banner.id = 'banner-oferta';
+    banner.innerHTML = `
+        <div style="
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #fff3cd; border: 2px solid #ffc107;
+            border-radius: 16px; padding: 14px 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            z-index: 9999; min-width: 300px; max-width: 90vw;
+            animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
+        ">
+            <div class="d-flex align-items-start gap-2">
+                <span style="font-size: 1.5rem;">🔥</span>
+                <div class="flex-grow-1">
+                    <strong style="font-size: 0.9rem;">Oferta nos seus favoritos!</strong>
+                    <div class="mt-1">
+                        ${ofertasNovas.map(p => `
+                            <div class="d-flex align-items-center gap-2 mt-1 cursor-pointer"
+                                 onclick="showProductDetails(${p.id}); fecharBannerOferta()">
+                                <img src="${p.img}" width="32" height="32" 
+                                     style="border-radius:8px; object-fit:cover;">
+                                <div>
+                                    <div style="font-size:0.75rem; font-weight:600;">${p.name}</div>
+                                    <div style="font-size:0.7rem;">
+                                        <span class="text-muted text-decoration-line-through">
+                                            R$ ${p.oldPrice?.toFixed(2)}
+                                        </span>
+                                        <span class="text-danger fw-bold ms-1">
+                                            R$ ${p.price.toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="fecharBannerOferta()" 
+                        class="btn btn-sm border-0 p-0 ms-1 text-muted"
+                        style="font-size: 1.1rem; line-height:1;">×</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    // Fecha sozinho após 8 segundos
+    setTimeout(fecharBannerOferta, 8000);
+}
+
+function fecharBannerOferta() {
+    const banner = document.getElementById('banner-oferta');
+    if (banner) {
+        banner.style.animation = 'slideDownBanner 0.3s ease forwards';
+        setTimeout(() => banner.remove(), 300);
+    }
+}
+
+/* ==========================================================================
+   LISTA DE MATERIAS
+   ========================================================================== */
+
+
+function gerarListaMateriais() {
+    if (cart.length === 0) {
+        showToast("Seu carrinho está vazio!", "danger");
+        return;
+    }
+
+    // Agrupa itens por categoria
+    const grupos = {
+        'Tintas e Acabamentos': [],
+        'Ferramentas':          [],
+        'Acessórios e Proteção': [],
+        'Outros': []
+    };
+
+    cart.forEach(item => {
+        const cat = (item.category || '').toLowerCase();
+        if (['interior','exterior','especial','moveis'].includes(cat)) {
+            grupos['Tintas e Acabamentos'].push(item);
+        } else if (cat === 'ferramentas') {
+            grupos['Ferramentas'].push(item);
+        } else if (cat === 'acessorios') {
+            grupos['Acessórios e Proteção'].push(item);
+        } else {
+            grupos['Outros'].push(item);
+        }
+    });
+
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const data  = new Date().toLocaleDateString('pt-BR');
+
+    // Monta o HTML do modal
+    let corpoHtml = '';
+    Object.entries(grupos).forEach(([grupo, itens]) => {
+        if (itens.length === 0) return;
+        corpoHtml += `
+            <div class="mb-3">
+                <div class="fw-bold text-primary border-bottom pb-1 mb-2" 
+                     style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                    ${grupo}
+                </div>
+                ${itens.map(i => `
+                    <div class="d-flex justify-content-between align-items-center py-1"
+                         style="font-size:0.82rem;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning text-dark rounded-pill" 
+                                  style="font-size:0.7rem; min-width:22px;">
+                                ${i.quantity}x
+                            </span>
+                            <span>${i.name}</span>
+                        </div>
+                        <span class="fw-bold text-nowrap ms-2">
+                            R$ ${(i.price * i.quantity).toFixed(2)}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+
+    const modalHtml = `
+        <div class="modal fade" id="modalListaMateriais" tabindex="-1">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <div>
+                            <h5 class="modal-title mb-0">
+                                <i class="fas fa-clipboard-list me-2"></i>Lista de Materiais
+                            </h5>
+                            <small style="opacity:0.8;">Gerada em ${data}</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" 
+                                data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body px-4 py-3">
+                        ${corpoHtml}
+                        <div class="d-flex justify-content-between align-items-center 
+                                    border-top pt-3 mt-2">
+                            <span class="fw-bold">Total estimado</span>
+                            <span class="fw-bold text-primary fs-5">
+                                R$ ${total.toFixed(2)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="modal-footer gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" 
+                                onclick="copiarLista()">
+                            <i class="fas fa-copy me-1"></i>Copiar
+                        </button>
+                        <button class="btn btn-success btn-sm" 
+                                onclick="compartilharLista()">
+                            <i class="fas fa-share-alt me-1"></i>Compartilhar
+                        </button>
+                        <button class="btn btn-primary btn-sm" 
+                                data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove instância antiga se existir
+    document.getElementById('modalListaMateriais')?.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    new bootstrap.Modal(document.getElementById('modalListaMateriais')).show();
+}
+
+// Gera texto simples para copiar/compartilhar
+function gerarTextoLista() {
+    const data = new Date().toLocaleDateString('pt-BR');
+    let texto = `📋 LISTA DE MATERIAIS - FixTintas\n📅 ${data}\n${'─'.repeat(32)}\n`;
+
+    cart.forEach(i => {
+        texto += `\n• ${i.quantity}x ${i.name}\n  R$ ${(i.price * i.quantity).toFixed(2)}`;
+    });
+
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    texto += `\n\n${'─'.repeat(32)}\nTOTAL: R$ ${total.toFixed(2)}\n\nGerado pelo app FixTintas`;
+    return texto;
+}
+
+function copiarLista() {
+    navigator.clipboard.writeText(gerarTextoLista())
+        .then(() => showToast("Lista copiada!", "success"));
+}
+
+function compartilharLista() {
+    const texto = gerarTextoLista();
+    if (navigator.share) {
+        navigator.share({ title: 'Lista de Materiais - FixTintas', text: texto });
+    } else {
+        copiarLista();
+    }
+}
