@@ -51,6 +51,7 @@ const products = [
 let cart = JSON.parse(localStorage.getItem('fixtintas_cart')) || [];
 let tempProduct = null;
 let currentWallIndex = 0;
+let spraySelecionado = null; // Começa como null para forçar a seleção
 
 
 const wallTypes = [
@@ -63,7 +64,9 @@ const wallTypes = [
 	{ 
 		name: 'Grafiato', 
 		apply: (box) => {
-		
+			// Camada 1: Ranhuras principais levemente inclinadas (88deg)
+			// Camada 2: Ranhuras secundárias para dar profundidade e irregularidade (92deg)
+			// Camada 3: Textura de fundo para tirar a cor chapada
 			box.style.backgroundImage = `
 				repeating-linear-gradient(88deg, 
 					rgba(0,0,0,0.08) 0px, 
@@ -81,6 +84,7 @@ const wallTypes = [
 				radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%)
 			`;
 			box.style.backgroundSize = "auto";
+			// O segredo do realismo: um leve contraste para destacar as ranhuras
 			box.style.filter = "contrast(1.1) brightness(0.98)";
 		}
 	},
@@ -133,6 +137,7 @@ function isProdutoAcessorio(product) {
 /* ==========================================================================
    2. INICIALIZAÇÃO (DOMContentLoaded)
    ========================================================================== */
+// --- 1. FUNÇÕES GLOBAIS (Devem vir antes de tudo para serem reconhecidas) ---
 
 function normalizarTexto(texto) {
     if (!texto) return "";
@@ -311,7 +316,7 @@ function saveAddress() {
     // 5. FECHA O MENU AUTOMATICAMENTE (Ação solicitada)
     fecharMenuMobile();
 
-    // Se o formulário estiver dentro de um Modal, pode fechá-lo também:
+    // Opcional: Se o formulário estiver dentro de um Modal, você pode fechá-lo também:
     const modalConta = document.getElementById('minhaContaModal');
     if (modalConta) {
         bootstrap.Modal.getInstance(modalConta)?.hide();
@@ -565,7 +570,7 @@ function showProductDetails(id) {
 // Botão compartilhar
 
 function shareProduct(id, name) {
-    // Cria o link personalizado
+    // Cria o link personalizado (ajuste o domínio quando publicar seu site)
     const url = `${window.location.origin}${window.location.pathname}?produto=${id}`;
     const text = `Confira este produto: ${name}`;
 
@@ -586,7 +591,10 @@ function shareProduct(id, name) {
     }
 }
 
-
+/**
+ * Função auxiliar para tratar o clique no favorito dentro da modal
+ * sem precisar recarregar a modal inteira (melhora a performance)
+ */
 function handleModalFavorite(id, event) {
     // 1. Chama sua função global de toggle (que já deve salvar no localStorage e atualizar a vitrine)
     toggleFavorite(id, event);
@@ -778,11 +786,6 @@ if (isSpray) {
         let total = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
         const atual = (total - pending) + 1;
 
-		const btnApplyAll = document.getElementById('btnApplyToAll');
-    	if (btnApplyAll) {
-        btnApplyAll.style.display = total > 1 ? 'block' : 'none';
-    }
-
         const labelEl = document.getElementById('productConfigModalLabel');
         if (labelEl) {
             labelEl.innerHTML = `${product.name} <span class="badge bg-warning text-dark ms-2 rounded-pill" style="font-size: 0.7rem;">Item ${atual} de ${total}</span>`;
@@ -795,11 +798,6 @@ if (isSpray) {
         if (previewContainer) {
             previewContainer.style.display = subsComParede.includes(product.sub) ? 'block' : 'none';
         }
-		
-		fotoParede = null;
-		selecionarModoParede('simulada');
-		document.getElementById('btnTabSimulada')?.classList.replace('btn-outline-secondary','btn-primary');
-		document.getElementById('btnTabMinhaParede')?.classList.replace('btn-primary','btn-outline-secondary');
 
         configModal.show();
         renderizarSugestoes(product);
@@ -862,6 +860,7 @@ function confirmAddToCartSizeOnly() {
     save();
     updateCartUI();
 
+    // Fecha o modal e gerencia a fila
     const modalEl = document.getElementById('modalTamanhos');
     const instance = bootstrap.Modal.getInstance(modalEl);
     if (instance) instance.hide();
@@ -882,92 +881,95 @@ function confirmAddToCartSizeOnly() {
     }
 }
 
-
 function updatePreview() {
     const selectedColorInput = document.querySelector('input[name="color"]:checked');
     const textureSelect = document.getElementById('selectTexture');
     const sizeSelect = document.getElementById('selectSize'); 
-    const previewBox = document.getElementById('product-preview');       // camada da TINTA
-    const wallLayer  = document.getElementById('preview-wall-layer');    // camada do FUNDO
+    const previewBox = document.getElementById('product-preview');
     const previewText = document.getElementById('preview-text');
     const wallLabel = document.getElementById('wall-type-label');
     const modalPriceElement = document.getElementById('modalProductPrice');
 
     if (!selectedColorInput || !previewBox || !textureSelect || !tempProduct) return;
 
-    const colorHex  = selectedColorInput.nextElementSibling.style.backgroundColor 
-                   || selectedColorInput.nextElementSibling.style.background;
+    // 1. CAPTURA DOS VALORES SELECIONADOS
+    const colorHex = selectedColorInput.nextElementSibling.style.backgroundColor || selectedColorInput.nextElementSibling.style.background;
     const colorName = selectedColorInput.value;
-    const texture   = textureSelect.value;
+    const texture = textureSelect.value;
+    
+    // 2. PARTE VISUAL (TINTA E PAREDE)
+    previewBox.style.backgroundColor = colorHex;
+    previewBox.style.filter = "none";
+    previewBox.style.backgroundSize = "auto";
+    previewBox.style.backgroundPosition = "0 0";
+    previewBox.style.animation = "none";
+    previewBox.style.boxShadow = "inset 0 0 50px rgba(0,0,0,0.1)"; 
 
-    // --- CAMADA DE TINTA (product-preview) ---
-	const modoFoto = fotoParede &&
-	document.getElementById('btnTabMinhaParede')?.classList.contains('btn-primary');
-	
-	previewBox.style.backgroundColor = colorHex;
-	// Modo foto: mais transparente (55%) para ver a parede real
-	// Modo simulado: levemente transparente (82%) para dar sensação de tinta
-	previewBox.style.opacity = modoFoto ? '0.55' : '0.82';
-    previewBox.style.filter            = 'none';
-    previewBox.style.backgroundImage   = 'none';   // tinta não tem textura de parede
-    previewBox.style.backgroundSize    = 'auto';
-    previewBox.style.backgroundPosition = '0 0';
-    previewBox.style.boxShadow         = 'inset 0 0 50px rgba(0,0,0,0.1)';
+    const currentWall = wallTypes[currentWallIndex];
+    if (wallLabel) wallLabel.innerText = currentWall.name;
+    currentWall.apply(previewBox);
+    
+    const baseWallTexture = previewBox.style.backgroundImage;
 
-    // --- CAMADA DE FUNDO (preview-wall-layer) — textura da parede ---
-    if (!modoFoto && wallLayer) {
-        // Reseta antes de aplicar
-        wallLayer.style.backgroundImage   = 'none';
-        wallLayer.style.backgroundSize    = 'auto';
-        wallLayer.style.backgroundPosition = '0 0';
-        wallLayer.style.filter             = 'none';
-        // Aplica a textura no layer de fundo
-        wallTypes[currentWallIndex].apply(wallLayer);
-    }
-
-    if (wallLabel) wallLabel.innerText = wallTypes[currentWallIndex].name;
-
-    // --- EFEITOS DE ACABAMENTO (aplicados na camada de tinta) ---
-    switch (texture) {
-        case 'Fosco':
-            previewBox.style.filter = 'saturate(0.9) brightness(0.95)';
+    // Aplicação dos efeitos visuais de acabamento
+    switch(texture) {
+        case "Fosco":
+            previewBox.style.filter = "saturate(0.9) brightness(0.95)";
             break;
-        case 'Acetinado':
-            previewBox.style.boxShadow = 'inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)';
+        case "Acetinado":
+            previewBox.style.boxShadow = "inset 0 0 40px rgba(255,255,255,0.15), inset -20px -20px 40px rgba(0,0,0,0.05)";
             break;
-        case 'Semibrilho':
-            previewBox.style.boxShadow = 'inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)';
-            previewBox.style.filter = 'brightness(1.05)';
+        case "Semibrilho":
+            previewBox.style.boxShadow = "inset 20px 20px 60px rgba(255,255,255,0.35), inset -10px -10px 20px rgba(0,0,0,0.1)";
+            previewBox.style.filter = "brightness(1.05)";
             break;
-        case 'Cimento Queimado':
-            previewBox.style.backgroundImage = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%), 
-                                                radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
-            previewBox.style.filter = 'contrast(1.2) grayscale(0.1)';
+        case "Cimento Queimado":
+            const cimento = `radial-gradient(circle at 20% 30%, rgba(0,0,0,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)`;
+            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${cimento}, ${baseWallTexture}` : cimento;
+            previewBox.style.filter = "contrast(1.2) grayscale(0.1)";
             break;
-        case 'Metalizado':
-            previewBox.style.backgroundImage = `linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`;
-            previewBox.style.filter = 'contrast(1.1) brightness(1.1) saturate(1.2)';
+        case "Metalizado":
+            const metal = `linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`;
+            previewBox.style.backgroundImage = (baseWallTexture !== "none") ? `${metal}, ${baseWallTexture}` : metal;
+            previewBox.style.filter = "contrast(1.1) brightness(1.1) saturate(1.2)";
             break;
     }
 
-    if (previewText) previewText.innerText = `${colorName} - ${texture}`;
+    previewText.innerText = `${colorName} - ${texture}`;
 
-    // --- PREÇO ---
-    const basePrice    = Number(tempProduct.price) || 0;
-    const colorExtra   = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
-    const textureExtra = Number(textureSelect.options[textureSelect.selectedIndex].getAttribute('data-price-texture')) || 0;
-    let   sizeExtra    = 0;
+    // 3. LÓGICA DE CÁLCULO DE PREÇO AGREGADO
+    
+    const basePrice = Number(tempProduct.price) || 0;
+    
+    // Adicional da Cor (data-price-color)
+    const colorExtra = Number(selectedColorInput.getAttribute('data-price-color')) || 0;
+
+    // Adicional da Textura (data-price-texture)
+    const textureOption = textureSelect.options[textureSelect.selectedIndex];
+    const textureExtra = Number(textureOption.getAttribute('data-price-texture')) || 0;
+
+    // Adicional do Tamanho/Lata (data-price-add)
+    let sizeExtra = 0;
     if (sizeSelect) {
-        sizeExtra = Number(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-price-add')) || 0;
+        const sizeOption = sizeSelect.options[sizeSelect.selectedIndex];
+        sizeExtra = Number(sizeOption.getAttribute('data-price-add')) || 0;
     }
+
+    // Soma Total Final
     const totalPrice = basePrice + colorExtra + textureExtra + sizeExtra;
 
-    if (modalPriceElement) modalPriceElement.innerText = `R$ ${totalPrice.toFixed(2)}`;
+    // 4. ATUALIZAÇÃO DA INTERFACE E OBJETO
+    if (modalPriceElement) {
+        modalPriceElement.innerText = `R$ ${totalPrice.toFixed(2)}`;
+    }
 
+    // Salva o preço calculado para o carrinho usar
     tempProduct.currentCalculatedPrice = totalPrice;
-    tempProduct.selectedColorName      = colorName;
-    tempProduct.selectedTextureName    = texture;
-    tempProduct.selectedSizeName       = sizeSelect ? sizeSelect.value : 'Padrão';
+    
+    // Salva as escolhas atuais para o carrinho
+    tempProduct.selectedColorName = colorName;
+    tempProduct.selectedTextureName = texture;
+    tempProduct.selectedSizeName = sizeSelect ? sizeSelect.value : "Padrão";
 }
 
 function changeWall(direction) {
@@ -1037,6 +1039,12 @@ function updateSprayPreview() {
 
     if (selectedColorInput) {
         const colorHex = selectedColorInput.getAttribute('data-hex');
+        
+        /* LÓGICA DE COBERTURA (CENTRO):
+           - 1 Demão: Centro pequeno e suave (30%), bordas bem esfumaçadas.
+           - 2 Demãos: Centro maior e mais forte (55%).
+           - 3 Demãos: Centro totalmente fechado (80%) com 100% de opacidade.
+        */
         
         let centroSolido, opacidadeCentro;
 
@@ -1187,11 +1195,6 @@ function confirmSprayToCart() {
     if (priceLabel) priceLabel.style.display = 'none';
 }
 
-/* ==========================================================================
-   LANTERNA
-   ========================================================================== */
-   
-
 // Alterna a lanterna entre On/Off
 function toggleFlashlight(type) {
     const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
@@ -1224,78 +1227,6 @@ document.addEventListener('mousemove', (e) => {
         }
     });
 });
-
-let flashlightAnimFrame = null;
-let flashlightAngle = 0;
-
-function animateFlashlight(overlayId) {
-    const overlay = document.getElementById(overlayId);
-    if (!overlay || !overlay.classList.contains('flashlight-active')) return;
-
-    // SE estiver sendo tocado (mobile), pausa a animação automática
-    // pois o touchmove já cuida da posição
-    if (overlay.dataset.touching === 'true') {
-        flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
-        return;
-    }
-
-    // SÓ anima automaticamente em dispositivos touch (sem mouse)
-    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    if (!isTouchDevice) {
-        // No desktop o mouse já cuida disso — encerra o loop
-        return;
-    }
-
-    const parent = overlay.parentElement;
-    const cx = parent.offsetWidth / 2;
-    const cy = parent.offsetHeight / 2;
-    const radius = Math.min(cx, cy) * 0.6;
-
-    flashlightAngle += 0.012;
-    const x = cx + Math.cos(flashlightAngle) * radius;
-    const y = cy + Math.sin(flashlightAngle * 0.7) * radius;
-
-    overlay.style.setProperty('--x', `${x}px`);
-    overlay.style.setProperty('--y', `${y}px`);
-
-    flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
-}
-
-function toggleFlashlight(type) {
-    const id = type === 'spray' ? 'flashlight-spray' : 'flashlight-normal';
-    const overlay = document.getElementById(id);
-    if (!overlay) return;
-
-    overlay.classList.toggle('flashlight-active');
-    const isActive = overlay.classList.contains('flashlight-active');
-    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-
-    if (isActive) {
-        if (isTouchDevice) {
-            // MOBILE: eventos de toque para mover + animação automática quando parado
-            overlay.parentElement.addEventListener('touchstart', () => {
-                overlay.dataset.touching = 'true';
-            }, { passive: true });
-
-            overlay.parentElement.addEventListener('touchmove', (e) => {
-                const touch = e.touches[0];
-                const rect = overlay.parentElement.getBoundingClientRect();
-                overlay.style.setProperty('--x', `${touch.clientX - rect.left}px`);
-                overlay.style.setProperty('--y', `${touch.clientY - rect.top}px`);
-            }, { passive: true });
-
-            overlay.parentElement.addEventListener('touchend', () => {
-                overlay.dataset.touching = 'false';
-            }, { passive: true });
-
-            // Inicia animação automática só no mobile
-            animateFlashlight(id);
-        }
-        // No desktop o mousemove global já cuida da posição — não precisa fazer nada aqui
-    } else {
-        cancelAnimationFrame(flashlightAnimFrame);
-    }
-}
 
 /* ==========================================================================
    6. GESTÃO DO CARRINHO E CHECKOUT
@@ -1518,12 +1449,7 @@ function checkout() {
     }
 
     const nomeSalvo = localStorage.getItem('usuario_nome');
-    let enderecoObj = null;
-    try {
-        enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
-    } catch (e) {
-        enderecoObj = null;
-}
+    const enderecoObj = JSON.parse(localStorage.getItem('usuario_endereco_obj'));
 
     if (!nomeSalvo) {
         showToast("Você precisa fazer login para finalizar.", "warning");
@@ -1795,9 +1721,6 @@ function processarFilaConfiguracao(modalEl) {
 						// Acabou? Limpa tudo
 						sessionStorage.removeItem('pending_configs');
 						sessionStorage.removeItem('total_to_configure');
-
-    					const btnApplyAll = document.getElementById('btnApplyToAll');
-					    if (btnApplyAll) btnApplyAll.style.display = 'none';
 						
 						document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 						document.body.classList.remove('modal-open');
@@ -1851,6 +1774,22 @@ function showCart() {
 }
 
 
+function calcularPrecoConfigurado() {
+    if (!tempProduct) return 0;
+
+    const selectedColorInput = document.querySelector('input[name="color"]:checked');
+    const textureSelect = document.getElementById('selectTexture');
+    const sizeSelect = document.getElementById('selectSize');
+
+    // Se ainda não selecionou cor, retorna apenas o preço base
+    const colorPrice = selectedColorInput ? Number(selectedColorInput.getAttribute('data-price-color')) || 0 : 0;
+    
+    const texturePrice = textureSelect ? Number(textureSelect.options[textureSelect.selectedIndex].getAttribute('data-price-texture')) || 0 : 0;
+    
+    const sizePrice = sizeSelect ? Number(sizeSelect.options[sizeSelect.selectedIndex].getAttribute('data-price-add')) || 0 : 0;
+
+    return Number(tempProduct.price) + colorPrice + texturePrice + sizePrice;
+}
 function atualizarSubtotalModal() {
     if (!tempProduct) return;
 
@@ -2067,10 +2006,6 @@ function showToast(message, type = 'success', isFixed = false) {
 
 // Função auxiliar para fechar o menu mobile
 function fecharMenuMobile() {
-    // Fecha submenus laterais abertos
-    document.querySelectorAll('.dropdown-side.active')
-        .forEach(el => el.classList.remove('active'));
-
     // Para Navbar padrão (Collapse)
     const navbarCollapse = document.querySelector('.navbar-collapse.show');
     if (navbarCollapse) {
@@ -2083,6 +2018,20 @@ function fecharMenuMobile() {
         const instance = bootstrap.Offcanvas.getInstance(offcanvasEl);
         if (instance) instance.hide();
     }
+}
+
+
+/* ==========================================================================
+   SISTEMA DE BUSCA (PESQUISA)
+   ========================================================================== */
+
+
+// Função para remover acentos e transformar em minúsculas
+function normalizarTexto(texto) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Remove os "pedacinhos" dos acentos
 }
 
 
@@ -2162,7 +2111,6 @@ let lastScrollY = window.scrollY;
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (!navbar) return;
-    if (document.body.classList.contains('modal-open')) return;
 
     const currentScrollY = window.scrollY;
 
@@ -2176,107 +2124,6 @@ window.addEventListener('scroll', () => {
 
     lastScrollY = currentScrollY;
 }, { passive: true });
-
-/* ==========================================================================
-   ADICIONAR DA PAREDE
-   ========================================================================== */
-
-
-// Estado global da foto
-let fotoParede = null; // guarda o dataURL da foto
-
-function selecionarModoParede(modo) {
-    const btnSim = document.getElementById('btnTabSimulada');
-    const btnFoto = document.getElementById('btnTabMinhaParede');
-    const painelSim = document.getElementById('painelSimulada');
-    const painelFoto = document.getElementById('painelMinhaParede');
-    const navBtns = document.querySelectorAll('.btn-nav-wall');
-    const wallLabel = document.getElementById('wall-type-label');
-
-    if (modo === 'foto') {
-        btnSim.classList.replace('btn-primary', 'btn-outline-secondary');
-        btnFoto.classList.replace('btn-outline-secondary', 'btn-primary');
-        painelSim.classList.add('d-none');
-        painelFoto.classList.remove('d-none');
-        navBtns.forEach(b => b.style.display = 'none');
-        if (wallLabel) wallLabel.innerText = 'Sua Parede';
-        
-        // Se já tem foto carregada, aplica
-        if (fotoParede) aplicarFundoFoto();
-
-    } else {
-        btnFoto.classList.replace('btn-primary', 'btn-outline-secondary');
-        btnSim.classList.replace('btn-outline-secondary', 'btn-primary');
-        painelFoto.classList.add('d-none');
-        painelSim.classList.remove('d-none');
-        navBtns.forEach(b => b.style.display = '');
-        
-        // Volta para a parede simulada
-        const wallLayer = document.getElementById('preview-wall-layer');
-        if (wallLayer) {
-            wallLayer.style.backgroundImage = 'none';
-            wallLayer.style.backgroundColor = '#eee';
-        }
-        if (wallLabel) wallLabel.innerText = wallTypes[currentWallIndex].name;
-        updatePreview();
-    }
-}
-
-function aplicarFotoParede(input) {
-    const file = input.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        fotoParede = e.target.result;
-        aplicarFundoFoto();
-
-        // Mostra thumbnail
-        const thumb = document.getElementById('thumbMinhaParede');
-        const imgThumb = document.getElementById('imgThumbParede');
-        if (thumb && imgThumb) {
-            imgThumb.src = fotoParede;
-            thumb.classList.remove('d-none');
-        }
-
-        document.getElementById('btnRemoverFoto')?.classList.remove('d-none');
-        showToast("Foto carregada! Selecione uma cor para ver na sua parede.", "success");
-    };
-    reader.readAsDataURL(file);
-}
-
-function aplicarFundoFoto() {
-    const wallLayer = document.getElementById('preview-wall-layer');
-    if (!wallLayer || !fotoParede) return;
-
-    wallLayer.style.backgroundImage = `url('${fotoParede}')`;
-    wallLayer.style.backgroundSize = 'cover';
-    wallLayer.style.backgroundPosition = 'center';
-    wallLayer.style.backgroundColor = 'transparent';
-
-    // Atualiza a camada de tinta por cima
-    updatePreview();
-}
-
-function removerFotoParede() {
-    fotoParede = null;
-
-    const wallLayer = document.getElementById('preview-wall-layer');
-    if (wallLayer) {
-        wallLayer.style.backgroundImage = 'none';
-        wallLayer.style.backgroundColor = '#eee';
-    }
-
-    document.getElementById('btnRemoverFoto')?.classList.add('d-none');
-    document.getElementById('thumbMinhaParede')?.classList.add('d-none');
-    
-    const uploadInput = document.getElementById('uploadWall');
-    if (uploadInput) uploadInput.value = '';
-
-    // Volta para modo simulado
-    selecionarModoParede('simulada');
-}
-
 
 
 
