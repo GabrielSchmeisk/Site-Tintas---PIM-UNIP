@@ -412,24 +412,35 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
 
-                        <!-- CAMADA EXTERNA: aplica a perspectiva 3D e a sombra -->
-                        <div id="preview-wall-layer" style="
-                            width: 100%; height: 180px; border-radius: 4px;
-                            transform: rotateY(-8deg) rotateX(2deg);
-                            box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
-                            position: relative; overflow: hidden;
-                            background-color: #eee;
-                            transition: background-image 0.4s ease;">
-
-                            <!-- CAMADA DA TINTA: fica por cima da foto/parede -->
-						<div id="product-preview" style="
-						    position: absolute; 
-						    inset: 0;
-						    width: 100%;
-						    height: 100%;
-						    border-radius: 4px;
-						    opacity: 0.82;
-						    transition: background-color 0.3s ease, opacity 0.3s ease;">
+						<div style="position: relative; width: 100%; height: 180px; transform-style: preserve-3d;">
+						
+						    <div id="preview-wall-layer" style="
+						        position: absolute;
+						        inset: 0;
+						        width: 100%; 
+						        height: 100%; 
+						        border-radius: 4px;
+						        transform: rotateY(-8deg) rotateX(2deg);
+						        box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
+						        overflow: hidden;
+						        background-color: #eee;
+						        transition: background-image 0.4s ease;
+						        z-index: 1;">
+						    </div>
+						
+						    <div id="product-preview" style="
+						        position: absolute; 
+						        inset: 0;
+						        width: 100%;
+						        height: 100%;
+						        border-radius: 4px;
+						        opacity: 0.82;
+						        transform: rotateY(-8deg) rotateX(2deg); /* Deve ser igual ao de cima */
+						        transition: background-color 0.3s ease, opacity 0.3s ease;
+						        z-index: 2; 
+						        pointer-events: none;">
+						    </div>
+						
 						</div>
 
                             <div id="flashlight-normal" class="flashlight-overlay"></div>
