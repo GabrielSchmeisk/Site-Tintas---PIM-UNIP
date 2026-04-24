@@ -150,6 +150,128 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- MODAL MINHA CONTA -->
+	
+	<div class="modal fade" id="minhaContaModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0 rounded-4">
+				<div class="modal-header border-0 pb-0">
+					<h5 class="fw-bold">Minha Conta</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body p-4">
+                    <div class="text-center mb-4">
+						<div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 80px; height: 80px; overflow: hidden;">
+							<img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" style="width: 100%; height: 100%; object-fit: cover;">
+						</div>
+						<p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
+						<p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
+					</div>
+
+                    <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
+						<i class="fas fa-shopping-bag text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Meus Pedidos</span>
+							<small class="text-muted">Histórico e rastreio</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapsePedidos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
+						</div>
+					</div>
+
+					<a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-heart text-danger"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Favoritos</span>
+							<small class="text-muted">Sua lista de desejos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseFavoritos">
+						<div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
+							<p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
+						</div>
+					</div>
+					
+					<a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fas fa-map-marker-alt text-primary"></i>
+						<div class="flex-grow-1">
+							<span class="d-block fw-bold">Endereço de Entrega</span>
+							<small class="text-muted">Configure onde receber seus produtos</small>
+						</div>
+						<i class="fas fa-chevron-down small text-muted"></i>
+					</a>
+					<div class="collapse" id="collapseEndereco">
+						<div class="p-3 bg-light rounded-3 mb-3 border">
+							<h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
+							<div class="row g-2">
+								<div class="col-8">
+									<input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro" required>
+								</div>
+
+								<div class="col-4">
+									<input type="number" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+								</div>
+
+								<div class="col-12">
+									<input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento">
+								</div>
+
+								<div class="col-6">
+									<input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro" required>
+								</div>
+
+								<div class="col-6">
+									<input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade" required>
+								</div>
+							</div>
+							<button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
+						</div>
+					</div>
+
+                    <div id="authOptions" class="mt-4">
+						<button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
+						<button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- MODAL LOGIN -->
+		
+	<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Acesse sua Conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nome Completo</label>
+                            <input type="text" id="loginNome" class="form-control" placeholder="Seu nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">E-mail</label>
+                            <input type="email" id="loginEmail" class="form-control" placeholder="exemplo@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Senha</label>
+                            <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Entrar na Conta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 	
 	<footer id="contato" class="text-white pt-5 pb-4">
 			<div class="container">
