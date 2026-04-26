@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
+<!-- ============================================================
+     HEAD — Meta, Título e Dependências Externas
+     ============================================================ -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +13,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
+<!-- ============================================================
+     HEADER — Navbar Principal
+     ============================================================ -->
 <body>
-    <header class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+	<header class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
 		<div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" class="logo-header me-2">
-                <span class="fw-bold h3 mb-0">Fix<span class="text-warning">Tintas</span></span>
-            </a>
-			
+
+			<!-- Logo -->
+			<a class="navbar-brand d-flex align-items-center" href="index.html">
+				<img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" class="logo-header me-2">
+				<span class="fw-bold h3 mb-0">Fix<span class="text-warning">Tintas</span></span>
+			</a>
+
+			<!-- Botão colapso mobile -->
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
+			<div class="collapse navbar-collapse" id="navbarNav">
+
+				<!-- Links de navegação -->
 				<ul class="navbar-nav mx-auto">
 					<li class="nav-item"><a class="nav-link active" href="index.html">Início</a></li>
 					<li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
@@ -31,22 +44,53 @@
 							<i class="fas fa-calculator me-1"></i> Calculadora
 						</a>
 					</li>
-					
 				</ul>
-				
-				
+
+
+				<!-- Toggle de modo escuro -->
 				<div class="dark-mode-toggle" onclick="toggleDarkMode()">
 					<i class="fas fa-moon" id="dark-mode-icon"></i>
 				</div>
-                
-                <div class="d-flex align-items-center gap-2">
+
+				<!-- Minha Conta -->
+				<div class="d-flex align-items-center gap-2">
 					<button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" onclick="handleProfileClick()">
-						<i class="fas fa-user me-md-2"></i>
 						<span class="d-none d-md-inline">Minha Conta</span>
+					</button>
 				</div>
+
 			</div>
 		</div>
 	</header>
+
+	<!-- ============================================================
+		 ELEMENTOS FLUTUANTES
+		 ============================================================ -->
+
+	<!-- Botão voltar ao topo -->
+	<button id="btn-voltar-topo"
+			onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+			aria-label="Voltar ao topo">
+		<i class="fas fa-arrow-up"></i>
+	</button>
+
+	<!-- Botão WhatsApp com tooltip e animação de pulso -->
+	<div class="whatsapp-btn-wrap">
+		<div class="whatsapp-pulse"></div>
+		<div class="whatsapp-tooltip">Fale conosco!</div>
+		<a href="https://wa.me/551600000000"
+		   target="_blank"
+		   rel="noopener noreferrer"
+		   class="btn btn-success rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+		   style="width: 45px; height: 45px; transition: transform 0.3s;">
+			<i class="fab fa-whatsapp fa-lg"></i>
+		</a>
+	</div>
+	
+	<!-- ============================================================
+		 ASSUNTO PRINCIPAL
+		 ============================================================ -->
+
 
 	<main class="container my-5 py-5">
 		<div class="text-center mb-5">
@@ -178,198 +222,22 @@
 		</div>
 	</main>
 	
-	<!-- MODAL MINHA CONTA -->
 	
-	<div class="modal fade" id="minhaContaModal" tabindex="-1">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content border-0 rounded-4">
-				<div class="modal-header border-0 pb-0">
-					<h5 class="fw-bold">Minha Conta</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body p-4">
-                    <div class="text-center mb-4">
-						<div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 80px; height: 80px; overflow: hidden;">
-							<img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" style="width: 100%; height: 100%; object-fit: cover;">
-						</div>
-						<p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
-						<p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
-					</div>
-
-                    <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
-						<i class="fas fa-shopping-bag text-primary"></i>
-						<div class="flex-grow-1">
-							<span class="d-block fw-bold">Meus Pedidos</span>
-							<small class="text-muted">Histórico e rastreio</small>
-						</div>
-						<i class="fas fa-chevron-down small text-muted"></i>
-					</a>
-					<div class="collapse" id="collapsePedidos">
-						<div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
-							<p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
-						</div>
-					</div>
-
-					<a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
-						<i class="fas fa-heart text-danger"></i>
-						<div class="flex-grow-1">
-							<span class="d-block fw-bold">Favoritos</span>
-							<small class="text-muted">Sua lista de desejos</small>
-						</div>
-						<i class="fas fa-chevron-down small text-muted"></i>
-					</a>
-					<div class="collapse" id="collapseFavoritos">
-						<div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
-							<p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
-						</div>
-					</div>
-					
-					<a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
-						<i class="fas fa-map-marker-alt text-primary"></i>
-						<div class="flex-grow-1">
-							<span class="d-block fw-bold">Endereço de Entrega</span>
-							<small class="text-muted">Configure onde receber seus produtos</small>
-						</div>
-						<i class="fas fa-chevron-down small text-muted"></i>
-					</a>
-					<div class="collapse" id="collapseEndereco">
-						<div class="p-3 bg-light rounded-3 mb-3 border">
-							<h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
-							<div class="row g-2">
-								<div class="col-8">
-									<input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro" required>
-								</div>
-
-								<div class="col-4">
-									<input type="number" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="123" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-								</div>
-
-								<div class="col-12">
-									<input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento">
-								</div>
-
-								<div class="col-6">
-									<input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro" required>
-								</div>
-
-								<div class="col-6">
-									<input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade" required>
-								</div>
-							</div>
-							<button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
-						</div>
-					</div>
-
-                    <div id="authOptions" class="mt-4">
-						<button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
-						<button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- MODAL LOGIN -->
-		
-	<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Acesse sua Conta</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Nome Completo</label>
-                            <input type="text" id="loginNome" class="form-control" placeholder="Seu nome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">E-mail</label>
-                            <input type="email" id="loginEmail" class="form-control" placeholder="exemplo@email.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Senha</label>
-                            <input type="password" id="loginSenha" class="form-control" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Entrar na Conta</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-	
-	<a href="https://wa.me/551600000000" 
-	   target="_blank" 
-	   class="btn btn-success position-fixed bottom-0 end-0 m-3 rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
-	   style="width: 45px; height: 45px; z-index: 1050; transition: transform 0.3s;">
-		<i class="fab fa-whatsapp fa-lg"></i>
-	</a>
-	
-	
-	<div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content border-0 shadow">
-				<div class="modal-header bg-dark text-white">
-					<h5 class="modal-title fw-bold"><i class="fas fa-paint-roller me-2"></i>Calculadora de Tinta</h5>
-					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body p-4">
-					<p class="small text-muted">Descubra a quantidade ideal para sua pintura (considerando 2 demãos).</p>
-					<form id="calcForm">
-						<div class="row g-3">
-							<div class="col-6">
-								<label class="form-label small fw-bold">Largura da Parede (m)</label>
-								<input type="number" id="calcLargura" class="form-control" placeholder="Ex: 4.5" step="0.1">
-							</div>
-							<div class="col-6">
-								<label class="form-label small fw-bold">Altura da Parede (m)</label>
-								<input type="number" id="calcAltura" class="form-control" placeholder="Ex: 2.8" step="0.1">
-							</div>
-							<div class="col-12">
-								<button type="button" class="btn btn-primary w-100 fw-bold" onclick="calcularTinta()">CALCULAR AGORA</button>
-							</div>
-						</div>
-					</form>
-
-					<div id="resultadoCalc" class="mt-4 d-none">
-						<div class="alert alert-info border-0 shadow-sm">
-							<h6 class="fw-bold mb-1">Resultado Estimado:</h6>
-							<p class="mb-0" id="textoResultado"></p>
-						</div>
-						<small class="text-muted d-block" style="font-size: 0.7rem;">
-							*Cálculo baseado em um rendimento médio de 10m² por litro/demão.
-						</small>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-	  <div id="globalToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-		  <div class="toast-body" id="globalToastMessage">
-			</div>
-		  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-		</div>
-	  </div>
-	</div>
-	
-
-
-<footer id="contato" class="text-white pt-5 pb-4">
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+	<footer id="contato" class="text-white pt-5 pb-4">
 		<div class="container">
 			<div class="row g-5">
+
+				<!-- Sobre a empresa -->
 				<div class="col-lg-4 col-md-6">
 					<div class="d-flex align-items-center mb-3">
-						<img src="https://i.imgur.com/PmT6Skb.png" 
-							 alt="Logo FixTintas" 
-							 width="40" 
-							 height="40" 
+						<img src="https://i.imgur.com/PmT6Skb.png"
+							 alt="Logo FixTintas"
+							 width="40"
+							 height="40"
 							 class="me-2 rounded-circle bg-white p-1 shadow-sm">
-						
 						<span class="fw-bold text-white h4 mb-0">Fix<span class="text-warning">Tintas</span></span>
 					</div>
 					<p class="text" style="line-height: 1.8;">
@@ -382,6 +250,7 @@
 					</div>
 				</div>
 
+				<!-- Links da loja -->
 				<div class="col-lg-2 col-md-6">
 					<h5 class="fw-bold">Loja</h5>
 					<ul class="list-unstyled">
@@ -392,33 +261,35 @@
 					</ul>
 				</div>
 
+				<!-- Links de suporte -->
 				<div class="col-lg-2 col-md-6">
 					<h5 class="fw-bold">Suporte</h5>
 					<ul class="list-unstyled">
-							<li><a href="#" data-bs-toggle="modal" data-bs-target="#minhaContaModal" class="footer-link">Minha Conta</a></li>
-							<li><a href="termos.html" class="footer-link">Termos de Uso</a></li>
-							<li><a href="politicas.html" class="footer-link">Políticas</a></li>
-							<li><a href="politicas.html" class="footer-link">Privacidade</a></li>
+						<li><a href="javascript:void(0)" onclick="handleProfileClick()" class="footer-link">Minha Conta</a></li>
+						<li><a href="termos.html" class="footer-link">Termos de Uso</a></li>
+						<li><a href="politicas.html" class="footer-link">Políticas</a></li>
+						<li><a href="politicas.html" class="footer-link">Privacidade</a></li>
 					</ul>
 				</div>
 
+				<!-- Informações de contato -->
 				<div class="col-lg-4 col-md-6">
 					<h5 class="fw-bold">Contato</h5>
 					<p class="text mb-2"><i class="fas fa-phone-alt text-warning me-2"></i> (16) 0000-0000</p>
 					<p class="text mb-2"><i class="fas fa-envelope text-warning me-2"></i> sac@fixtintas.com.br</p>
 					<p class="text mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Avenida Carlos Consoni, 10 - RP</p>
 					<p class="text mb-0 small opacity-75"><i class="fas fa-clock text-warning me-2"></i> Seg. a Sex. das 08h às 18h</p>
-					
 					<div class="mt-4">
 						<i class="fab fa-cc-visa fa-2x me-2 opacity-50"></i>
 						<i class="fab fa-cc-mastercard fa-2x me-2 opacity-50"></i>
 						<i class="fas fa-barcode fa-2x opacity-50"></i>
-						<i class="fab fa-pix fa-2x ms-2 opacity-50"></i> </div>
+						<i class="fab fa-pix fa-2x ms-2 opacity-50"></i>
+					</div>
 				</div>
 			</div>
-			
+
 			<hr class="mt-5 border-secondary opacity-25">
-			
+
 			<div class="row align-items-center">
 				<div class="col-md-6 text-center text-md-start">
 					<p class="text mb-1">© 2026 <strong>FixTintas Comércio de Tintas LTDA.</strong></p>
@@ -430,9 +301,343 @@
 			</div>
 		</div>
 	</footer>
+	
+<!-- ============================================================
+     MODAIS — Minha Conta
+     ============================================================ -->
+<div class="modal fade" id="minhaContaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Minha Conta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <!-- Avatar e nome do usuário -->
+                <div class="text-center mb-4">
+                    <div id="userAvatarContainer" class="usuario-avatar-grande mb-2 mx-auto">FT</div>
+                    <p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
+                    <p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
+                </div>
+
+                <!-- Meus Pedidos -->
+                <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
+                    <i class="fas fa-shopping-bag text-primary"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Meus Pedidos</span>
+                        <small class="text-muted">Histórico e rastreio</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapsePedidos">
+                    <div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
+                        <p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
+                    </div>
+                </div>
+
+                <!-- Favoritos -->
+                <a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-heart text-danger"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Favoritos</span>
+                        <small class="text-muted">Sua lista de desejos</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseFavoritos">
+                    <div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
+                        <p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
+                    </div>
+                </div>
+
+                <!-- Endereço de entrega -->
+                <a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Endereço de Entrega</span>
+                        <small class="text-muted">Configure onde receber seus produtos</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseEndereco">
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="text" id="addrCEP"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="CEP (00000-000)"
+                                       maxlength="9"
+                                       inputmode="numeric"
+                                       required>
+                            </div>
+                            <div class="col-6">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary w-100"
+                                        onclick="buscarCEP()"
+                                        style="font-size: 0.75rem;">
+                                    <i class="fas fa-search me-1"></i>Buscar CEP
+                                </button>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="addrRua"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="Rua/Logradouro" required>
+                            </div>
+                            <div class="col-4">
+                                <input type="number" id="addrNum"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="123" required
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" id="addrComp"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="Complemento">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" id="addrBairro"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="Bairro" required>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" id="addrCidade"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="Cidade" required>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
+                    </div>
+                </div>
+
+                <!-- Ações de autenticação -->
+                <div id="authOptions" class="mt-4">
+                    <button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
+                    <button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAIS — Login e Cadastro
+     ============================================================ -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg login-modal-content">
+
+            <!-- Cabeçalho com logo -->
+            <div class="login-modal-header">
+                <img src="https://i.imgur.com/PmT6Skb.png" alt="FixTintas" class="login-logo">
+                <h5 class="login-modal-titulo">Fix<span>Tintas</span></h5>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Abas Entrar / Criar Conta -->
+            <div class="login-tabs">
+                <button class="login-tab ativa" id="tab-entrar" onclick="alternarAbaLogin('entrar')">Entrar</button>
+                <button class="login-tab" id="tab-cadastro" onclick="alternarAbaLogin('cadastro')">Criar Conta</button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <!-- Formulário de login -->
+                <form id="loginForm" class="login-painel" data-painel="entrar" novalidate>
+                    <div class="login-campo">
+                        <label class="login-label">E-mail</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-envelope login-input-icon"></i>
+                            <input type="email" id="loginEmail"
+                                   class="login-input"
+                                   placeholder="seu@email.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-loginEmail"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="loginSenha"
+                                   class="login-input"
+                                   placeholder="••••••••"
+                                   autocomplete="current-password"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('loginSenha', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="login-erro" id="erro-loginSenha"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="login-lembrar">
+                            <input type="checkbox" id="loginLembrar" checked>
+                            <span>Lembrar-me</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="login-btn-submit">
+                        <i class="fas fa-sign-in-alt me-2"></i>Entrar na Conta
+                    </button>
+                    <p class="login-switch-text mt-3">
+                        Não tem conta?
+                        <button type="button" class="login-link" onclick="alternarAbaLogin('cadastro')">Criar agora</button>
+                    </p>
+                </form>
+
+                <!-- Formulário de cadastro -->
+                <form id="cadastroForm" class="login-painel d-none" data-painel="cadastro" novalidate>
+                    <div class="login-campo">
+                        <label class="login-label">Nome Completo</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-user login-input-icon"></i>
+                            <input type="text" id="cadNome"
+                                   class="login-input"
+                                   placeholder="Seu nome completo"
+                                   autocomplete="name"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-cadNome"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">E-mail</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-envelope login-input-icon"></i>
+                            <input type="email" id="cadEmail"
+                                   class="login-input"
+                                   placeholder="seu@email.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-cadEmail"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="cadSenha"
+                                   class="login-input"
+                                   placeholder="Mínimo 6 caracteres"
+                                   autocomplete="new-password"
+                                   oninput="atualizarForcaSenha(this.value)"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('cadSenha', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <!-- Barra de força da senha -->
+                        <div class="senha-forca-wrap" id="senha-forca-wrap">
+                            <div class="senha-forca-barra">
+                                <div class="senha-forca-fill" id="senha-forca-fill"></div>
+                            </div>
+                            <span class="senha-forca-label" id="senha-forca-label"></span>
+                        </div>
+                        <span class="login-erro" id="erro-cadSenha"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Confirmar Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="cadSenhaConf"
+                                   class="login-input"
+                                   placeholder="Repita a senha"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('cadSenhaConf', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="login-erro" id="erro-cadSenhaConf"></span>
+                    </div>
+                    <button type="submit" class="login-btn-submit">
+                        <i class="fas fa-user-plus me-2"></i>Criar Minha Conta
+                    </button>
+                    <p class="login-switch-text mt-3">
+                        Já tem conta?
+                        <button type="button" class="login-link" onclick="alternarAbaLogin('entrar')">Entrar agora</button>
+                    </p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAIS — Calculadora de Tinta
+     ============================================================ -->
+<div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paint-roller me-2"></i>Calculadora de Tinta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="small text-muted">Descubra a quantidade ideal para sua pintura (considerando 2 demãos).</p>
+                <form id="calcForm">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Largura da Parede (m)</label>
+                            <input type="number" id="calcLargura" class="form-control" placeholder="Ex: 4.5" step="0.1">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Altura da Parede (m)</label>
+                            <input type="number" id="calcAltura" class="form-control" placeholder="Ex: 2.8" step="0.1">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary w-100 fw-bold" onclick="calcularTinta()">CALCULAR AGORA</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="resultadoCalc" class="mt-4 d-none">
+                    <div class="alert alert-info border-0 shadow-sm">
+                        <h6 class="fw-bold mb-1">Resultado Estimado:</h6>
+                        <p class="mb-0" id="textoResultado"></p>
+                    </div>
+                    <small class="text-muted d-block" style="font-size: 0.7rem;">
+                        *Cálculo baseado em um rendimento médio de 10m² por litro/demão.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+<!-- ============================================================
+     SCRIPTS — Dependências e App
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Plugin de acessibilidade VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+
 </body>
 </html>
