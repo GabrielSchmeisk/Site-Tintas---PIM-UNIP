@@ -2299,6 +2299,80 @@ body.dark-mode .promo-price-old     { color: #777; }
 /* Marcas */
 body.dark-mode .marcas-section      { border-top-color: #333; }
 
+/* Marcas: texto e cards no dark mode */
+body.dark-mode .brand-card {
+    background: #1e2240 !important;
+    border-color: #2d2d4e;
+}
+body.dark-mode .brand-card:hover {
+    background: #243060 !important;
+    border-color: #ffc107;
+}
+body.dark-mode .brand-logo {
+    filter: grayscale(0%) brightness(1.8);
+    opacity: 0.9;
+}
+body.dark-mode .marcas-section h2,
+body.dark-mode .marcas-section p,
+body.dark-mode .marcas-section span {
+    color: #e2e8f0 !important;
+}
+
+/* Benefícios strip no dark mode */
+body.dark-mode .beneficios-strip {
+    background: #1a1a2e;
+    border-top: 1px solid #2d2d4e;
+    border-bottom: 1px solid #2d2d4e;
+}
+body.dark-mode .beneficio-item h5,
+body.dark-mode .beneficio-item p {
+    color: #e2e8f0 !important;
+}
+body.dark-mode .beneficio-icone-wrap {
+    background: rgba(0, 94, 255, 0.2);
+}
+
+/* Perfil modal dark mode */
+body.dark-mode #minhaContaModal .modal-content {
+    background: #1a1a2e;
+    color: #e2e8f0;
+}
+body.dark-mode #minhaContaModal .modal-body {
+    background: #1a1a2e;
+}
+body.dark-mode .account-option {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode .account-option:hover {
+    background: #243060;
+    color: #60a5fa;
+}
+body.dark-mode #minhaContaModal .collapse .bg-light {
+    background: #1e2240 !important;
+    border-color: #2d2d4e !important;
+}
+body.dark-mode #minhaContaModal .form-control {
+    background: #12122a;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #minhaContaModal .form-control::placeholder { color: #64748b; }
+
+/* Admin: hover da lista no dark mode */
+body.dark-mode #adminModal .list-group-item,
+body.dark-mode #adminModal .list-group-item-action {
+    background: #1e2240;
+    color: #e2e8f0;
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .list-group-item:hover,
+body.dark-mode #adminModal .list-group-item-action:hover {
+    background: #243060;
+    color: #60a5fa;
+}
+
 /* Voltar ao topo */
 body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.2); }
 
@@ -3218,4 +3292,197 @@ body.dark-mode #adminModal .admin-section-header {
     .admin-badge-icon { width: 32px; height: 32px; font-size: 0.8rem; }
     #adminModal .modal-title { font-size: 0.9rem; }
     .admin-tab-btn { padding: 8px 10px; font-size: 0.7rem; }
+}
+
+/* ==========================================================================
+   FIXES FINAIS v4 — Responsividade, Admin, Dark Mode
+   ========================================================================== */
+
+/* --- Cards mobile: preço sem quebra de linha --- */
+@media (max-width: 575px) {
+    .product-price,
+    .product-card .card-title,
+    .product-card .fw-bold {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .product-card .card-body {
+        padding: 8px !important;
+    }
+    /* Botão de adicionar ao carrinho em mobile */
+    .product-card .btn {
+        font-size: 0.68rem !important;
+        padding: 4px 6px !important;
+        white-space: nowrap;
+    }
+    /* Badge de promoção compacto */
+    .badge-promo {
+        font-size: 0.6rem !important;
+        padding: 2px 5px !important;
+    }
+}
+
+/* --- Admin: input de estoque inline --- */
+.admin-estoque-input {
+    height: 26px !important;
+    font-size: 0.75rem !important;
+}
+body.dark-mode .admin-estoque-input {
+    background: #12122a;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+
+/* --- Admin: detalhe de usuário dark mode --- */
+body.dark-mode #adminTabContent .border {
+    border-color: #2d2d4e !important;
+}
+body.dark-mode #adminTabContent .text-muted {
+    color: #64748b !important;
+}
+body.dark-mode #adminTabContent li {
+    color: #e2e8f0;
+}
+
+/* --- Botões mobile no header: sem overflow --- */
+#btnLoginHeaderMobile {
+    max-width: 120px;
+    overflow: hidden;
+}
+#btnLoginHeaderMobile .usuario-header-nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* --- Navbar mobile: z-index correto para collapse sobre conteúdo --- */
+#navbarNav.show {
+    z-index: 1039;
+    background: var(--primary-blue, #005eff);
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- Dark mode: faixa de frete no modo escuro --- */
+body.dark-mode .faixa-frete-gratis {
+    background: linear-gradient(90deg, #001f6b 0%, #002fa0 60%, #003280 100%);
+}
+
+/* --- Alerta carrinho abandonado --- */
+@keyframes slideUpBanner {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ==========================================================================
+   FIXES v5 — Dark Mode Admin completo, pedido-card, estoque badge
+   ========================================================================== */
+
+/* Pedido card no perfil — dark mode */
+.pedido-card {
+    background: #fff;
+    transition: background 0.2s;
+}
+body.dark-mode .pedido-card {
+    background: #1e2240;
+    color: #e2e8f0;
+}
+body.dark-mode .pedido-card .text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — tabela de produtos completa */
+body.dark-mode #adminModal .table-light,
+body.dark-mode #adminModal thead.table-light th,
+body.dark-mode #adminModal thead.table-light {
+    background: #12122a !important;
+    color: #94a3b8 !important;
+}
+body.dark-mode #adminModal tbody tr {
+    background: transparent;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover td {
+    background: rgba(96,165,250,0.08);
+    color: #60a5fa;
+}
+body.dark-mode #adminModal .text-muted {
+    color: #64748b !important;
+}
+body.dark-mode #adminModal small.text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — exportar/importar */
+body.dark-mode #adminModal .alert-warning {
+    background: rgba(255,193,7,0.08);
+    border-color: rgba(255,193,7,0.2);
+    color: #ffc107;
+}
+body.dark-mode #adminModal .btn-outline-success {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+body.dark-mode #adminModal .btn-outline-success:hover {
+    background: #22c55e;
+    color: #fff;
+}
+body.dark-mode #adminModal .btn-outline-secondary {
+    border-color: #4b5563;
+    color: #9ca3af;
+}
+
+/* Admin dark mode — input de estoque */
+body.dark-mode .admin-estoque-input {
+    background: #0d0d1a !important;
+    border-color: #2d2d4e !important;
+    color: #e2e8f0 !important;
+}
+
+/* Badge de estoque no modal de produto */
+.badge-sem-estoque {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+body.dark-mode .badge-sem-estoque {
+    background: rgba(220,38,38,0.15);
+    border-color: rgba(220,38,38,0.3);
+    color: #f87171;
+}
+
+/* Admin dark mode — detalhe de usuário */
+body.dark-mode #adminTabContent .col-md-4 .border,
+body.dark-mode #adminTabContent .col-md-8 .border,
+body.dark-mode #adminTabContent .border {
+    border-color: #2d2d4e !important;
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .text-center.p-2 {
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .fw-bold.fs-5,
+body.dark-mode #adminTabContent .fw-bold.fs-6 {
+    color: #e2e8f0;
+}
+body.dark-mode #adminTabContent ul li {
+    color: #cbd5e1;
+    border-color: #2d2d4e !important;
+}
+
+/* Admin dark mode — badge de promo na tabela */
+body.dark-mode #adminModal .bg-secondary.bg-opacity-25 {
+    background: rgba(148,163,184,0.15) !important;
+    color: #94a3b8 !important;
 }
