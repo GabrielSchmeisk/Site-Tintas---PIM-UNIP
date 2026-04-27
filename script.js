@@ -4,48 +4,42 @@
 // Array principal de produtos da loja
 const products = [
     // --- TINTAS INTERIOR ---
-    { id: 1,  name: "Tinta Premium Acrílica",       category: "interior",    sub: "acrilica",     brand: "suvinil", price: 50.0,  oldPrice: 70.0,  promo: true,  desc: "Alta cobertura, lavável e rendimento superior.",                        img: "https://placehold.co/400x400/005eff/fff?text=Suvinil+Premium", sugestoes: [11, 14, 19] },
-    { id: 2,  name: "Tinta Acrílica Fosca",         category: "interior",    sub: "acrilica",     brand: "coral",   price: 65.0,                   promo: false, desc: "Ideal para disfarçar imperfeições em salas e quartos.",                  img: "https://placehold.co/400x400/005eff/fff?text=Coral+Fosca",     sugestoes: [11, 13, 20] },
-    { id: 3,  name: "Látex Standard",               category: "interior",    sub: "latex",        brand: "suvinil", price: 42.0,                   promo: false, desc: "Excelente custo-benefício para tetos e áreas secas.",                   img: "https://placehold.co/400x400/005eff/fff?text=Latex+Standard",  sugestoes: [11, 16, 29] },
-    { id: 4,  name: "Tinta Toque de Seda",          category: "interior",    sub: "fosca",        brand: "sherwin", price: 58.0,                   promo: false, desc: "Acabamento acetinado com toque aveludado fino.",                        img: "https://placehold.co/400x400/005eff/fff?text=Toque+Seda",      sugestoes: [12, 14, 15] },
-    { id: 23, name: "Tinta Direto no Gesso",        category: "interior",    sub: "latex",        brand: "coral",   price: 48.0,                   promo: false, desc: "Não precisa de fundo, fixa direto na placa de gesso.",                  img: "https://placehold.co/400x400/005eff/fff?text=Gesso+Coral",     sugestoes: [11, 21, 15] },
-
+    { id: 1,  name: "Tinta Premium Acrílica",       category: "interior",    sub: "acrilica",     brand: "suvinil", price: 50.0,  oldPrice: 83.0,   promo: true,  estoque: 30, desc: "Alta cobertura, lavável e rendimento superior.",                        img: "https://placehold.co/400x400/005eff/fff?text=Suvinil+Premium", sugestoes: [11, 14, 19] },
+    { id: 2,  name: "Tinta Acrílica Fosca",         category: "interior",    sub: "acrilica",     brand: "coral",   price: 65.0,  oldPrice: 108.0,  promo: false,  estoque: 25, desc: "Ideal para disfarçar imperfeições em salas e quartos.",                  img: "https://placehold.co/400x400/005eff/fff?text=Coral+Fosca",     sugestoes: [11, 13, 20] },
+    { id: 3,  name: "Látex Standard",               category: "interior",    sub: "latex",        brand: "suvinil", price: 42.0,  oldPrice: 70.0,   promo: false,  estoque: 40, desc: "Excelente custo-benefício para tetos e áreas secas.",                   img: "https://placehold.co/400x400/005eff/fff?text=Latex+Standard",  sugestoes: [11, 16, 29] },
+    { id: 4,  name: "Tinta Toque de Seda",          category: "interior",    sub: "fosca",        brand: "sherwin", price: 58.0,  oldPrice: 97.0,   promo: false,  estoque: 18, desc: "Acabamento acetinado com toque aveludado fino.",                        img: "https://placehold.co/400x400/005eff/fff?text=Toque+Seda",      sugestoes: [12, 14, 15] },
+    { id: 23, name: "Tinta Direto no Gesso",        category: "interior",    sub: "latex",        brand: "coral",   price: 48.0,  oldPrice: 80.0,   promo: true,  estoque: 22, desc: "Não precisa de fundo, fixa direto na placa de gesso.",                  img: "https://placehold.co/400x400/005eff/fff?text=Gesso+Coral",     sugestoes: [11, 21, 15] },
     // --- TINTAS EXTERIOR ---
-    { id: 5,  name: "Tinta Acrílica Emborrachada",  category: "exterior",    sub: "acrilica-ext", brand: "coral",   price: 80.0,                   promo: false, desc: "Acompanha a dilatação da parede, evitando microfissuras.",              img: "https://placehold.co/400x400/005eff/fff?text=Emborrachada",    sugestoes: [11, 27, 16] },
-    { id: 6,  name: "Impermeabilizante Fachada",    category: "exterior",    sub: "impermeavel",  brand: "sherwin", price: 120.0, oldPrice: 150.0,  promo: true,  desc: "Proteção máxima contra infiltrações e batida de chuva.",                img: "https://placehold.co/400x400/005eff/fff?text=Impermeavel",     sugestoes: [11, 13, 16] },
-    { id: 17, name: "Textura Rústica",              category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 85.0,                   promo: false, desc: "Efeito riscado decorativo de alta resistência.",                        img: "https://placehold.co/400x400/005eff/fff?text=Textura+Rustica", sugestoes: [28, 21, 14] },
-    { id: 24, name: "Tinta para Pisos",             category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 72.0,                   promo: false, desc: "Alta resistência a tráfego de pessoas e carros.",                       img: "https://placehold.co/400x400/005eff/fff?text=Piso+Resistente", sugestoes: [11, 22, 13] },
-
+    { id: 5,  name: "Tinta Acrílica Emborrachada",  category: "exterior",    sub: "acrilica-ext", brand: "coral",   price: 80.0,  oldPrice: 133.0,  promo: false,  estoque: 15, desc: "Acompanha a dilatação da parede, evitando microfissuras.",              img: "https://placehold.co/400x400/005eff/fff?text=Emborrachada",    sugestoes: [11, 27, 16] },
+    { id: 6,  name: "Impermeabilizante Fachada",    category: "exterior",    sub: "impermeavel",  brand: "sherwin", price: 120.0, oldPrice: 200.0,  promo: true,  estoque: 12, desc: "Proteção máxima contra infiltrações e batida de chuva.",                img: "https://placehold.co/400x400/005eff/fff?text=Impermeavel",     sugestoes: [11, 13, 16] },
+    { id: 17, name: "Textura Rústica",              category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 85.0,  oldPrice: 142.0,  promo: false,  estoque: 20, desc: "Efeito riscado decorativo de alta resistência.",                        img: "https://placehold.co/400x400/005eff/fff?text=Textura+Rustica", sugestoes: [28, 21, 14] },
+    { id: 24, name: "Tinta para Pisos",             category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 72.0,  oldPrice: 120.0,  promo: false,  estoque: 17, desc: "Alta resistência a tráfego de pessoas e carros.",                       img: "https://placehold.co/400x400/005eff/fff?text=Piso+Resistente", sugestoes: [11, 22, 13] },
     // --- MÓVEIS E MADEIRAS ---
-    { id: 7,  name: "Esmalte Sintético Premium",    category: "moveis",      sub: "esmalte",      brand: "suvinil", price: 45.0,                   promo: false, desc: "Máxima durabilidade para madeiras, portas e metais.",                   img: "https://placehold.co/400x400/005eff/fff?text=Esmalte+Luxo",    sugestoes: [12, 22, 15] },
-    { id: 8,  name: "Verniz Marítimo",              category: "moveis",      sub: "verniz",       brand: "coral",   price: 70.0,  oldPrice: 95.0,   promo: true,  desc: "Proteção UV e contra maresia para ambientes externos.",                 img: "https://placehold.co/400x400/005eff/fff?text=Verniz+Maritimo", sugestoes: [12, 15, 22] },
-    { id: 18, name: "Stain Impregnante",            category: "moveis",      sub: "verniz",       brand: "sherwin", price: 78.0,                   promo: false, desc: "Não descasca, protege a madeira de dentro para fora.",                  img: "https://placehold.co/400x400/005eff/fff?text=Stain+Madeira",   sugestoes: [12, 15, 30] },
-    { id: 25, name: "Tinta Spray Multiuso",         category: "moveis",      sub: "esmalte",      brand: "sherwin", price: 25.0,                   promo: false, desc: "Secagem rápida para pequenos reparos e artesanato.",                    img: "https://placehold.co/400x400/005eff/fff?text=Spray+Sherwin",   sugestoes: [14, 15, 30] },
-
+    { id: 7,  name: "Esmalte Sintético Premium",    category: "moveis",      sub: "esmalte",      brand: "suvinil", price: 45.0,  oldPrice: 75.0,   promo: false,  estoque: 28, desc: "Máxima durabilidade para madeiras, portas e metais.",                   img: "https://placehold.co/400x400/005eff/fff?text=Esmalte+Luxo",    sugestoes: [12, 22, 15] },
+    { id: 8,  name: "Verniz Marítimo",              category: "moveis",      sub: "verniz",       brand: "coral",   price: 70.0,  oldPrice: 117.0,  promo: false,  estoque: 14, desc: "Proteção UV e contra maresia para ambientes externos.",                 img: "https://placehold.co/400x400/005eff/fff?text=Verniz+Maritimo", sugestoes: [12, 15, 22] },
+    { id: 18, name: "Stain Impregnante",            category: "moveis",      sub: "verniz",       brand: "sherwin", price: 78.0,  oldPrice: 130.0,  promo: true,  estoque: 10, desc: "Não descasca, protege a madeira de dentro para fora.",                  img: "https://placehold.co/400x400/005eff/fff?text=Stain+Madeira",   sugestoes: [12, 15, 30] },
+    { id: 25, name: "Tinta Spray Multiuso",         category: "moveis",      sub: "esmalte",      brand: "sherwin", price: 25.0,  oldPrice: 42.0,   promo: false,  estoque: 50, desc: "Secagem rápida para pequenos reparos e artesanato.",                    img: "https://placehold.co/400x400/005eff/fff?text=Spray+Sherwin",   sugestoes: [14, 15, 30] },
     // --- ESPECIAIS ---
-    { id: 9,  name: "Tinta Epóxi Base Água",        category: "especial",    sub: "epoxi",        brand: "suvinil", price: 155.0,                  promo: false, desc: "Resistência extrema para pisos, banheiros e cozinhas.",                 img: "https://placehold.co/400x400/005eff/fff?text=Epoxi+Agua",      sugestoes: [11, 13, 22] },
-    { id: 10, name: "Tinta Térmica Refletiva",      category: "especial",    sub: "termica",      brand: "sherwin", price: 210.0,                  promo: false, desc: "Reduz a temperatura interna e economiza energia.",                      img: "https://placehold.co/400x400/005eff/fff?text=Tinta+Termica",   sugestoes: [11, 16, 13] },
-    { id: 26, name: "Esmalte Vitrificado",          category: "especial",    sub: "epoxi",        brand: "coral",   price: 180.0,                  promo: false, desc: "Acabamento de alto brilho que parece vidro.",                           img: "https://placehold.co/400x400/005eff/fff?text=Vitrificar",      sugestoes: [12, 22, 14] },
-
-    // --- PREPARAÇÃO (MASSAS E SELADORES) ---
-    { id: 19, name: "Massa Corrida",               category: "interior",    sub: "acrilica",     brand: "suvinil", price: 35.0,                   promo: false, desc: "Fácil de lixar, ideal para nivelar paredes internas.",                  img: "https://placehold.co/400x400/005eff/fff?text=Massa+Corrida",   sugestoes: [21, 15, 30] },
-    { id: 20, name: "Selador Acrílico",            category: "interior",    sub: "acrilica",     brand: "coral",   price: 38.0,                   promo: false, desc: "Uniformiza a absorção da parede, economizando tinta.",                  img: "https://placehold.co/400x400/005eff/fff?text=Selador",         sugestoes: [11, 13, 1]  },
-    { id: 27, name: "Massa Acrílica (Externa)",    category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 45.0,                   promo: false, desc: "Resistente à umidade, perfeita para fachadas.",                         img: "https://placehold.co/400x400/005eff/fff?text=Massa+Acrilica",  sugestoes: [21, 28, 30] },
-
+    { id: 9,  name: "Tinta Epóxi Base Água",        category: "especial",    sub: "epoxi",        brand: "suvinil", price: 155.0, oldPrice: 258.0,  promo: false,  estoque: 8,  desc: "Resistência extrema para pisos, banheiros e cozinhas.",                 img: "https://placehold.co/400x400/005eff/fff?text=Epoxi+Agua",      sugestoes: [11, 13, 22] },
+    { id: 10, name: "Tinta Térmica Refletiva",      category: "especial",    sub: "termica",      brand: "sherwin", price: 210.0, oldPrice: 350.0,  promo: false,  estoque: 5,  desc: "Reduz a temperatura interna e economiza energia.",                      img: "https://placehold.co/400x400/005eff/fff?text=Tinta+Termica",   sugestoes: [11, 16, 13] },
+    { id: 26, name: "Esmalte Vitrificado",          category: "especial",    sub: "epoxi",        brand: "coral",   price: 180.0, oldPrice: 300.0,  promo: false,  estoque: 6,  desc: "Acabamento de alto brilho que parece vidro.",                           img: "https://placehold.co/400x400/005eff/fff?text=Vitrificar",      sugestoes: [12, 22, 14] },
+    // --- PREPARAÇÃO ---
+    { id: 19, name: "Massa Corrida",               category: "interior",    sub: "acrilica",     brand: "suvinil", price: 35.0,  oldPrice: 58.0,   promo: false,  estoque: 35, desc: "Fácil de lixar, ideal para nivelar paredes internas.",                  img: "https://placehold.co/400x400/005eff/fff?text=Massa+Corrida",   sugestoes: [21, 15, 30] },
+    { id: 20, name: "Selador Acrílico",            category: "interior",    sub: "acrilica",     brand: "coral",   price: 38.0,  oldPrice: 63.0,   promo: false,  estoque: 30, desc: "Uniformiza a absorção da parede, economizando tinta.",                  img: "https://placehold.co/400x400/005eff/fff?text=Selador",         sugestoes: [11, 13, 1]  },
+    { id: 27, name: "Massa Acrílica (Externa)",    category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 45.0,  oldPrice: 75.0,   promo: false,  estoque: 20, desc: "Resistente à umidade, perfeita para fachadas.",                         img: "https://placehold.co/400x400/005eff/fff?text=Massa+Acrilica",  sugestoes: [21, 28, 30] },
     // --- FERRAMENTAS ---
-    { id: 11, name: "Rolo de Lã Antirespingo",     category: "ferramentas", sub: "rolos",        brand: "atlas",   price: 28.0,                   promo: false, desc: "Pintura limpa e uniforme para superfícies lisas.",                      img: "https://placehold.co/400x400/005eff/fff?text=Rolo+Atlas",      sugestoes: [13, 16, 14] },
-    { id: 12, name: "Trincha Pro de Cerdas",       category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 12.5,                   promo: false, desc: "Cerdas sintéticas para acabamentos e recortes.",                        img: "https://placehold.co/400x400/005eff/fff?text=Pincel+Tigre",    sugestoes: [14, 22, 15] },
-    { id: 13, name: "Bandeja para Pintura G",      category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 15.0,                   promo: false, desc: "Capacidade para 2 litros, bico escorredor.",                            img: "https://placehold.co/400x400/005eff/fff?text=Bandeja+G",       sugestoes: [11, 12, 29] },
-    { id: 21, name: "Espátula de Aço Inox",        category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 18.0,                   promo: false, desc: "Para aplicação de massas e remoção de resíduos.",                       img: "https://placehold.co/400x400/005eff/fff?text=Espatula+Inox",   sugestoes: [19, 27, 15] },
-    { id: 28, name: "Desempenadeira de Aço",       category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 32.0,                   promo: false, desc: "Ideal para aplicar massa corrida e texturas.",                          img: "https://placehold.co/400x400/005eff/fff?text=Desempenadeira",  sugestoes: [27, 21, 30] },
-
+    { id: 11, name: "Rolo de Lã Antirespingo",     category: "ferramentas", sub: "rolos",        brand: "atlas",   price: 28.0,  oldPrice: 47.0,   promo: false,  estoque: 60, desc: "Pintura limpa e uniforme para superfícies lisas.",                      img: "https://placehold.co/400x400/005eff/fff?text=Rolo+Atlas",      sugestoes: [13, 16, 14] },
+    { id: 12, name: "Trincha Pro de Cerdas",       category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 12.5,  oldPrice: 21.0,   promo: false,  estoque: 45, desc: "Cerdas sintéticas para acabamentos e recortes.",                        img: "https://placehold.co/400x400/005eff/fff?text=Pincel+Tigre",    sugestoes: [14, 22, 15] },
+    { id: 13, name: "Bandeja para Pintura G",      category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 15.0,  oldPrice: 25.0,   promo: true,  estoque: 38, desc: "Capacidade para 2 litros, bico escorredor.",                            img: "https://placehold.co/400x400/005eff/fff?text=Bandeja+G",       sugestoes: [11, 12, 29] },
+    { id: 21, name: "Espátula de Aço Inox",        category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 18.0,  oldPrice: 30.0,   promo: false,  estoque: 25, desc: "Para aplicação de massas e remoção de resíduos.",                       img: "https://placehold.co/400x400/005eff/fff?text=Espatula+Inox",   sugestoes: [19, 27, 15] },
+    { id: 28, name: "Desempenadeira de Aço",       category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 32.0,  oldPrice: 53.0,   promo: false,  estoque: 18, desc: "Ideal para aplicar massa corrida e texturas.",                          img: "https://placehold.co/400x400/005eff/fff?text=Desempenadeira",  sugestoes: [27, 21, 30] },
     // --- ACESSÓRIOS E PROTEÇÃO ---
-    { id: 14, name: "Fita Crepe Azul UV",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 15.9,                   promo: false, desc: "Resistente ao sol, não deixa cola por até 14 dias.",                    img: "https://placehold.co/400x400/005eff/fff?text=Fita+Azul+3M",   sugestoes: [29, 11, 1]  },
-    { id: 15, name: "Kit Lixas Grão Variado",      category: "acessorios",  sub: "lixas",        brand: "norton",  price: 8.5,                    promo: false, desc: "Pack com 5 unidades para diversos acabamentos.",                        img: "https://placehold.co/400x400/005eff/fff?text=Kit+Lixas",       sugestoes: [19, 21, 30] },
-    { id: 16, name: "Extensor Telescópico",        category: "acessorios",  sub: "extensores",   brand: "atlas",   price: 35.0,                   promo: false, desc: "Estrutura leve de alumínio reforçado.",                                 img: "https://placehold.co/400x400/005eff/fff?text=Extensor",        sugestoes: [11, 13, 6]  },
-    { id: 22, name: "Aguarrás Mineral 900ml",      category: "acessorios",  sub: "fitas",        brand: "suvinil", price: 22.0,                   promo: false, desc: "Solvente ideal para diluir esmaltes e limpar ferramentas.",              img: "https://placehold.co/400x400/005eff/fff?text=Aguarras",        sugestoes: [7, 8, 12]   },
-    { id: 29, name: "Lona Plástica 4x4m",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 12.0,                   promo: false, desc: "Proteção de móveis e pisos contra respingos.",                          img: "https://placehold.co/400x400/005eff/fff?text=Lona+Protecao",   sugestoes: [14, 11, 30] },
-    { id: 30, name: "Máscara Respiratória PFF2",   category: "acessorios",  sub: "extensores",   brand: "norton",  price: 7.5,                    promo: false, desc: "Proteção contra poeira de lixamento e odores.",                         img: "https://placehold.co/400x400/005eff/fff?text=Mascara+EPI",     sugestoes: [15, 19, 27] }
+    { id: 14, name: "Fita Crepe Azul UV",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 15.9,  oldPrice: 26.5,   promo: false,  estoque: 80, desc: "Resistente ao sol, não deixa cola por até 14 dias.",                    img: "https://placehold.co/400x400/005eff/fff?text=Fita+Azul+3M",   sugestoes: [29, 11, 1]  },
+    { id: 15, name: "Kit Lixas Grão Variado",      category: "acessorios",  sub: "lixas",        brand: "norton",  price: 8.5,   oldPrice: 14.0,   promo: false,  estoque: 70, desc: "Pack com 5 unidades para diversos acabamentos.",                        img: "https://placehold.co/400x400/005eff/fff?text=Kit+Lixas",       sugestoes: [19, 21, 30] },
+    { id: 16, name: "Extensor Telescópico",        category: "acessorios",  sub: "extensores",   brand: "atlas",   price: 35.0,  oldPrice: 58.0,   promo: false,  estoque: 22, desc: "Estrutura leve de alumínio reforçado.",                                 img: "https://placehold.co/400x400/005eff/fff?text=Extensor",        sugestoes: [11, 13, 6]  },
+    { id: 22, name: "Aguarrás Mineral 900ml",      category: "acessorios",  sub: "fitas",        brand: "suvinil", price: 22.0,  oldPrice: 37.0,   promo: false,  estoque: 33, desc: "Solvente ideal para diluir esmaltes e limpar ferramentas.",              img: "https://placehold.co/400x400/005eff/fff?text=Aguarras",        sugestoes: [7, 8, 12]   },
+    { id: 29, name: "Lona Plástica 4x4m",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 12.0,  oldPrice: 20.0,   promo: false,  estoque: 42, desc: "Proteção de móveis e pisos contra respingos.",                          img: "https://placehold.co/400x400/005eff/fff?text=Lona+Protecao",   sugestoes: [14, 11, 30] },
+    { id: 30, name: "Máscara Respiratória PFF2",   category: "acessorios",  sub: "extensores",   brand: "norton",  price: 7.5,   oldPrice: 12.5,   promo: true,  estoque: 55, desc: "Proteção contra poeira de lixamento e odores.",                         img: "https://placehold.co/400x400/005eff/fff?text=Mascara+EPI",     sugestoes: [15, 19, 27] }
 ];
 
 /* ==========================================================================
@@ -522,6 +516,15 @@ function filterProducts(tag, event) {
     const categoryTitle = document.getElementById('category-title');
     if (!list) return;
 
+    // TAREFA 3 — Atualiza a URL sem recarregar a página
+    const url = new URL(window.location);
+    if (!tag || tag === 'all' || tag === '') {
+        url.searchParams.delete('categoria');
+    } else {
+        url.searchParams.set('categoria', tag.toLowerCase().trim());
+    }
+    window.history.pushState({ categoria: tag }, '', url);
+
     list.style.opacity = '0';
 
     setTimeout(() => {
@@ -549,6 +552,22 @@ function filterProducts(tag, event) {
                         li.closest('.list-group-item')?.classList.add('active-filter');
                     }
                 });
+            }
+
+            // Atualiza o título da categoria
+            if (categoryTitle) {
+                const mapa = {
+                    interior: 'Tintas de Interior', exterior: 'Tintas de Exterior',
+                    acrilica: 'Tinta Acrílica', latex: 'Tinta Látex', fosca: 'Tinta Fosca',
+                    impermeavel: 'Tinta Impermeável', 'acrilica-ext': 'Acrílica Externa',
+                    esmalte: 'Esmalte', verniz: 'Verniz', epoxi: 'Tinta Epóxi',
+                    termica: 'Tinta Térmica', suvinil: 'Suvinil', coral: 'Coral',
+                    sherwin: 'Sherwin-Williams', rolos: 'Rolos', pinceis: 'Pincéis',
+                    bandejas: 'Bandejas', lixas: 'Lixas', fitas: 'Fitas',
+                    extensores: 'Extensores', ferramentas: 'Ferramentas', acessorios: 'Acessórios',
+                    moveis: 'Tintas para Móveis', especial: 'Tintas Especiais'
+                };
+                categoryTitle.innerText = mapa[searchTag] || `Categoria: ${searchTag}`;
             }
         }
 
@@ -681,7 +700,7 @@ function showProductDetails(id) {
                     <div class="position-relative">
                         <img src="${product.img}"
                              class="img-fluid rounded shadow-sm"
-                             style="width: 100%; height: 350px; object-fit: cover;">
+                             style="width: 100%; height: 280px; object-fit: cover;">
                         ${product.promo && product.oldPrice
                             ? `<span class="promo-badge-modal">
                                    <i class="fas fa-tag me-1"></i>
@@ -689,6 +708,46 @@ function showProductDetails(id) {
                                </span>`
                             : ''
                         }
+                    </div>
+
+                    <!-- TAREFA 6: Conteúdo enriquecido abaixo da imagem -->
+                    <div class="modal-extra-content mt-3">
+
+                        <!-- Informações de aplicação -->
+                        <div class="modal-info-card mb-3">
+                            <div class="modal-info-card-header">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Como usar</span>
+                            </div>
+                            <div class="modal-info-card-body">
+                                ${_gerarComoUsarProduto(product)}
+                            </div>
+                        </div>
+
+                        <!-- Características técnicas -->
+                        <div class="modal-info-card mb-3">
+                            <div class="modal-info-card-header">
+                                <i class="fas fa-list-ul"></i>
+                                <span>Características</span>
+                            </div>
+                            <div class="modal-info-card-body">
+                                ${_gerarCaracteristicasProduto(product)}
+                            </div>
+                        </div>
+
+                        <!-- Avaliações resumidas -->
+                        <div class="modal-avaliacoes-resumo">
+                            <div class="modal-aval-nota">${rating}</div>
+                            <div class="flex-grow-1">
+                                <div class="modal-aval-estrelas text-warning">${starHtml}</div>
+                                <div class="text-muted" style="font-size:0.7rem;">${numReviews} avaliações</div>
+                            </div>
+                            <div class="modal-aval-badge">
+                                <i class="fas fa-thumbs-up me-1"></i>
+                                ${Math.round((rating / 5) * 100)}% recomendam
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="col-md-6 d-flex flex-column">
@@ -811,6 +870,80 @@ function showProductDetails(id) {
         const urlOriginal = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: urlOriginal }, '', urlOriginal);
     }, { once: true });
+}
+
+/**
+ * TAREFA 6 — Gera conteúdo de "Como Usar" baseado na categoria/sub do produto.
+ */
+function _gerarComoUsarProduto(product) {
+    const sub  = (product.sub  || '').toLowerCase();
+    const cat  = (product.category || '').toLowerCase();
+    const nome = (product.name || '').toLowerCase();
+
+    const guias = {
+        acrilica:     ['Prepare a superfície (lixe e limpe)', 'Aplique massa corrida se necessário', 'Dê 2 demãos com rolo de lã', 'Aguarde 2h entre cada demão'],
+        latex:        ['Limpe a superfície de pó e gordura', 'Aplique selador acrílico antes', 'Use rolo de espuma para tetos', 'Aguarde secagem de 1h'],
+        fosca:        ['Lixe superfícies brilhosas antes', 'Aplique em ambientes internos secos', 'Use pincel para cantos e rolo para áreas planas'],
+        'acrilica-ext': ['Limpe toda a fachada com água', 'Aplique fundo nivelador', 'Use rolo de lã para paredes externas', 'Evite aplicar sob sol forte'],
+        impermeavel:  ['Sele todas as fissuras com massa', 'Aplique 2 demãos cruzadas', 'Aguarde cura completa de 24h antes de molhar'],
+        esmalte:      ['Lixe a peça com lixa fina', 'Aplique fundo zarcão em metais', 'Use pincel de cerdas finas', 'Aguarde 4h entre demãos'],
+        verniz:       ['Lixe a madeira no sentido das fibras', 'Limpe toda a poeira', 'Aplique 3 demãos finas', 'Lixe levemente entre as demãos'],
+        epoxi:        ['Limpe com solvente antes', 'Misture os componentes A e B', 'Aplique em temperatura acima de 10°C', 'Tempo de pot life: 30 minutos'],
+        rolos:        ['Molhe o rolo levemente antes de usar', 'Retire o excesso na bandeja', 'Passe em "W" para melhor cobertura'],
+        pinceis:      ['Mergulhe apenas 1/3 das cerdas', 'Passe em movimentos contínuos', 'Lave com água (base água) ou solvente'],
+        lixas:        ['Use lixa mais grossa primeiro', 'Finalize com lixa fina', 'Lixe sempre no mesmo sentido']
+    };
+
+    const passos = guias[sub] || guias[cat] || ['Siga as instruções da embalagem.', 'Consulte um especialista FixTintas se necessário.'];
+
+    return passos.map(p => `
+        <div class="modal-info-passo">
+            <i class="fas fa-check-circle text-success me-2" style="font-size:0.75rem;"></i>
+            <span>${p}</span>
+        </div>
+    `).join('');
+}
+
+/**
+ * TAREFA 6 — Gera características técnicas do produto baseado nos dados disponíveis.
+ */
+function _gerarCaracteristicasProduto(product) {
+    const sub = (product.sub || '').toLowerCase();
+    const cat = (product.category || '').toLowerCase();
+
+    const mapaCaract = {
+        acrilica:     { base: 'Água', acabamento: 'Fosco/Acetinado', diluicao: 'Água (5-10%)' },
+        latex:        { base: 'Água', acabamento: 'Fosco', diluicao: 'Água (10%)' },
+        fosca:        { base: 'Água', acabamento: 'Fosco', diluicao: 'Água (5%)' },
+        'acrilica-ext': { base: 'Água', acabamento: 'Fosco', diluicao: 'Água (10%)', resistencia: 'Intempéries' },
+        impermeavel:  { base: 'Água', aplicacao: 'Externo', diluicao: 'Não diluir', resistencia: 'Impermeável' },
+        esmalte:      { base: 'Solvente', acabamento: 'Brilhante', diluicao: 'Aguarrás (10%)' },
+        verniz:       { base: 'Solvente', acabamento: 'Brilhante', diluicao: 'Aguarrás (10%)', uv: 'Proteção UV' },
+        epoxi:        { base: 'Bicomponente', acabamento: 'Alto brilho', secagem: '24h (cura)' },
+        termica:      { base: 'Água', acabamento: 'Fosco', especial: 'Refletivo' }
+    };
+
+    const caracts = mapaCaract[sub] || mapaCaract[cat] || {};
+
+    const linhas = [
+        { label: 'Marca',       valor: product.brand?.toUpperCase() },
+        { label: 'Base',        valor: caracts.base },
+        { label: 'Acabamento',  valor: caracts.acabamento },
+        { label: 'Diluição',    valor: caracts.diluicao },
+        { label: 'Resistência', valor: caracts.resistencia },
+        { label: 'Especial',    valor: caracts.especial || caracts.uv }
+    ].filter(l => l.valor);
+
+    if (linhas.length === 0) {
+        return '<span style="font-size:0.78rem;color:#999;">Consulte a embalagem para detalhes técnicos.</span>';
+    }
+
+    return linhas.map(l => `
+        <div class="modal-caract-linha">
+            <span class="modal-caract-label">${l.label}</span>
+            <span class="modal-caract-valor">${l.valor}</span>
+        </div>
+    `).join('');
 }
 
 // Atualiza a quantidade e o subtotal visualmente no modal de detalhes
@@ -1471,6 +1604,7 @@ function addToCartSimple(id, quantity = 1) {
 
     if (typeof save === 'function') save();
     if (typeof updateCartUI === 'function') updateCartUI();
+    _resetarTimerAbandonado();
 
     const toastEl = document.getElementById('itemAddedToast');
     if (toastEl) {
@@ -1716,14 +1850,16 @@ function processarFilaConfiguracao(modalEl) {
 
 // Atualiza toda a interface do carrinho (contador, itens, total)
 function updateCartUI() {
-    const cartCount    = document.getElementById('cart-count');
+    const cartCount       = document.getElementById('cart-count');
+    const cartCountMobile = document.getElementById('cart-count-mobile');
     const container    = document.getElementById('cart-items-container');
     const btnLimpar    = document.getElementById('btnLimparCarrinho');
     const totalElement = document.getElementById('cart-total');
 
     const totalUnidades = cart.reduce((acc, i) => acc + i.quantity, 0);
 
-    if (cartCount) cartCount.innerText = totalUnidades;
+    if (cartCount)       cartCount.innerText       = totalUnidades;
+    if (cartCountMobile) cartCountMobile.innerText = totalUnidades;
 
     // Botão "Esvaziar" só aparece com mais de 5 unidades no total
     if (btnLimpar) {
@@ -1779,8 +1915,8 @@ function updateCartUI() {
         container.innerHTML += `
             <div class="cart-item d-flex align-items-center mb-3 pb-3 border-bottom px-2">
                 ${imgHtml}
-                <div class="flex-grow-1 overflow-hidden">
-                    <h6 class="mb-0 fw-bold text-truncate cart-item-nome">${item.name}</h6>
+                <div class="flex-grow-1 overflow-hidden" style="cursor:pointer;" onclick="irParaProdutoNoCarrinho(${item.productId})" title="Ver produto">
+                    <h6 class="mb-0 fw-bold text-truncate cart-item-nome">${item.name} <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size:0.6rem;opacity:0.6;"></i></h6>
                     ${detalhesHtml}
                     <small class="text-primary fw-bold mt-1 d-block">
                         R$ ${(item.price * item.quantity).toFixed(2)}
@@ -1854,56 +1990,62 @@ function changeQty(id, delta) {
 async function clearCart() {
     if (cart.length === 0) return;
 
+    const isDark  = document.body.classList.contains('dark-mode');
+    const bgModal = isDark ? '#1e2240' : '#fff';
+    const bgBody  = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.5)';
+    const txtColor = isDark ? '#e2e8f0' : '#333';
+    const borderColor = isDark ? '#2d2d4e' : '#ccc';
+
     const userConfirmed = await new Promise((resolve) => {
         const overlay = document.createElement('div');
         Object.assign(overlay.style, {
             position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', zIndex: '9999'
+            backgroundColor: bgBody, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', zIndex: '99999'
         });
 
         const modal = document.createElement('div');
         Object.assign(modal.style, {
-            backgroundColor: '#fff', padding: '24px', borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)', textAlign: 'center',
-            fontFamily: 'sans-serif', minWidth: '300px'
+            backgroundColor: bgModal, padding: '28px 24px', borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)', textAlign: 'center',
+            fontFamily: 'Inter, sans-serif', minWidth: '300px', maxWidth: '90vw',
+            color: txtColor, border: `1px solid ${borderColor}`
         });
+
+        const icon = document.createElement('div');
+        icon.innerHTML = '<i class="fas fa-trash-alt" style="font-size:2rem;color:#e74c3c;margin-bottom:12px;display:block;"></i>';
+
+        const title = document.createElement('p');
+        title.style.cssText = `margin:0 0 6px 0;font-size:1rem;font-weight:700;color:${txtColor}`;
+        title.textContent = 'Esvaziar carrinho?';
 
         const message = document.createElement('p');
-        message.innerText    = "Tem certeza que deseja esvaziar todo o seu carrinho?";
-        message.style.margin = '0 0 20px 0';
-        modal.appendChild(message);
+        message.style.cssText = `margin:0 0 20px 0;font-size:0.85rem;color:${isDark ? '#94a3b8' : '#666'}`;
+        message.textContent = 'Todos os itens serão removidos permanentemente.';
 
         const btnContainer = document.createElement('div');
-        btnContainer.style.display        = 'flex';
-        btnContainer.style.justifyContent = 'space-between';
-        btnContainer.style.gap            = '10px';
+        btnContainer.style.cssText = 'display:flex;justify-content:center;gap:12px;';
 
         const btnCancel = document.createElement('button');
-        btnCancel.innerText = "Cancelar";
+        btnCancel.textContent = 'Cancelar';
         Object.assign(btnCancel.style, {
-            padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px',
-            backgroundColor: '#fff', cursor: 'pointer', flex: '1'
+            padding: '9px 20px', border: `1px solid ${borderColor}`, borderRadius: '8px',
+            backgroundColor: isDark ? '#12122a' : '#f8f9fa',
+            color: txtColor, cursor: 'pointer', fontWeight: '600', fontSize: '0.85rem'
         });
-        btnCancel.onclick = () => {
-            document.body.removeChild(overlay);
-            resolve(false);
-        };
+        btnCancel.onclick = () => { document.body.removeChild(overlay); resolve(false); };
 
         const btnConfirm = document.createElement('button');
-        btnConfirm.innerText = "Sim, esvaziar";
+        btnConfirm.textContent = 'Sim, esvaziar';
         Object.assign(btnConfirm.style, {
-            padding: '8px 16px', border: 'none', borderRadius: '4px',
-            backgroundColor: '#d9534f', color: 'white', cursor: 'pointer', flex: '1'
+            padding: '9px 20px', border: 'none', borderRadius: '8px',
+            backgroundColor: '#e74c3c', color: '#fff',
+            cursor: 'pointer', fontWeight: '700', fontSize: '0.85rem'
         });
-        btnConfirm.onclick = () => {
-            document.body.removeChild(overlay);
-            resolve(true);
-        };
+        btnConfirm.onclick = () => { document.body.removeChild(overlay); resolve(true); };
 
-        btnContainer.appendChild(btnCancel);
-        btnContainer.appendChild(btnConfirm);
-        modal.appendChild(btnContainer);
+        btnContainer.append(btnCancel, btnConfirm);
+        modal.append(icon, title, message, btnContainer);
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
     });
@@ -1912,7 +2054,7 @@ async function clearCart() {
         cart = [];
         save();
         updateCartUI();
-        console.log("Carrinho vazio");
+        showToast('Carrinho esvaziado.', 'warning');
     }
 }
 
@@ -1954,6 +2096,37 @@ function showCart() {
         const cleanUrl = new URL(window.location);
         cleanUrl.searchParams.delete('aba');
         window.history.pushState({}, '', cleanUrl);
+    }, { once: true });
+}
+
+/**
+ * TAREFA 2 — Navega do carrinho até o produto na loja.
+ * Fecha o modal do carrinho, reutiliza showProductDetails existente
+ * e faz scroll suave até a seção de produtos.
+ */
+function irParaProdutoNoCarrinho(productId) {
+    const produto = products.find(p => p.id === productId);
+    if (!produto) return;
+
+    // Fecha o carrinho
+    const cartModalEl = document.getElementById('cartModal');
+    const cartModal   = bootstrap.Modal.getInstance(cartModalEl);
+    if (cartModal) cartModal.hide();
+
+    // Espera o carrinho fechar, depois abre o modal do produto
+    cartModalEl.addEventListener('hidden.bs.modal', () => {
+        // Scroll suave até a seção de produtos
+        const secaoProdutos = document.getElementById('produtos');
+        if (secaoProdutos) {
+            secaoProdutos.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Pequeno delay para o scroll terminar antes de abrir o modal
+        setTimeout(() => {
+            if (typeof showProductDetails === 'function') {
+                showProductDetails(productId);
+            }
+        }, 400);
     }, { once: true });
 }
 
@@ -2085,6 +2258,12 @@ function processarCompraFinal() {
     historico.unshift(novoPedido);
     localStorage.setItem('fixtintas_orders', JSON.stringify(historico));
 
+    // Decrementa estoque dos itens comprados
+    decrementarEstoque(cart);
+
+    // Gera comprovante PDF automaticamente
+    setTimeout(() => gerarComprovantePDF(novoPedido), 800);
+
     const resumoItensHtml = cart.map(item => `- ${item.name} (x${item.quantity})`).join('<br>');
     const totalFormatado  = totalFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const freteFormatado  = freteValor === 0
@@ -2155,63 +2334,254 @@ function toggleFavorite(id, event) {
    14. SISTEMA DE USUÁRIO (LOGIN, LOGOUT, PERSISTÊNCIA)
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   BANCO LOCAL DE USUÁRIOS
+   Estrutura escalável — pronta para migração para backend real.
+   Chave: 'fixtintas_users' → Array<UserRecord>
+   Sessão: 'fixtintas_sessao' → { userId, expiresAt }
+   -------------------------------------------------------------------------- */
+
+/**
+ * Recupera o banco completo de usuários do localStorage.
+ * Retorna array vazio se não existir.
+ */
+function _getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem('fixtintas_users')) || [];
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * Persiste o banco de usuários no localStorage.
+ */
+function _saveUsers(users) {
+    localStorage.setItem('fixtintas_users', JSON.stringify(users));
+}
+
+/**
+ * Hash simples e determinístico de senha.
+ * Não é criptografia real — para produção use bcrypt via backend.
+ * Suficiente para proteger dados locais de leitura casual.
+ */
+function _hashSenha(senha) {
+    let hash = 0;
+    const salt = 'fixtintas_2026';
+    const str  = senha + salt;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(36) + str.length.toString(36);
+}
+
+/**
+ * Encontra um usuário pelo e-mail (case-insensitive).
+ */
+function _findUserByEmail(email) {
+    return _getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+}
+
+/**
+ * Cria e persiste um novo usuário no banco local.
+ */
+function _criarUsuario({ nome, email, senha }) {
+    const users = _getUsers();
+
+    if (_findUserByEmail(email)) return { ok: false, erro: 'Este e-mail já está cadastrado.' };
+
+    const novoUsuario = {
+        id:        Date.now().toString(36) + Math.random().toString(36).slice(2),
+        nome,
+        email,
+        senhaHash: _hashSenha(senha),
+        foto:      null,
+        isAdmin:   users.length === 0, // primeiro usuário é admin
+        createdAt: new Date().toISOString(),
+        endereco:  null
+    };
+
+    users.push(novoUsuario);
+    _saveUsers(users);
+    return { ok: true, usuario: novoUsuario };
+}
+
+/**
+ * Autentica um usuário verificando e-mail e senha.
+ */
+function _autenticarUsuario(email, senha) {
+    const usuario = _findUserByEmail(email);
+    if (!usuario)                             return { ok: false, erro: 'E-mail não encontrado. Crie uma conta.' };
+    if (usuario.senhaHash !== _hashSenha(senha)) return { ok: false, erro: 'Senha incorreta.' };
+    return { ok: true, usuario };
+}
+
+/**
+ * Inicia sessão após autenticação bem-sucedida.
+ * Se lembrar = true → persiste em localStorage (permanente).
+ * Se lembrar = false → persiste em sessionStorage (fecha com o navegador).
+ */
+function _iniciarSessao(usuario, lembrar = true) {
+    const sessao = { userId: usuario.id, email: usuario.email };
+    if (lembrar) {
+        localStorage.setItem('fixtintas_sessao', JSON.stringify(sessao));
+        localStorage.setItem('usuario_nome',  usuario.nome);
+        localStorage.setItem('usuario_email', usuario.email);
+    } else {
+        sessionStorage.setItem('fixtintas_sessao', JSON.stringify(sessao));
+        localStorage.setItem('usuario_nome',  usuario.nome);
+        localStorage.setItem('usuario_email', usuario.email);
+    }
+}
+
+/**
+ * Retorna o usuário da sessão ativa (localStorage ou sessionStorage).
+ * Retorna null se não houver sessão.
+ */
+function _getUsuarioSessao() {
+    let sessao = null;
+    try {
+        sessao = JSON.parse(localStorage.getItem('fixtintas_sessao'))
+              || JSON.parse(sessionStorage.getItem('fixtintas_sessao'));
+    } catch { return null; }
+    if (!sessao?.userId) return null;
+    return _getUsers().find(u => u.id === sessao.userId) || null;
+}
+
+/**
+ * Encerra a sessão ativa sem apagar o banco de usuários.
+ */
+function _encerrarSessao() {
+    localStorage.removeItem('fixtintas_sessao');
+    localStorage.removeItem('usuario_nome');
+    localStorage.removeItem('usuario_email');
+    sessionStorage.removeItem('fixtintas_sessao');
+}
+
+/**
+ * Atualiza dados do usuário atual no banco.
+ */
+function _atualizarUsuario(campos) {
+    const sessao = JSON.parse(localStorage.getItem('fixtintas_sessao') || sessionStorage.getItem('fixtintas_sessao') || 'null');
+    if (!sessao?.userId) return false;
+
+    const users   = _getUsers();
+    const idx     = users.findIndex(u => u.id === sessao.userId);
+    if (idx === -1) return false;
+
+    Object.assign(users[idx], campos);
+    _saveUsers(users);
+
+    // Atualiza chaves de compatibilidade
+    if (campos.nome)  localStorage.setItem('usuario_nome',  campos.nome);
+    if (campos.email) localStorage.setItem('usuario_email', campos.email);
+
+    return true;
+}
+
+/**
+ * Migra usuários registrados no sistema legado (só localStorage simples)
+ * para o novo banco local. Executado uma única vez na inicialização.
+ */
+function _migrarUsuarioLegado() {
+    const nomeLegado  = localStorage.getItem('usuario_nome');
+    const emailLegado = localStorage.getItem('usuario_email');
+    if (!nomeLegado || !emailLegado) return;
+
+    // Se já existe banco e já tem sessão nova → não faz nada
+    const sessaoNova = localStorage.getItem('fixtintas_sessao');
+    if (sessaoNova) return;
+
+    // Se o e-mail já está no banco → só inicia sessão
+    let usuario = _findUserByEmail(emailLegado);
+    if (!usuario) {
+        // Cria o usuário com senha temporária (ele precisará definir nova senha)
+        const res = _criarUsuario({
+            nome:  nomeLegado,
+            email: emailLegado,
+            senha: '_legado_' + nomeLegado.length
+        });
+        if (res.ok) usuario = res.usuario;
+    }
+
+    if (usuario) {
+        _iniciarSessao(usuario, true);
+        console.info('[FixTintas] Usuário legado migrado para o banco local.');
+    }
+}
+
 // Verifica e aplica o estado de login persistido no localStorage
 function checkLoginPersistence() {
-    const nomeCompleto = localStorage.getItem('usuario_nome');
-    const email        = localStorage.getItem('usuario_email') || '';
-    const loginBtn     = document.getElementById('btnLoginHeader');
-    const btnText      = loginBtn?.querySelector('span');
+    const usuario = _getUsuarioSessao();
 
-    if (nomeCompleto) {
-        const primeiroNome      = nomeCompleto.split(' ')[0];
-        const { iniciais, cor } = _gerarDadosAvatar(nomeCompleto);
-
-        if (loginBtn) {
-            loginBtn.classList.remove('btn-outline-light');
-            loginBtn.classList.add('btn-warning', 'text-dark');
-            loginBtn.setAttribute('data-bs-target', '#minhaContaModal');
-
-            if (btnText) {
-                btnText.innerHTML = `
-                    <span class="usuario-avatar-header" style="background:${cor};">
-                        ${iniciais}
-                    </span>
-                    Olá, ${primeiroNome}
-                `;
+    // Helper: aplica estado logado/deslogado em qualquer botão de login
+    function _renderLoginBtn(btn, logado, u) {
+        if (!btn) return;
+        const spanEl = btn.querySelector('span');
+        if (logado) {
+            const nome              = u.nome.split(' ')[0];
+            const { iniciais, cor } = _gerarDadosAvatar(u.nome);
+            btn.classList.remove('btn-outline-light');
+            btn.classList.add('btn-warning', 'text-dark');
+            btn.removeAttribute('data-bs-toggle');
+            btn.removeAttribute('data-bs-target');
+            btn.onclick = handleProfileClick;
+            if (spanEl) {
+                spanEl.innerHTML = u.foto
+                    ? `<img src="${u.foto}" class="usuario-avatar-header usuario-avatar-foto"
+                           style="background:${cor};width:22px;height:22px;object-fit:cover;border-radius:50%;margin-right:5px;">
+                       <span class="usuario-header-nome">${nome}</span>`
+                    : `<span class="usuario-avatar-header" style="background:${cor};">${iniciais}</span>
+                       <span class="usuario-header-nome">${nome}</span>`;
             }
+        } else {
+            btn.classList.remove('btn-warning', 'text-dark');
+            btn.classList.add('btn-outline-light');
+            btn.removeAttribute('data-bs-toggle');
+            btn.removeAttribute('data-bs-target');
+            btn.onclick = handleProfileClick;
+            if (spanEl) spanEl.innerHTML = '<i class="fas fa-user me-1"></i><span class="usuario-header-nome">Entrar</span>';
         }
+    }
 
+    // Atualiza desktop e mobile
+    _renderLoginBtn(document.getElementById('btnLoginHeader'),       !!usuario, usuario);
+    _renderLoginBtn(document.getElementById('btnLoginHeaderMobile'), !!usuario, usuario);
+
+    if (usuario) {
         const displayName  = document.getElementById('userDisplayName');
         const displayEmail = document.getElementById('userDisplayEmail');
-        if (displayName)  displayName.innerText  = `Olá, ${nomeCompleto}!`;
-        if (displayEmail) displayEmail.innerText = email;
+        if (displayName)  displayName.innerText  = `Olá, ${usuario.nome}!`;
+        if (displayEmail) displayEmail.innerText = usuario.email;
 
         atualizarAvatarPerfil();
 
         document.getElementById('btnSair')?.classList.remove('d-none');
         document.getElementById('btnIrLogin')?.classList.add('d-none');
 
+        const btnAdmin      = document.getElementById('btnAbrirAdmin');
+        const btnAdminModal = document.getElementById('btnAbrirAdminModal');
+        if (btnAdmin)      btnAdmin.style.display = usuario.isAdmin ? 'flex' : 'none';
+        if (btnAdminModal) btnAdminModal.classList.toggle('d-none', !usuario.isAdmin);
+
     } else {
-        if (loginBtn) {
-            loginBtn.classList.remove('btn-warning', 'text-dark');
-            loginBtn.classList.add('btn-outline-light');
-            loginBtn.setAttribute('data-bs-target', '#loginModal');
-
-            if (btnText) {
-                btnText.innerHTML = '<i class="fas fa-user me-md-2"></i><span class="d-none d-md-inline">Entrar</span>';
-            }
-        }
-
         document.getElementById('btnSair')?.classList.add('d-none');
         document.getElementById('btnIrLogin')?.classList.remove('d-none');
+
+        const btnAdmin      = document.getElementById('btnAbrirAdmin');
+        const btnAdminModal = document.getElementById('btnAbrirAdminModal');
+        if (btnAdmin)      btnAdmin.style.display = 'none';
+        if (btnAdminModal) btnAdminModal.classList.add('d-none');
     }
 }
 
-// Remove os dados do usuário e atualiza a interface
+// Encerra a sessão sem apagar o banco de usuários
 function logout() {
-    localStorage.removeItem('usuario_nome');
-    localStorage.removeItem('usuario_email');
+    _encerrarSessao();
     localStorage.removeItem('usuario_endereco');
+    localStorage.removeItem('usuario_endereco_obj');
     checkLoginPersistence();
     showToast("Você saiu da conta.", 'warning');
 }
@@ -2222,14 +2592,14 @@ function handleProfileClick() {
     url.searchParams.set('aba', 'perfil');
     window.history.pushState({}, '', url);
 
-    const nomeSalvo = localStorage.getItem('usuario_nome');
-    const modalId   = nomeSalvo ? 'minhaContaModal' : 'loginModal';
+    // Usa o banco local para decidir qual modal abrir
+    const usuario = _getUsuarioSessao();
+    const modalId = usuario ? 'minhaContaModal' : 'loginModal';
 
     const modalEl       = document.getElementById(modalId);
     const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
     modalInstance.show();
 
-    // Limpa a URL ao fechar o modal
     modalEl.addEventListener('hidden.bs.modal', () => {
         const cleanUrl = new URL(window.location);
         cleanUrl.searchParams.delete('aba');
@@ -2267,14 +2637,174 @@ function _gerarDadosAvatar(nome) {
     return { iniciais, cor };
 }
 
-// Atualiza o avatar no modal "Minha Conta" com as iniciais do usuário
+// Atualiza o avatar no modal "Minha Conta" com foto ou iniciais do usuário
 function atualizarAvatarPerfil() {
-    const nome      = localStorage.getItem('usuario_nome') || '';
-    const { iniciais, cor } = _gerarDadosAvatar(nome);
+    const usuario   = _getUsuarioSessao();
     const container = document.getElementById('userAvatarContainer');
-    if (container) {
+    if (!container) return;
+
+    if (usuario?.foto) {
+        container.innerHTML = `<img src="${usuario.foto}" alt="${usuario.nome}" class="usuario-avatar-foto-grande">`;
+        container.style.background = 'transparent';
+        container.style.border     = '3px solid #005eff';
+    } else {
+        const nome            = usuario?.nome || localStorage.getItem('usuario_nome') || '';
+        const { iniciais, cor } = _gerarDadosAvatar(nome);
         container.textContent      = iniciais;
         container.style.background = cor;
+        container.innerHTML        = iniciais;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   GERENCIAMENTO DE PERFIL — Upload de foto, edição de nome/e-mail
+   -------------------------------------------------------------------------- */
+
+/**
+ * Abre o seletor de arquivo para upload da foto de perfil.
+ * Converte para Base64, salva no banco local e atualiza a UI.
+ */
+function uploadFotoPerfil() {
+    const input = document.createElement('input');
+    input.type   = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('⚠️ A imagem deve ter no máximo 2 MB.', 'danger');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const base64 = ev.target.result;
+            const ok = _atualizarUsuario({ foto: base64 });
+            if (ok) {
+                atualizarAvatarPerfil();
+                checkLoginPersistence();
+                showToast('Foto de perfil atualizada!', 'success');
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    input.click();
+}
+
+/**
+ * Remove a foto de perfil, voltando para as iniciais.
+ */
+function removerFotoPerfil() {
+    const ok = _atualizarUsuario({ foto: null });
+    if (ok) {
+        atualizarAvatarPerfil();
+        checkLoginPersistence();
+        showToast('Foto removida.', 'warning');
+        // Fecha o dropdown do avatar se estiver aberto
+        document.getElementById('avatarDropdown')?.classList.add('d-none');
+    }
+}
+
+/**
+ * Entra no modo de edição do nome do usuário no modal de perfil.
+ */
+function editarNomePerfil() {
+    const usuario     = _getUsuarioSessao();
+    const displayEl   = document.getElementById('userDisplayName');
+    const editWrap    = document.getElementById('editNomeWrap');
+    const editInput   = document.getElementById('editNomeInput');
+
+    if (!displayEl || !editWrap || !editInput || !usuario) return;
+
+    editInput.value = usuario.nome;
+    displayEl.classList.add('d-none');
+    editWrap.classList.remove('d-none');
+    editInput.focus();
+    editInput.select();
+}
+
+/**
+ * Salva o novo nome após edição.
+ */
+function salvarNomePerfil() {
+    const novoNome  = document.getElementById('editNomeInput')?.value.trim();
+    const displayEl = document.getElementById('userDisplayName');
+    const editWrap  = document.getElementById('editNomeWrap');
+
+    if (!novoNome || novoNome.length < 2) {
+        showToast('⚠️ Digite um nome válido.', 'danger');
+        return;
+    }
+
+    const ok = _atualizarUsuario({ nome: novoNome });
+    if (ok) {
+        if (displayEl) {
+            displayEl.innerText = `Olá, ${novoNome}!`;
+            displayEl.classList.remove('d-none');
+        }
+        if (editWrap) editWrap.classList.add('d-none');
+        atualizarAvatarPerfil();
+        checkLoginPersistence();
+        showToast('Nome atualizado!', 'success');
+    }
+}
+
+/**
+ * Cancela a edição do nome sem salvar.
+ */
+function cancelarEdicaoNome() {
+    const usuario   = _getUsuarioSessao();
+    const displayEl = document.getElementById('userDisplayName');
+    const editWrap  = document.getElementById('editNomeWrap');
+    if (displayEl) {
+        displayEl.innerText = `Olá, ${usuario?.nome || ''}!`;
+        displayEl.classList.remove('d-none');
+    }
+    if (editWrap) editWrap.classList.add('d-none');
+}
+
+/**
+ * Altera a senha do usuário logado.
+ */
+function alterarSenha() {
+    const senhaAtual = document.getElementById('senhaAtualInput')?.value;
+    const novaSenha  = document.getElementById('novaSenhaInput')?.value;
+    const confSenha  = document.getElementById('confSenhaInput')?.value;
+    const erroEl     = document.getElementById('erroAlterarSenha');
+
+    const setErro = (msg) => { if (erroEl) erroEl.textContent = msg; };
+    setErro('');
+
+    if (!senhaAtual || !novaSenha || !confSenha) {
+        setErro('Preencha todos os campos.'); return;
+    }
+    if (novaSenha.length < 6) {
+        setErro('A nova senha deve ter pelo menos 6 caracteres.'); return;
+    }
+    if (novaSenha !== confSenha) {
+        setErro('As senhas não coincidem.'); return;
+    }
+
+    const usuario = _getUsuarioSessao();
+    if (!usuario) return;
+
+    if (_hashSenha(senhaAtual) !== usuario.senhaHash) {
+        setErro('Senha atual incorreta.'); return;
+    }
+
+    const ok = _atualizarUsuario({ senhaHash: _hashSenha(novaSenha) });
+    if (ok) {
+        ['senhaAtualInput', 'novaSenhaInput', 'confSenhaInput'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        showToast('Senha alterada com sucesso!', 'success');
+        // Fecha o collapse de senha
+        const collapseEl = document.getElementById('collapseSenha');
+        if (collapseEl) bootstrap.Collapse.getInstance(collapseEl)?.hide();
     }
 }
 
@@ -3084,17 +3614,50 @@ function gerarPDF() {
 
     const totalItens = cart.reduce((acc, i) => acc + i.quantity, 0);
 
-    doc.setFillColor(...COR_PRIMARIA);
+    // Busca frete selecionado (sessionStorage) e endereço cadastrado
+    const freteSessao  = JSON.parse(sessionStorage.getItem('frete_selecionado') || 'null');
+    const freteValorPdf = freteSessao?.valor  || 0;
+    const freteNomePdf  = freteSessao?.nome   || null;
+    const fretePrazoPdf = freteSessao?.prazo  || '';
+    const totalFinalPdf = totalGeral + freteValorPdf;
+
+    // Linha de subtotal de itens
+    doc.setFillColor(235, 242, 255);
+    doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 9, 2, 2, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...COR_ESCURO);
+    doc.text(`Subtotal (${totalItens} ${totalItens === 1 ? 'item' : 'itens'})`, COL.item + 3, y + 6);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`R$ ${totalGeral.toFixed(2)}`, MARGIN_RIGHT, y + 6, { align: 'right' });
+    y += 10;
+
+    // Linha de frete
+    if (freteNomePdf) {
+        doc.setFillColor(240, 255, 244);
+        doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 9, 2, 2, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...COR_CINZA);
+        doc.text(`Frete: ${freteNomePdf}${fretePrazoPdf ? ' — ' + fretePrazoPdf : ''}`, COL.item + 3, y + 6);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(freteValorPdf === 0 ? [22, 163, 74] : COR_ESCURO);
+        doc.text(freteValorPdf === 0 ? 'GRÁTIS' : `R$ ${freteValorPdf.toFixed(2)}`, MARGIN_RIGHT, y + 6, { align: 'right' });
+        y += 10;
+    }
+
+    // Linha de total final
+    doc.setFillColor(...COR_ESCURO);
     doc.roundedRect(MARGIN_LEFT, y, PAGE_WIDTH - 30, 12, 2, 2, 'F');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
-    doc.text(`TOTAL GERAL (${totalItens} ${totalItens === 1 ? 'item' : 'itens'})`, COL.item + 3, y + 7.5);
+    doc.text('TOTAL GERAL', COL.item + 3, y + 7.5);
 
     doc.setFontSize(11);
     doc.setTextColor(...COR_LARANJA);
-    doc.text(`R$ ${totalGeral.toFixed(2)}`, MARGIN_RIGHT, y + 7.5, { align: 'right' });
+    doc.text(`R$ ${totalFinalPdf.toFixed(2)}`, MARGIN_RIGHT, y + 7.5, { align: 'right' });
 
     y += 20;
 
@@ -3483,7 +4046,7 @@ window.addEventListener('scroll', () => {
     lastScrollY = currentScrollY;
 }, { passive: true });
 
-// Formulário de login — evento de submit
+// Formulário de login — evento de submit com banco local
 document.getElementById('loginForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -3495,31 +4058,33 @@ document.getElementById('loginForm')?.addEventListener('submit', function(e) {
     );
     if (!emailValido || !senhaValida) return;
 
-    const email      = document.getElementById('loginEmail').value.trim();
-    const nomeSalvo  = localStorage.getItem('usuario_nome');
-    const emailSalvo = localStorage.getItem('usuario_email');
+    const email  = document.getElementById('loginEmail').value.trim();
+    const senha  = document.getElementById('loginSenha').value;
+    const lembrar = document.getElementById('loginLembrar')?.checked !== false;
 
-    if (emailSalvo && email.toLowerCase() !== emailSalvo.toLowerCase()) {
-        const erroEl = document.getElementById('erro-loginEmail');
-        document.getElementById('loginEmail').classList.add('invalido');
-        if (erroEl) erroEl.textContent = 'E-mail não encontrado. Crie uma conta.';
+    const resultado = _autenticarUsuario(email, senha);
+
+    if (!resultado.ok) {
+        const campoErr = resultado.erro.includes('E-mail') ? 'loginEmail' : 'loginSenha';
+        const erroId   = `erro-${campoErr}`;
+        document.getElementById(campoErr)?.classList.add('invalido');
+        const erroEl = document.getElementById(erroId);
+        if (erroEl) erroEl.textContent = resultado.erro;
+
+        // Se conta não existe → redirecionar para cadastro
+        if (resultado.erro.includes('não encontrado')) {
+            setTimeout(() => alternarAbaLogin('cadastro'), 1200);
+        }
         return;
     }
 
-    if (!nomeSalvo) {
-        const erroEl = document.getElementById('erro-loginEmail');
-        document.getElementById('loginEmail').classList.add('invalido');
-        if (erroEl) erroEl.textContent = 'Conta não encontrada. Crie uma conta primeiro.';
-        alternarAbaLogin('cadastro');
-        return;
-    }
-
+    _iniciarSessao(resultado.usuario, lembrar);
     checkLoginPersistence();
     bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
-    showToast(`Bem-vindo de volta, ${nomeSalvo.split(' ')[0]}! 👋`, 'success');
+    showToast(`Bem-vindo de volta, ${resultado.usuario.nome.split(' ')[0]}! 👋`, 'success');
 });
 
-// Formulário de cadastro — evento de submit
+// Formulário de cadastro — evento de submit com banco local
 document.getElementById('cadastroForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -3537,19 +4102,806 @@ document.getElementById('cadastroForm')?.addEventListener('submit', function(e) 
     const nome  = document.getElementById('cadNome').value.trim();
     const email = document.getElementById('cadEmail').value.trim();
 
-    localStorage.setItem('usuario_nome',  nome);
-    localStorage.setItem('usuario_email', email);
+    const resultado = _criarUsuario({ nome, email, senha });
 
+    if (!resultado.ok) {
+        const erroEl = document.getElementById('erro-cadEmail');
+        document.getElementById('cadEmail').classList.add('invalido');
+        if (erroEl) erroEl.textContent = resultado.erro;
+        return;
+    }
+
+    _iniciarSessao(resultado.usuario, true);
     checkLoginPersistence();
     bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
     showToast(`Conta criada! Bem-vindo, ${nome.split(' ')[0]}! 🎉`, 'success');
 });
 
 /* ==========================================================================
-   24. INICIALIZAÇÃO (DOMContentLoaded)
+   PAINEL ADMINISTRATIVO (TAREFA 7)
+   Estrutura simulada com localStorage — pronta para integração com backend.
+   Acesso restrito ao usuário admin (isAdmin: true no banco local).
    ========================================================================== */
 
+/**
+ * Abre o painel admin se o usuário tiver permissão.
+ */
+function abrirPainelAdmin() {
+    const usuario = _getUsuarioSessao();
+    if (!usuario?.isAdmin) {
+        showToast('⛔ Acesso restrito a administradores.', 'danger');
+        return;
+    }
+
+    // Fecha o modal de perfil se estiver aberto
+    const perfilEl = document.getElementById('minhaContaModal');
+    const perfilInst = bootstrap.Modal.getInstance(perfilEl);
+    if (perfilInst) perfilInst.hide();
+
+    const adminEl = document.getElementById('adminModal');
+    if (!adminEl) return;
+
+    // URL personalizada para o painel admin
+    const url = new URL(window.location);
+    url.searchParams.set('painel', 'admin');
+    window.history.pushState({ painel: 'admin' }, '', url);
+
+    renderAdminAba('produtos');
+
+    const adminModal = bootstrap.Modal.getOrCreateInstance(adminEl);
+
+    // Limpa a URL ao fechar
+    adminEl.addEventListener('hidden.bs.modal', () => {
+        const clean = new URL(window.location);
+        clean.searchParams.delete('painel');
+        window.history.pushState({}, '', clean);
+    }, { once: true });
+
+    // Se o perfil ainda estiver animando, aguarda fechar antes de abrir admin
+    if (perfilInst) {
+        perfilEl.addEventListener('hidden.bs.modal', () => adminModal.show(), { once: true });
+    } else {
+        adminModal.show();
+    }
+}
+
+/**
+ * Alterna entre as abas do painel admin.
+ */
+function renderAdminAba(aba) {
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.toggle('ativa', btn.dataset.aba === aba);
+    });
+
+    const body = document.getElementById('adminTabContent');
+    if (!body) return;
+
+    if (aba === 'produtos')  body.innerHTML = _renderAdminProdutos();
+    if (aba === 'usuarios')  body.innerHTML = _renderAdminUsuarios();
+    if (aba === 'pedidos')   body.innerHTML = _renderAdminPedidos();
+    if (aba === 'adicionar') body.innerHTML = _renderAdminAdicionarProduto();
+}
+
+/** Renderiza a aba de produtos do catálogo */
+function _renderAdminProdutos() {
+    const rows = products.map(p => `
+        <tr>
+            <td><img src="${p.img}" width="38" height="38" class="rounded" style="object-fit:cover;"></td>
+            <td class="fw-bold" style="font-size:0.78rem; max-width:160px;">
+                <div class="text-truncate">${p.name}</div>
+                <small class="text-muted fw-normal">${p.category} › ${p.sub}</small>
+            </td>
+            <td><span class="badge bg-secondary text-uppercase" style="font-size:0.6rem;">${p.brand}</span></td>
+            <td style="font-size:0.8rem; white-space:nowrap;">R$ ${p.price.toFixed(2)}</td>
+            <td>
+                <button class="badge border-0 ${p.promo ? 'bg-danger' : 'bg-light text-muted'}"
+                        style="cursor:pointer; font-size:0.68rem;"
+                        onclick="adminAlternarPromo(${p.id})"
+                        title="${p.promo ? 'Remover promoção' : 'Colocar em promoção'}">
+                    ${p.promo ? '🔥 Promo' : 'Normal'}
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger py-0 px-1"
+                        onclick="adminRemoverProduto(${p.id})"
+                        title="Remover produto">
+                    <i class="fas fa-trash" style="font-size:0.7rem;"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-box me-2"></i>Catálogo (${products.length} produtos)</h6>
+            <button class="btn btn-sm btn-warning" onclick="renderAdminAba('adicionar')">
+                <i class="fas fa-plus me-1"></i> Novo
+            </button>
+        </div>
+        <div class="table-responsive" style="max-height:420px; overflow-y:auto;">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th style="width:46px;"></th>
+                        <th>Produto</th>
+                        <th>Marca</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th style="width:36px;"></th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+/** Renderiza a aba de usuários cadastrados */
+function _renderAdminUsuarios() {
+    const users = _getUsers();
+
+    if (users.length === 0) {
+        return `<div class="text-center text-muted py-4"><i class="fas fa-users fa-2x mb-2 d-block"></i>Nenhum usuário cadastrado.</div>`;
+    }
+
+    const rows = users.map(u => `
+        <tr>
+            <td>
+                <div class="usuario-avatar-mini" style="background:${_gerarDadosAvatar(u.nome).cor};">
+                    ${_gerarDadosAvatar(u.nome).iniciais}
+                </div>
+            </td>
+            <td>
+                <div class="fw-bold" style="font-size:0.8rem;">${u.nome}</div>
+                <div class="text-muted" style="font-size:0.7rem;">${u.email}</div>
+            </td>
+            <td style="font-size:0.7rem;">${new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
+            <td>
+                ${u.isAdmin
+                    ? '<span class="badge bg-warning text-dark">Admin</span>'
+                    : '<span class="badge bg-light text-muted border">Usuário</span>'}
+            </td>
+            <td>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-primary py-0 px-1"
+                            onclick="_renderAdminDetalheUsuario('${u.id}')"
+                            title="Ver relatório">
+                        <i class="fas fa-chart-line" style="font-size:0.7rem;"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-${u.isAdmin ? 'secondary' : 'warning'} py-0 px-1"
+                            onclick="adminAlternarAdmin('${u.id}')"
+                            title="${u.isAdmin ? 'Remover admin' : 'Tornar admin'}">
+                        <i class="fas fa-${u.isAdmin ? 'user-minus' : 'user-shield'}" style="font-size:0.7rem;"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-users me-2"></i>Usuários Cadastrados (${users.length})</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th></th><th>Usuário</th><th>Cadastro</th><th>Perfil</th><th></th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+/** Renderiza a aba de pedidos realizados */
+function _renderAdminPedidos() {
+    let todos = [];
+    try {
+        todos = JSON.parse(localStorage.getItem('fixtintas_orders')) || [];
+    } catch { todos = []; }
+
+    if (todos.length === 0) {
+        return `<div class="text-center text-muted py-4"><i class="fas fa-receipt fa-2x mb-2 d-block"></i>Nenhum pedido registrado.</div>`;
+    }
+
+    const totalReceita = todos.reduce((acc, p) => acc + (p.total || 0), 0);
+
+    const rows = todos.map(p => `
+        <tr>
+            <td class="fw-bold text-primary" style="font-size:0.8rem;">#${p.id}</td>
+            <td style="font-size:0.75rem;">${p.data}</td>
+            <td style="font-size:0.75rem;">${p.itens?.length || 0} item(ns)</td>
+            <td class="fw-bold" style="font-size:0.8rem;">R$ ${(p.total || 0).toFixed(2)}</td>
+            <td><span class="badge bg-success" style="font-size:0.65rem;">Concluído</span></td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Pedidos (${todos.length})</h6>
+            <span class="badge bg-success">Receita: R$ ${totalReceita.toFixed(2)}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Status</th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+/** Renderiza o formulário de adição de produto */
+function _renderAdminAdicionarProduto() {
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-plus me-2"></i>Novo Produto</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('produtos')">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div class="p-2">
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label small fw-bold mb-1">Nome do Produto *</label>
+                    <input type="text" id="adminNomeProd" class="form-control form-control-sm" placeholder="Ex: Tinta Látex Premium">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Marca *</label>
+                    <select id="adminMarcaProd" class="form-select form-select-sm">
+                        <option value="suvinil">Suvinil</option>
+                        <option value="coral">Coral</option>
+                        <option value="sherwin">Sherwin-Williams</option>
+                        <option value="atlas">Atlas</option>
+                        <option value="tigre">Tigre</option>
+                        <option value="norton">Norton</option>
+                        <option value="3m">3M</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Preço (R$) *</label>
+                    <input type="number" id="adminPrecoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Categoria *</label>
+                    <select id="adminCategoriaProd" class="form-select form-select-sm" onchange="adminAtualizarSubcategoria()">
+                        <option value="interior">Interior</option>
+                        <option value="exterior">Exterior</option>
+                        <option value="moveis">Móveis</option>
+                        <option value="especial">Especial</option>
+                        <option value="ferramentas">Ferramentas</option>
+                        <option value="acessorios">Acessórios</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Sub-categoria *</label>
+                    <select id="adminSubProd" class="form-select form-select-sm">
+                        <option value="acrilica">Tinta Acrílica</option>
+                        <option value="latex">Tinta Látex</option>
+                        <option value="fosca">Tinta Fosca</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold mb-1">Descrição *</label>
+                    <textarea id="adminDescProd" class="form-control form-control-sm" rows="2" placeholder="Descrição curta do produto"></textarea>
+                </div>
+                <div class="col-7">
+                    <label class="form-label small fw-bold mb-1">URL da Imagem</label>
+                    <input type="url" id="adminImgProd" class="form-control form-control-sm" placeholder="https://...">
+                </div>
+                <div class="col-5">
+                    <label class="form-label small fw-bold mb-1">Preço antigo (R$)</label>
+                    <input type="number" id="adminPrecoAntigoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Estoque inicial</label>
+                    <input type="number" id="adminEstoqueProd" class="form-control form-control-sm" placeholder="0" min="0" value="10">
+                </div>
+                <div class="col-12 d-flex align-items-center gap-3">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="adminPromoProd">
+                        <label class="form-check-label small" for="adminPromoProd">Em promoção</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div id="adminErroNovoProd" class="text-danger small mb-1"></div>
+                    <button class="btn btn-warning w-100" onclick="adminSalvarNovoProduto()">
+                        <i class="fas fa-save me-2"></i>Salvar Produto
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/** Mapa de subcategorias por categoria principal */
+const _adminSubcategorias = {
+    interior:     [['acrilica','Tinta Acrílica'],['latex','Tinta Látex'],['fosca','Tinta Fosca']],
+    exterior:     [['acrilica-ext','Acrílica Externa'],['impermeavel','Tinta Impermeável'],['exterior','Exterior Geral']],
+    moveis:       [['esmalte','Esmalte'],['verniz','Verniz']],
+    especial:     [['epoxi','Tinta Epóxi'],['termica','Tinta Térmica']],
+    ferramentas:  [['rolos','Rolos'],['pinceis','Pincéis'],['bandejas','Bandejas'],['extensores','Extensores']],
+    acessorios:   [['lixas','Lixas'],['fitas','Fitas Adesivas'],['acessorios','Acessórios Gerais']]
+};
+
+/** Atualiza o select de subcategoria conforme a categoria escolhida */
+function adminAtualizarSubcategoria() {
+    const cat    = document.getElementById('adminCategoriaProd')?.value;
+    const subEl  = document.getElementById('adminSubProd');
+    if (!subEl || !cat) return;
+
+    const opcoes = _adminSubcategorias[cat] || [];
+    subEl.innerHTML = opcoes.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+}
+
+/** Salva um novo produto no catálogo (runtime apenas — sem backend) */
+function adminSalvarNovoProduto() {
+    const nome       = document.getElementById('adminNomeProd')?.value.trim();
+    const marca      = document.getElementById('adminMarcaProd')?.value;
+    const preco      = parseFloat(document.getElementById('adminPrecoProd')?.value);
+    const precoAntigo = parseFloat(document.getElementById('adminPrecoAntigoProd')?.value) || null;
+    const categoria  = document.getElementById('adminCategoriaProd')?.value;
+    const sub        = document.getElementById('adminSubProd')?.value;
+    const desc       = document.getElementById('adminDescProd')?.value.trim();
+    const img        = document.getElementById('adminImgProd')?.value.trim();
+    const promo      = document.getElementById('adminPromoProd')?.checked;
+    const estoque    = parseInt(document.getElementById('adminEstoqueProd')?.value) || 0;
+
+    const setErro = (msg) => { if (erroEl) erroEl.textContent = msg; };
+    setErro('');
+
+    if (!nome || !marca || isNaN(preco) || preco < 0 || !desc) {
+        setErro('Preencha todos os campos obrigatórios.'); return;
+    }
+    if (promo && (!precoAntigo || precoAntigo <= preco)) {
+        setErro('Para promoção, o preço antigo deve ser maior que o preço atual.'); return;
+    }
+
+    const novoId = Math.max(...products.map(p => p.id), 100) + 1;
+
+    const novoProduto = {
+        id:       novoId,
+        name:     nome,
+        brand:    marca,
+        category: categoria,
+        sub,
+        price:    preco,
+        oldPrice: promo && precoAntigo ? precoAntigo : null,
+        promo,
+        estoque,
+        desc,
+        img:      img || `https://placehold.co/400x400/005eff/fff?text=${encodeURIComponent(nome)}`,
+        sugestoes: []
+    };
+
+    products.push(novoProduto);
+    renderProducts(products);
+    showToast(`Produto "${nome}" adicionado!`, 'success');
+    renderAdminAba('produtos');
+}
+
+/** Alterna o status de promoção de um produto */
+function adminAlternarPromo(id) {
+    const produto = products.find(p => p.id === id);
+    if (!produto) return;
+    produto.promo = !produto.promo;
+    renderProducts(products);
+    showToast(
+        produto.promo
+            ? `"${produto.name}" adicionado às promoções! 🔥`
+            : `"${produto.name}" removido das promoções.`,
+        produto.promo ? 'success' : 'warning'
+    );
+    renderAdminAba('produtos');
+}
+
+/** Remove um produto do catálogo (runtime) */
+function adminRemoverProduto(id) {
+    const idx = products.findIndex(p => p.id === id);
+    if (idx === -1) return;
+
+    const nome = products[idx].name;
+    products.splice(idx, 1);
+    renderProducts(products);
+    showToast(`Produto "${nome}" removido.`, 'warning');
+    renderAdminAba('produtos');
+}
+
+/** Alterna permissão admin de um usuário */
+function adminAlternarAdmin(userId) {
+    const sessaoAtual = _getUsuarioSessao();
+
+    // Impede que o admin remova a própria permissão (evita ficar sem acesso)
+    if (sessaoAtual?.id === userId) {
+        showToast('⚠️ Você não pode alterar sua própria permissão de admin.', 'warning');
+        return;
+    }
+
+    const users = _getUsers();
+    const idx   = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+
+    users[idx].isAdmin = !users[idx].isAdmin;
+    _saveUsers(users);
+
+    // Se a sessão ativa é do usuário alterado, atualiza a UI imediatamente
+    if (sessaoAtual?.id === userId) checkLoginPersistence();
+
+    showToast(
+        `${users[idx].nome}: perfil ${users[idx].isAdmin ? 'promovido a Admin ✅' : 'revertido para Usuário'}`,
+        users[idx].isAdmin ? 'success' : 'warning'
+    );
+    renderAdminAba('usuarios');
+}
+
+/* ==========================================================================
+   MÓDULO: CONTROLE DE ESTOQUE
+   Administração via painel admin. Impede compra sem estoque.
+   ========================================================================== */
+
+// Retorna estoque disponível do produto (em runtime)
+function getEstoque(productId) {
+    const p = products.find(p => p.id === productId);
+    return p ? (p.estoque ?? 0) : 0;
+}
+
+// Decrementa estoque ao confirmar compra
+function decrementarEstoque(itens) {
+    itens.forEach(item => {
+        const p = products.find(p => p.id === item.productId);
+        if (p && p.estoque > 0) {
+            p.estoque = Math.max(0, p.estoque - item.quantity);
+        }
+    });
+}
+
+// Verifica se carrinho tem itens com estoque insuficiente
+function validarEstoqueCarrinho() {
+    const problemas = [];
+    cart.forEach(item => {
+        const estoque = getEstoque(item.productId);
+        if (item.quantity > estoque) {
+            problemas.push({
+                nome: item.name,
+                solicitado: item.quantity,
+                disponivel: estoque
+            });
+        }
+    });
+    return problemas; // vazio = tudo OK
+}
+
+/* ==========================================================================
+   MÓDULO: CARRINHO ABANDONADO
+   Detecta inatividade de 3 minutos com itens no carrinho e exibe alerta.
+   ========================================================================== */
+
+let _timerAbandonado  = null;
+let _alertaMostrado   = false;
+const TEMPO_ABANDONO  = 3 * 60 * 1000; // 3 minutos
+
+function _resetarTimerAbandonado() {
+    clearTimeout(_timerAbandonado);
+    _alertaMostrado = false;
+
+    if (cart.length === 0) return;
+
+    _timerAbandonado = setTimeout(() => {
+        if (cart.length > 0 && !_alertaMostrado) {
+            _alertaMostrado = true;
+            _exibirAlertaAbandonado();
+        }
+    }, TEMPO_ABANDONO);
+}
+
+function _exibirAlertaAbandonado() {
+    // Remove alerta anterior se existir
+    document.getElementById('alertaCarrinhoAbandonado')?.remove();
+
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const isDark = document.body.classList.contains('dark-mode');
+
+    const el = document.createElement('div');
+    el.id = 'alertaCarrinhoAbandonado';
+    el.style.cssText = `
+        position: fixed; bottom: 24px; left: 24px; z-index: 99997;
+        max-width: 340px; width: calc(100vw - 48px);
+        background: ${isDark ? '#1e2240' : '#fff'};
+        border: 2px solid #005eff; border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,94,255,0.18);
+        padding: 18px 20px; animation: slideUpBanner 0.4s ease both;
+        font-family: Inter, sans-serif; color: ${isDark ? '#e2e8f0' : '#333'};
+    `;
+    el.innerHTML = `
+        <button onclick="document.getElementById('alertaCarrinhoAbandonado').remove()"
+                style="position:absolute;top:10px;right:12px;background:none;border:none;
+                       font-size:1.1rem;cursor:pointer;color:${isDark ? '#94a3b8' : '#999'};">✕</button>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <span style="font-size:1.6rem;">🛒</span>
+            <div>
+                <div style="font-weight:700;font-size:0.92rem;">Seu carrinho está esperando!</div>
+                <div style="font-size:0.78rem;color:${isDark ? '#94a3b8' : '#666'};">
+                    ${cart.length} ${cart.length === 1 ? 'item' : 'itens'} — 
+                    R$ ${total.toFixed(2).replace('.', ',')}
+                </div>
+            </div>
+        </div>
+        <button onclick="showCart(); document.getElementById('alertaCarrinhoAbandonado').remove();"
+                style="width:100%;padding:9px;border:none;border-radius:10px;
+                       background:linear-gradient(135deg,#005eff,#0040cc);
+                       color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">
+            Ver carrinho e finalizar
+        </button>
+    `;
+    document.body.appendChild(el);
+
+    // Remove automaticamente após 20 segundos
+    setTimeout(() => el.remove(), 20000);
+}
+
+/* ==========================================================================
+   MÓDULO: RELATÓRIO DETALHADO DE USUÁRIO (ADMIN)
+   ========================================================================== */
+
+function _renderAdminDetalheUsuario(userId) {
+    const users  = _getUsers();
+    const u      = users.find(u => u.id === userId);
+    if (!u) return;
+
+    const todos   = JSON.parse(localStorage.getItem('fixtintas_orders') || '[]');
+    const pedidos = todos.filter(p => p.email === u.email || p.userId === u.id);
+
+    const totalGasto    = pedidos.reduce((s, p) => s + (p.total || 0), 0);
+    const pagamentos    = {};
+    const produtosFreq  = {};
+
+    pedidos.forEach(ped => {
+        const pag = ped.pagamento || 'Não informado';
+        pagamentos[pag] = (pagamentos[pag] || 0) + 1;
+
+        (ped.itens || []).forEach(item => {
+            produtosFreq[item.name] = (produtosFreq[item.name] || 0) + item.quantity;
+        });
+    });
+
+    const topPagamentos = Object.entries(pagamentos)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => `<span class="badge bg-primary me-1">${k} (${v}x)</span>`).join('');
+
+    const topProdutos = Object.entries(produtosFreq)
+        .sort((a, b) => b[1] - a[1]).slice(0, 5)
+        .map(([k, v]) => `<li class="small">${k} — <strong>${v} un.</strong></li>`).join('');
+
+    const body = document.getElementById('adminTabContent');
+    if (!body) return;
+
+    body.innerHTML = `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Detalhes: ${u.nome}</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('usuarios')">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div class="row g-3 p-2">
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border h-100">
+                    <div class="usuario-avatar-mini mb-2"
+                         style="width:48px;height:48px;font-size:1rem;background:${_gerarDadosAvatar(u.nome).cor};">
+                        ${_gerarDadosAvatar(u.nome).iniciais}
+                    </div>
+                    <div class="fw-bold">${u.nome}</div>
+                    <div class="text-muted small">${u.email}</div>
+                    <div class="small mt-2">
+                        <i class="fas fa-calendar me-1 text-primary"></i>
+                        Cadastro: ${new Date(u.createdAt).toLocaleDateString('pt-BR')}
+                    </div>
+                    <div class="small mt-1">
+                        <i class="fas fa-shield-alt me-1 text-warning"></i>
+                        Perfil: <strong>${u.isAdmin ? 'Administrador' : 'Usuário'}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 border text-center">
+                            <div class="fw-bold fs-5 text-primary">${pedidos.length}</div>
+                            <div class="small text-muted">Pedidos</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 border text-center">
+                            <div class="fw-bold fs-6 text-success">R$ ${totalGasto.toFixed(2)}</div>
+                            <div class="small text-muted">Total gasto</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 border text-center">
+                            <div class="fw-bold fs-5">${Object.keys(produtosFreq).length}</div>
+                            <div class="small text-muted">Produtos únicos</div>
+                        </div>
+                    </div>
+                </div>
+                ${topPagamentos ? `<div class="mb-2"><small class="fw-bold text-muted">PAGAMENTOS USADOS:</small><div class="mt-1">${topPagamentos}</div></div>` : ''}
+                ${topProdutos ? `<div><small class="fw-bold text-muted">PRODUTOS MAIS COMPRADOS:</small><ul class="mt-1 mb-0">${topProdutos}</ul></div>` : '<p class="text-muted small">Sem compras registradas.</p>'}
+            </div>
+            ${pedidos.length > 0 ? `
+            <div class="col-12">
+                <small class="fw-bold text-muted">HISTÓRICO DE PEDIDOS:</small>
+                <div class="table-responsive mt-1" style="max-height:200px;overflow-y:auto;">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Pagamento</th></tr>
+                        </thead>
+                        <tbody>
+                            ${pedidos.map(p => `
+                                <tr>
+                                    <td class="text-primary fw-bold">#${p.id}</td>
+                                    <td>${p.data}</td>
+                                    <td>${(p.itens||[]).length} item(ns)</td>
+                                    <td>R$ ${(p.total||0).toFixed(2)}</td>
+                                    <td>${p.pagamento || '—'}</td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>` : ''}
+        </div>
+    `;
+}
+
+/* ==========================================================================
+   MÓDULO: COMPROVANTE PDF PÓS-COMPRA
+   Gerado automaticamente após finalizar pedido.
+   ========================================================================== */
+
+function gerarComprovantePDF(pedido) {
+    if (!window.jspdf) { console.warn('jsPDF não disponível'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const AZUL    = [0, 94, 255];
+    const ESCURO  = [30, 30, 50];
+    const CINZA   = [120, 130, 150];
+    const LARANJA = [255, 122, 0];
+    const W       = 210;
+    const ML      = 15;
+    const MR      = W - 15;
+    let y         = 0;
+
+    // Cabeçalho
+    doc.setFillColor(...AZUL);
+    doc.rect(0, 0, W, 38, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(255, 255, 255);
+    doc.text('FixTintas', ML, 17);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(200, 220, 255);
+    doc.text('Comprovante de Pedido', ML, 24);
+    doc.setTextColor(255, 193, 7);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(`#${pedido.id}`, MR, 17, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(200, 220, 255);
+    doc.text(pedido.data, MR, 24, { align: 'right' });
+
+    y = 46;
+
+    // Dados do cliente
+    const usuario = _getUsuarioSessao();
+    if (usuario) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...CINZA);
+        doc.text('CLIENTE', ML, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...ESCURO);
+        doc.text(usuario.nome,  ML, y); y += 4;
+        doc.text(usuario.email, ML, y); y += 4;
+        if (pedido.endereco) {
+            doc.text(pedido.endereco, ML, y); y += 4;
+        }
+        y += 4;
+    }
+
+    // Linha divisória
+    doc.setDrawColor(230, 230, 240);
+    doc.line(ML, y, MR, y); y += 6;
+
+    // Itens
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...CINZA);
+    doc.text('ITENS DO PEDIDO', ML, y); y += 5;
+
+    doc.setFillColor(245, 247, 255);
+    doc.roundedRect(ML, y - 1, W - 30, 7, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...ESCURO);
+    doc.text('Produto',       ML + 2,      y + 4.5);
+    doc.text('Qtd',           MR - 40,     y + 4.5, { align: 'right' });
+    doc.text('Unit.',         MR - 22,     y + 4.5, { align: 'right' });
+    doc.text('Total',         MR,          y + 4.5, { align: 'right' });
+    y += 9;
+
+    pedido.itens.forEach((item, i) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+        if (i % 2 === 0) {
+            doc.setFillColor(250, 251, 255);
+            doc.rect(ML, y - 1, W - 30, 7, 'F');
+        }
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...ESCURO);
+        const nomeTrunc = item.name.length > 38 ? item.name.slice(0, 35) + '...' : item.name;
+        doc.text(nomeTrunc,                             ML + 2,  y + 4.5);
+        doc.text(String(item.quantity),                 MR - 40, y + 4.5, { align: 'right' });
+        doc.text(`R$ ${item.price.toFixed(2)}`,         MR - 22, y + 4.5, { align: 'right' });
+        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, MR, y + 4.5, { align: 'right' });
+        y += 7;
+    });
+
+    y += 4;
+    doc.setDrawColor(230, 230, 240);
+    doc.line(ML, y, MR, y); y += 6;
+
+    // Subtotal, frete e total
+    const subtotal = pedido.itens.reduce((s, i) => s + i.price * i.quantity, 0);
+
+    const _linhaTotal = (label, valor, destaque = false) => {
+        if (destaque) {
+            doc.setFillColor(...ESCURO);
+            doc.roundedRect(ML, y - 1, W - 30, 9, 1.5, 1.5, 'F');
+            doc.setTextColor(255, 255, 255);
+        } else {
+            doc.setTextColor(...CINZA);
+        }
+        doc.setFont('helvetica', destaque ? 'bold' : 'normal');
+        doc.setFontSize(destaque ? 9 : 8);
+        doc.text(label, ML + 2, y + 5);
+        if (destaque) doc.setTextColor(...LARANJA);
+        doc.text(valor, MR, y + 5, { align: 'right' });
+        y += destaque ? 11 : 8;
+    };
+
+    _linhaTotal('Subtotal', `R$ ${subtotal.toFixed(2)}`);
+    if (pedido.frete) {
+        const fv = pedido.frete.valor;
+        _linhaTotal(
+            `Frete (${pedido.frete.nome}${pedido.frete.prazo ? ' — ' + pedido.frete.prazo : ''})`,
+            fv === 0 ? 'GRÁTIS' : `R$ ${fv.toFixed(2)}`
+        );
+    }
+    _linhaTotal('TOTAL GERAL', `R$ ${pedido.total.toFixed(2)}`, true);
+
+    y += 4;
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7);
+    doc.setTextColor(...CINZA);
+    doc.text(`Pagamento: ${pedido.pagamento || 'Não informado'}`, ML, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...AZUL);
+    doc.text('Obrigado por comprar na FixTintas! 🎨', W / 2, y, { align: 'center' });
+
+    doc.save(`FixTintas_Pedido_${pedido.id}.pdf`);
+}
+
+/* Chamada automática após finalizar pedido — injeta gerarComprovantePDF */
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Migra usuários do sistema legado (executa uma única vez)
+    if (typeof _migrarUsuarioLegado === 'function') _migrarUsuarioLegado();
 
     // Renderizações iniciais
     if (typeof renderProducts          === 'function') renderProducts(products);
@@ -3646,7 +4998,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuItems = document.querySelectorAll('.dropdown-side');
     menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
-            if (e.target.tagName === 'LI' && !e.target.classList.contains('dropdown-side')) return;
+            // Clicou num item filho (li do submenu) → fecha tudo e filtra
+            if (e.target.tagName === 'LI' && !e.target.classList.contains('dropdown-side')) {
+                menuItems.forEach(el => el.classList.remove('active'));
+                return;
+            }
             e.stopPropagation();
             const isActive = this.classList.contains('active');
             menuItems.forEach(el => el.classList.remove('active'));
@@ -3654,13 +5010,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Fecha submenu ao clicar em qualquer outro lugar da página
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown-side')) {
+            menuItems.forEach(el => el.classList.remove('active'));
+        }
+    });
+
+    // Fecha submenu ao pressionar Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            menuItems.forEach(el => el.classList.remove('active'));
+        }
+    });
+
     // Exibe banner de ofertas em favoritos após 2s
     setTimeout(verificarOfertasFavoritos, 2000);
 
-    // Lida com parâmetros de URL (produto, aba)
-    const urlParams = new URLSearchParams(window.location.search);
-    const produtoId = urlParams.get('produto');
-    const aba       = urlParams.get('aba');
+    // Suporte ao botão Voltar/Avançar do navegador
+    window.addEventListener('popstate', (e) => {
+        const p = new URLSearchParams(window.location.search);
+        const cat = p.get('categoria');
+        if (cat) {
+            filterProducts(cat);
+        } else {
+            renderProducts(products);
+            const categoryTitle = document.getElementById('category-title');
+            if (categoryTitle) categoryTitle.innerText = 'Todos os produtos';
+            document.querySelectorAll('.custom-menu .list-group-item')
+                .forEach(el => el.classList.remove('active-filter'));
+        }
+    });
+
+    // Lida com parâmetros de URL (produto, aba e categoria) — leitura única
+    const urlParams    = new URLSearchParams(window.location.search);
+    const produtoId    = urlParams.get('produto');
+    const aba          = urlParams.get('aba');
+    const categoriaUrl = urlParams.get('categoria');
+
+    // TAREFA 3 — Aplica filtro de categoria da URL ao carregar
+    if (categoriaUrl) {
+        const list          = document.getElementById('product-list');
+        const categoryTitle = document.getElementById('category-title');
+        if (list) {
+            const searchTag = categoriaUrl.toLowerCase().trim();
+            const filtered  = products.filter(p =>
+                p.category.toLowerCase() === searchTag ||
+                p.sub.toLowerCase()      === searchTag ||
+                p.brand.toLowerCase()    === searchTag
+            );
+            const mapa = {
+                interior: 'Tintas de Interior', exterior: 'Tintas de Exterior',
+                acrilica: 'Tinta Acrílica', latex: 'Tinta Látex', fosca: 'Tinta Fosca',
+                impermeavel: 'Tinta Impermeável', 'acrilica-ext': 'Acrílica Externa',
+                esmalte: 'Esmalte', verniz: 'Verniz', epoxi: 'Tinta Epóxi',
+                termica: 'Tinta Térmica', suvinil: 'Suvinil', coral: 'Coral',
+                sherwin: 'Sherwin-Williams', rolos: 'Rolos', pinceis: 'Pincéis',
+                bandejas: 'Bandejas', lixas: 'Lixas', fitas: 'Fitas',
+                extensores: 'Extensores', ferramentas: 'Ferramentas', acessorios: 'Acessórios',
+                moveis: 'Tintas para Móveis', especial: 'Tintas Especiais'
+            };
+            if (categoryTitle) categoryTitle.innerText = mapa[searchTag] || `Categoria: ${searchTag}`;
+            renderProducts(filtered);
+            document.querySelectorAll('.submenu li').forEach(li => {
+                const attr = li.getAttribute('onclick') || '';
+                if (attr.includes(`'${searchTag}'`)) {
+                    li.closest('.list-group-item')?.classList.add('active-filter');
+                }
+            });
+        }
+    }
 
     if (produtoId || aba) {
         setTimeout(() => {
@@ -3668,6 +5087,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (aba === 'carrinho' && typeof showCart         === 'function') showCart();
             if (aba === 'perfil'   && typeof handleProfileClick === 'function') handleProfileClick();
         }, 500);
+    }
+
+    // Lê ?painel=admin da URL ao carregar a página
+    const painelUrl = urlParams.get('painel');
+    if (painelUrl === 'admin') {
+        setTimeout(() => {
+            if (typeof abrirPainelAdmin === 'function') abrirPainelAdmin();
+        }, 600);
     }
 
 });
