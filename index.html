@@ -29,6 +29,20 @@
             <span class="fw-bold h3 mb-0">Fix<span class="text-warning">Tintas</span></span>
         </a>
 
+        <!-- Ações fixas mobile (fora do collapse) -->
+        <div class="d-flex align-items-center gap-1 d-lg-none ms-auto me-2">
+            <button id="btnLoginHeaderMobile"
+                    class="btn btn-outline-light btn-sm d-flex align-items-center"
+                    onclick="handleProfileClick()"
+                    style="font-size:0.8rem; padding:5px 10px;">
+                <span id="btnLoginHeaderMobileSpan"><i class="fas fa-user me-1"></i><span class="usuario-header-nome">Entrar</span></span>
+            </button>
+            <button class="btn btn-outline-light btn-sm position-relative" onclick="showCart()" style="padding:5px 10px;">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count-mobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.55rem;">0</span>
+            </button>
+        </div>
+
         <!-- Botão colapso mobile -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -73,10 +87,20 @@
                 <i class="fas fa-moon" id="dark-mode-icon"></i>
             </div>
 
-            <!-- Minha Conta e Carrinho -->
-            <div class="d-flex align-items-center gap-2">
-                <button id="btnLoginHeader" class="btn btn-outline-light d-flex align-items-center me-2" onclick="handleProfileClick()">
-                    <span class="d-none d-md-inline">Minha Conta</span>
+            <!-- Minha Conta e Carrinho — apenas desktop (lg+) -->
+            <div class="d-none d-lg-flex align-items-center gap-2">
+                <button id="btnAbrirAdmin"
+                        class="btn btn-outline-warning d-none align-items-center"
+                        onclick="abrirPainelAdmin()"
+                        title="Painel Admin"
+                        style="padding: 6px 10px;">
+                    <i class="fas fa-shield-alt"></i>
+                </button>
+                <button id="btnLoginHeader"
+                        class="btn btn-outline-light d-flex align-items-center"
+                        onclick="handleProfileClick()"
+                        style="font-size:0.85rem;">
+                    <span><i class="fas fa-user me-2"></i>Entrar</span>
                 </button>
                 <button class="btn btn-outline-light position-relative" onclick="showCart()">
                     <i class="fas fa-shopping-cart"></i>
@@ -120,8 +144,9 @@
 <main>
 
     <!-- Carrossel de banners -->
-    <div id="heroCarousel" class="carousel slide shadow-sm mb-5" data-bs-ride="carousel" data-bs-interval="10000">
+    <div id="heroCarousel" class="carousel slide shadow-sm mb-3" data-bs-ride="carousel" data-bs-interval="10000">
         <div class="carousel-inner">
+
             <div class="carousel-item active">
                 <img src="https://i.imgur.com/4yoCwNp.png" class="d-block w-100" alt="Reforma">
             </div>
@@ -156,6 +181,17 @@
         <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon"></span>
         </button>
+    </div>
+
+    <!-- Faixa de frete grátis SP — abaixo do carrossel -->
+    <div class="faixa-frete-gratis container-fluid px-0 mb-4">
+        <div class="faixa-frete-inner">
+            <span class="faixa-frete-icone"><i class="fas fa-truck"></i></span>
+            <span class="faixa-frete-texto">
+                <strong>Frete GRÁTIS para São Paulo</strong>
+                e para demais cidades em compras acima de R$&nbsp;300
+            </span>
+        </div>
     </div>
 
     <!-- Faixa de benefícios -->
@@ -462,25 +498,43 @@
 
 
 <!-- ============================================================
-     MODAIS — Minha Conta
+     MODAIS — Minha Conta (TAREFA 1 — Reformulado)
      ============================================================ -->
 <div class="modal fade" id="minhaContaModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 480px;">
+        <div class="modal-content border-0 rounded-4 overflow-hidden">
 
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold">Minha Conta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- Header com gradiente -->
+            <div class="perfil-modal-header">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+
+                <!-- Avatar com ações -->
+                <div class="perfil-avatar-wrap" id="userAvatarContainer">FT</div>
+                <div class="perfil-avatar-acoes">
+                    <button class="perfil-avatar-btn" onclick="uploadFotoPerfil()" title="Alterar foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button class="perfil-avatar-btn perfil-avatar-btn-danger" onclick="removerFotoPerfil()" title="Remover foto" id="btnRemoverFoto">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Nome editável -->
+                <div id="userDisplayName" class="perfil-nome" onclick="editarNomePerfil()" title="Clique para editar">
+                    Bem-vindo!
+                </div>
+                <div id="editNomeWrap" class="d-none d-flex gap-1 align-items-center mt-1">
+                    <input type="text" id="editNomeInput" class="form-control form-control-sm"
+                           style="max-width:180px; font-size:0.85rem;"
+                           onkeydown="if(event.key==='Enter') salvarNomePerfil(); if(event.key==='Escape') cancelarEdicaoNome();">
+                    <button class="btn btn-sm btn-success py-0 px-2" onclick="salvarNomePerfil()"><i class="fas fa-check"></i></button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="cancelarEdicaoNome()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <p class="perfil-email" id="userDisplayEmail">FixTintas</p>
             </div>
 
-            <div class="modal-body p-4">
-
-                <!-- Avatar e nome do usuário -->
-                <div class="text-center mb-4">
-                    <div id="userAvatarContainer" class="usuario-avatar-grande mb-2 mx-auto">FT</div>
-                    <p class="mb-0 fw-bold text-primary" id="userDisplayName">Bem-vindo!</p>
-                    <p class="mb-0 text-muted small" id="userDisplayEmail">FixTintas</p>
-                </div>
+            <div class="modal-body p-3 pt-0">
 
                 <!-- Meus Pedidos -->
                 <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
@@ -492,7 +546,7 @@
                     <i class="fas fa-chevron-down small text-muted"></i>
                 </a>
                 <div class="collapse" id="collapsePedidos">
-                    <div class="p-2 bg-light rounded-3 mb-3" id="orders-list" style="max-height: 300px; overflow-y: auto;">
+                    <div class="p-2 bg-light rounded-3 mb-2" id="orders-list" style="max-height: 260px; overflow-y: auto;">
                         <p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
                     </div>
                 </div>
@@ -507,7 +561,7 @@
                     <i class="fas fa-chevron-down small text-muted"></i>
                 </a>
                 <div class="collapse" id="collapseFavoritos">
-                    <div class="p-2 bg-light rounded-3 mb-3" id="favorites-list" style="max-height: 250px; overflow-y: auto;">
+                    <div class="p-2 bg-light rounded-3 mb-2" id="favorites-list" style="max-height: 220px; overflow-y: auto;">
                         <p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
                     </div>
                 </div>
@@ -522,8 +576,7 @@
                     <i class="fas fa-chevron-down small text-muted"></i>
                 </a>
                 <div class="collapse" id="collapseEndereco">
-                    <div class="p-3 bg-light rounded-3 mb-3 border">
-                        <h6 class="fw-bold mb-3 small"><i class="fas fa-map-marker-alt me-1"></i> Endereço de Entrega</h6>
+                    <div class="p-3 bg-light rounded-3 mb-2 border">
                         <div class="row g-2">
                             <div class="col-6">
                                 <input type="text" id="addrCEP"
@@ -542,40 +595,74 @@
                                 </button>
                             </div>
                             <div class="col-8">
-                                <input type="text" id="addrRua"
-                                       class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="Rua/Logradouro" required>
+                                <input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro" required>
                             </div>
                             <div class="col-4">
-                                <input type="number" id="addrNum"
-                                       class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="123" required
+                                <input type="number" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="Nº" required
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="col-12">
-                                <input type="text" id="addrComp"
-                                       class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="Complemento">
+                                <input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento">
                             </div>
                             <div class="col-6">
-                                <input type="text" id="addrBairro"
-                                       class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="Bairro" required>
+                                <input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro" required>
                             </div>
                             <div class="col-6">
-                                <input type="text" id="addrCidade"
-                                       class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="Cidade" required>
+                                <input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade" required>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">Salvar Endereço</button>
+                        <button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">
+                            <i class="fas fa-save me-1"></i> Salvar Endereço
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Segurança — Alterar Senha -->
+                <a href="#collapseSenha" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-lock text-warning"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Segurança</span>
+                        <small class="text-muted">Alterar senha</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseSenha">
+                    <div class="p-3 bg-light rounded-3 mb-2 border">
+                        <div class="mb-2">
+                            <input type="password" id="senhaAtualInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Senha atual">
+                        </div>
+                        <div class="mb-2">
+                            <input type="password" id="novaSenhaInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Nova senha (mín. 6 caracteres)">
+                        </div>
+                        <div class="mb-2">
+                            <input type="password" id="confSenhaInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Confirmar nova senha">
+                        </div>
+                        <div id="erroAlterarSenha" class="text-danger small mb-2"></div>
+                        <button class="btn btn-sm btn-warning w-100" onclick="alterarSenha()">
+                            <i class="fas fa-key me-1"></i> Alterar Senha
+                        </button>
                     </div>
                 </div>
 
                 <!-- Ações de autenticação -->
-                <div id="authOptions" class="mt-4">
-                    <button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">Entrar na Conta</button>
-                    <button id="btnSair" class="btn btn-danger w-100 d-none" onclick="logout()">Sair da Conta</button>
+                <div id="authOptions" class="mt-3 d-flex flex-column gap-2">
+                    <button id="btnAbrirAdminModal"
+                            class="btn btn-warning d-none w-100"
+                            onclick="abrirPainelAdmin()">
+                        <i class="fas fa-shield-alt me-2"></i>Painel Administrativo
+                    </button>
+                    <button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-2"></i>Entrar na Conta
+                    </button>
+                    <button id="btnSair" class="btn btn-outline-danger w-100 d-none" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sair da Conta
+                    </button>
                 </div>
 
             </div>
@@ -1308,6 +1395,51 @@
             </button>
         </div>
 
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL — PAINEL ADMINISTRATIVO (TAREFA 7)
+     ============================================================ -->
+<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-height:90vh;">
+        <div class="modal-content border-0 shadow-lg admin-modal-content">
+
+            <div class="modal-header border-0 admin-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="admin-badge-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Painel Administrativo</h5>
+                        <small class="text-muted">FixTintas — Gestão do sistema</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Abas de navegação -->
+            <div class="admin-tabs-nav">
+                <button class="admin-tab-btn ativa" data-aba="produtos" onclick="renderAdminAba('produtos')">
+                    <i class="fas fa-box me-1"></i> Produtos
+                </button>
+                <button class="admin-tab-btn" data-aba="usuarios" onclick="renderAdminAba('usuarios')">
+                    <i class="fas fa-users me-1"></i> Usuários
+                </button>
+                <button class="admin-tab-btn" data-aba="pedidos" onclick="renderAdminAba('pedidos')">
+                    <i class="fas fa-receipt me-1"></i> Pedidos
+                </button>
+                <button class="admin-tab-btn" data-aba="adicionar" onclick="renderAdminAba('adicionar')">
+                    <i class="fas fa-plus me-1"></i> Novo Produto
+                </button>
+            </div>
+
+            <div class="modal-body p-0">
+                <div id="adminTabContent" class="p-3"></div>
+            </div>
+
+        </div>
     </div>
 </div>
 
