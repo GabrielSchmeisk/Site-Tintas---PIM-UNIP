@@ -3829,7 +3829,7 @@ showToast(`Bem-vindo de volta, ${resultado.usuario.nome.split(' ')[0]}! 👋`, '
 document.getElementById(‘cadastroForm’)?.addEventListener(‘submit’, function(e) {
 e.preventDefault();
 
-```
+
 const nomeValido  = _validarCampo('cadNome',  'erro-cadNome',  v => v.length >= 2 ? true : 'Digite seu nome completo.');
 const emailValido = _validarCampo('cadEmail', 'erro-cadEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? true : 'Digite um e-mail válido.');
 const senhaValida = _validarCampo('cadSenha', 'erro-cadSenha', v => v.length >= 6 ? true : 'A senha deve ter pelo menos 6 caracteres.');
@@ -3857,7 +3857,7 @@ _iniciarSessao(resultado.usuario, true);
 checkLoginPersistence();
 bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
 showToast(`Conta criada! Bem-vindo, ${nome.split(' ')[0]}! 🎉`, 'success');
-```
+
 
 });
 
@@ -3874,7 +3874,7 @@ function _resetarTimerAbandonado() {
 clearTimeout(_timerAbandonado);
 _alertaMostrado = false;
 
-```
+
 if (cart.length === 0) return;
 
 _timerAbandonado = setTimeout(() => {
@@ -3883,7 +3883,7 @@ _timerAbandonado = setTimeout(() => {
         _exibirAlertaAbandonado();
     }
 }, TEMPO_ABANDONO);
-```
+
 
 }
 
@@ -3891,7 +3891,7 @@ function _exibirAlertaAbandonado() {
 // Remove alerta anterior se existir
 document.getElementById(‘alertaCarrinhoAbandonado’)?.remove();
 
-```
+
 const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 const isDark = document.body.classList.contains('dark-mode');
 
@@ -3931,13 +3931,13 @@ document.body.appendChild(el);
 
 // Remove automaticamente após 20 segundos
 setTimeout(() => el.remove(), 20000);
-```
+
 
 }
 
 document.addEventListener(‘DOMContentLoaded’, () => {
 
-```
+
 // Migra usuários do sistema legado (executa uma única vez)
 if (typeof _migrarUsuarioLegado === 'function') _migrarUsuarioLegado();
 
@@ -4141,6 +4141,6 @@ if (painelUrl === 'admin') {
         if (typeof abrirPainelAdmin === 'function') abrirPainelAdmin();
     }, 600);
 }
-```
+
 
 });
