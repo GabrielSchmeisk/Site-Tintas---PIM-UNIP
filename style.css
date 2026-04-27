@@ -272,14 +272,18 @@ header, .navbar {
 }
 
 #heroCarousel .carousel-item {
-    height:           400px;
-    transition:       transform 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+    /* aspect-ratio garante proporção em qualquer tela sem cortar */
+    aspect-ratio: 16 / 6;
+    max-height:   420px;
+    transition:   transform 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
     backface-visibility: hidden;
 }
 
 #heroCarousel img {
+    width:      100%;
     height:     100%;
     object-fit: cover;
+    object-position: center;
     filter:     brightness(0.6);
     transition: transform 1.5s ease;
 }
@@ -291,6 +295,27 @@ header, .navbar {
 
 .carousel-item.active img {
     transform: scale(1);
+}
+
+/* Mobile: proporção mais quadrada para não cortar */
+@media (max-width: 575px) {
+    #heroCarousel .carousel-item {
+        aspect-ratio: 16 / 9;
+        max-height:   220px;
+    }
+    #heroCarousel img {
+        object-position: center center;
+        filter: brightness(0.7);
+    }
+    .carousel-caption h2 { font-size: 1.1rem !important; }
+    .carousel-caption p  { font-size: 0.8rem !important; display: none; }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+    #heroCarousel .carousel-item {
+        aspect-ratio: 16 / 7;
+        max-height:   320px;
+    }
 }
 
 .carousel-caption {
@@ -1419,13 +1444,23 @@ header, .navbar {
 
 #banner-oferta-wrapper {
     position:  fixed;
-    bottom:    80px;
-    left:      50%;
-    transform: translateX(-50%);
+    bottom:    24px;
+    right:     24px;
+    left:      auto;
+    transform: none;
     z-index:   9998;
-    min-width: 320px;
-    max-width: min(480px, 92vw);
+    min-width: 300px;
+    max-width: min(400px, calc(100vw - 48px));
     animation: slideUpBanner 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (max-width: 480px) {
+    #banner-oferta-wrapper {
+        bottom: 12px;
+        right:  12px;
+        left:   12px;
+        max-width: none;
+    }
 }
 
 #banner-oferta-wrapper.saindo {
@@ -2277,8 +2312,6 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
 }
 
 @media (max-width: 991.98px) {
-    #heroCarousel .carousel-item { height: 250px; }
-
     .filter-sidebar { margin-bottom: 30px; padding: 15px; }
 
     .dropdown-side .submenu {
@@ -2330,4 +2363,859 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
 
 @media (pointer: coarse) {
     .nav-link, .custom-menu .list-group-item, .footer-link { padding: 12px 10px; }
+}
+/* ==========================================================================
+   TAREFA 1 — PERFIL DO USUÁRIO (MODAL REFORMULADO)
+   ========================================================================== */
+
+/* Header com gradiente no modal de perfil */
+.perfil-modal-header {
+    background: linear-gradient(135deg, #003ab5 0%, #005eff 60%, #0080ff 100%);
+    padding: 2.5rem 1.5rem 1.5rem;
+    text-align: center;
+    position: relative;
+    color: #fff;
+}
+
+/* Container do avatar com suporte a foto */
+.perfil-avatar-wrap {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 auto 0.5rem;
+    border: 4px solid rgba(255,255,255,0.35);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    position: relative;
+}
+.perfil-avatar-wrap:hover {
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+/* Foto de perfil dentro do avatar grande */
+.usuario-avatar-foto-grande {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Foto de perfil no header da navbar */
+.usuario-avatar-header {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.usuario-avatar-header.usuario-avatar-foto {
+    object-fit: cover;
+}
+
+/* Botões de ação sobre o avatar */
+.perfil-avatar-acoes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 0.5rem;
+}
+.perfil-avatar-btn {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.perfil-avatar-btn:hover {
+    background: rgba(255,255,255,0.32);
+}
+.perfil-avatar-btn-danger:hover {
+    background: rgba(220,53,69,0.55);
+}
+
+/* Nome e e-mail no header do perfil */
+.perfil-nome {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    transition: opacity 0.2s;
+}
+.perfil-nome:hover {
+    opacity: 0.8;
+    text-decoration: underline dotted rgba(255,255,255,0.6);
+}
+.perfil-email {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+/* Avatar mini para tabela de admin */
+.usuario-avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   TAREFA 6 — MODAL DE PRODUTO ENRIQUECIDO
+   ========================================================================== */
+
+/* Container do conteúdo extra abaixo da imagem */
+.modal-extra-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Card de informação (como usar / características) */
+.modal-info-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.modal-info-card-header {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 1px solid #e9ecef;
+}
+.modal-info-card-header i {
+    color: #005eff;
+    font-size: 0.8rem;
+}
+.modal-info-card-body {
+    padding: 10px 12px;
+}
+
+/* Passo de "como usar" */
+.modal-info-passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #555;
+    padding: 3px 0;
+    line-height: 1.4;
+}
+.modal-info-passo i {
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* Linha de característica técnica */
+.modal-caract-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.75rem;
+    border-bottom: 1px dotted #eee;
+}
+.modal-caract-linha:last-child {
+    border-bottom: none;
+}
+.modal-caract-label {
+    color: #888;
+    font-weight: 500;
+}
+.modal-caract-valor {
+    color: #222;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Resumo de avaliações */
+.modal-avaliacoes-resumo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.modal-aval-nota {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #222;
+    line-height: 1;
+}
+.modal-aval-estrelas {
+    font-size: 0.7rem;
+}
+.modal-aval-badge {
+    margin-left: auto;
+    background: #d1e7dd;
+    color: #0f5132;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   TAREFA 7 — PAINEL ADMINISTRATIVO
+   ========================================================================== */
+
+/* Header do modal admin */
+.admin-modal-header {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 0;
+}
+.admin-modal-header .btn-close {
+    filter: invert(1);
+}
+.admin-badge-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ffc107, #ff8c00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+}
+
+/* Barra de abas do admin */
+.admin-tabs-nav {
+    display: flex;
+    background: #f0f2f5;
+    border-bottom: 2px solid #dee2e6;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.admin-tabs-nav::-webkit-scrollbar { display: none; }
+
+.admin-tab-btn {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+}
+.admin-tab-btn:hover {
+    color: #005eff;
+    background: rgba(0,94,255,0.04);
+}
+.admin-tab-btn.ativa {
+    color: #005eff;
+    border-bottom-color: #005eff;
+    background: rgba(0,94,255,0.05);
+}
+
+/* Cabeçalho de seção dentro do admin */
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* ==========================================================================
+   TAREFA 5 — RESPONSIVIDADE (CORREÇÕES MOBILE/TABLET)
+   ========================================================================== */
+
+/* --- MOBILE (≤ 576px) --- */
+@media (max-width: 576px) {
+
+    /* Navbar: compactar */
+    .navbar-brand span {
+        font-size: 0.9rem !important;
+    }
+    #btnLoginHeader .d-none.d-md-inline { display: none !important; }
+
+    /* Hero: texto menor */
+    .hero-section h1 { font-size: 1.6rem !important; }
+    .hero-section p  { font-size: 0.9rem !important; }
+
+    /* Produtos: 1 coluna forçada em telas muito pequenas */
+    #product-list .col-sm-6 { flex: 0 0 100%; max-width: 100%; }
+
+    /* Cards de produto: altura de imagem menor */
+    .product-card .card-img-top { height: 180px !important; }
+
+    /* Modal de produto: coluna única empilhada */
+    #productModal .modal-body .row > .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    #productModal .modal-body {
+        padding: 1rem !important;
+    }
+
+    /* Modal de perfil: avatar menor */
+    .perfil-avatar-wrap { width: 70px; height: 70px; font-size: 1.5rem; }
+    .perfil-modal-header { padding: 2rem 1rem 1rem; }
+
+    /* Carrinho: itens mais compactos */
+    .cart-item-nome { font-size: 0.78rem !important; }
+    .cart-item-qty  { gap: 2px !important; }
+
+    /* Badges do header: esconder em telas muito pequenas */
+    .badge-mobile-hidden { display: none !important; }
+
+    /* Frete: ajuste do input */
+    .frete-input { font-size: 0.8rem; }
+    .frete-btn   { font-size: 0.8rem; padding: 6px 10px; }
+
+    /* Filtro de preço: rolagem horizontal */
+    .price-filter-wrap {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    /* Checkout / confirmação */
+    .checkout-summary { font-size: 0.8rem; }
+
+    /* Admin tabs: ícones apenas */
+    .admin-tab-btn { padding: 8px 12px; font-size: 0.72rem; }
+
+    /* Botões de ação do carrinho */
+    .cart-action-btns { flex-direction: column; gap: 8px; }
+
+    /* Toast: largura máxima */
+    .toast-container { max-width: 90vw !important; }
+
+    /* Modal extra content: oculta avaliações em telas muito pequenas */
+    .modal-avaliacoes-resumo { display: none; }
+}
+
+/* --- TABLET (577px – 991px) --- */
+@media (min-width: 577px) and (max-width: 991px) {
+
+    /* Produtos: 2 colunas em tablet */
+    #product-list .col-lg-4 { flex: 0 0 50%; max-width: 50%; }
+
+    /* Hero: tamanho intermediário */
+    .hero-section h1 { font-size: 2rem !important; }
+
+    /* Sidebar: ocultar em tablet, usar offcanvas */
+    .sidebar-desktop { display: none; }
+
+    /* Modal de produto: imagem menor */
+    #productModal .col-md-6:first-child img {
+        height: 220px !important;
+    }
+
+    /* Navbar */
+    .navbar-brand span { font-size: 1rem !important; }
+
+    /* Cards de produto */
+    .product-card .card-img-top { height: 200px !important; }
+}
+
+/* --- TOUCH: aumentar área de toque em botões pequenos --- */
+@media (pointer: coarse) {
+    .btn-favorite,
+    .perfil-avatar-btn,
+    .admin-tab-btn {
+        min-height: 36px;
+        min-width: 36px;
+    }
+    .cart-item .btn-sm {
+        min-width: 32px;
+        min-height: 32px;
+    }
+    /* Evita zoom no iOS ao focar inputs */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* --- AJUSTE GERAL: modal scroll em telas pequenas --- */
+@media (max-height: 700px) {
+    .modal-dialog-scrollable .modal-body {
+        max-height: 60vh;
+    }
+}
+
+/* ==========================================================================
+   FIXES — CORREÇÕES DE BUGS (v2)
+   ========================================================================== */
+
+/* FIX: Espaço entre o fundo azul do perfil e o conteúdo abaixo */
+#minhaContaModal .modal-body {
+    padding-top: 1.5rem !important;
+    background: #fff;
+}
+body.dark-mode #minhaContaModal .modal-body {
+    background: #1a1a2e;
+}
+
+/* FIX: Produtos no celular — 2 por fileira */
+@media (max-width: 575px) {
+    #product-list > div {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding: 6px !important;
+    }
+    #product-list > div .product-card .card-img-top {
+        height: 130px !important;
+    }
+    #product-list > div .product-card .card-body {
+        padding: 8px 8px 6px !important;
+    }
+    #product-list > div .product-card .card-title {
+        font-size: 0.75rem !important;
+        margin-bottom: 4px !important;
+    }
+    #product-list > div .product-card .card-text {
+        display: none !important;
+    }
+    #product-list > div .product-card .product-price {
+        font-size: 0.85rem !important;
+    }
+    #product-list > div .product-card .btn {
+        font-size: 0.7rem !important;
+        padding: 5px 8px !important;
+    }
+}
+
+/* FIX: Dark mode — Modal de produto (Como usar, Características, Avaliações) */
+body.dark-mode .modal-info-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+body.dark-mode .modal-info-card-header {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-bottom-color: #334155;
+}
+body.dark-mode .modal-info-passo {
+    color: #94a3b8;
+}
+body.dark-mode .modal-caract-linha {
+    border-bottom-color: #334155;
+}
+body.dark-mode .modal-caract-label {
+    color: #64748b;
+}
+body.dark-mode .modal-caract-valor {
+    color: #e2e8f0;
+}
+body.dark-mode .modal-avaliacoes-resumo {
+    background: #0f172a;
+    border-color: #334155;
+}
+body.dark-mode .modal-aval-nota {
+    color: #e2e8f0;
+}
+body.dark-mode .modal-aval-badge {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+body.dark-mode .modal-extra-content .mb-3 {
+    border-color: #334155 !important;
+}
+
+/* FIX: Banner frete grátis SP */
+.banner-frete-gratis {
+    position: relative;
+    width: 100%;
+    min-height: 340px;
+    background: linear-gradient(135deg, #003ab5 0%, #005eff 50%, #0066cc 100%);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.banner-frete-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 80% 50%, rgba(255,193,7,0.12) 0%, transparent 60%),
+        radial-gradient(circle at 10% 80%, rgba(0,0,0,0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+/* Padrão de bolinhas decorativas */
+.banner-frete-bg::before {
+    content: '';
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,0.06);
+}
+.banner-frete-bg::after {
+    content: '';
+    position: absolute;
+    right: 12%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 30px solid rgba(255,255,255,0.08);
+}
+.banner-frete-conteudo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem 3rem;
+    width: 100%;
+}
+.banner-frete-icone-wrap {
+    flex-shrink: 0;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #fff;
+}
+.banner-frete-texto {
+    flex: 1;
+    min-width: 0;
+}
+.banner-frete-tag {
+    display: inline-block;
+    background: rgba(255,193,7,0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.4);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+.banner-frete-titulo {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+.banner-frete-subtitulo {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+.banner-frete-destaque {
+    color: #ffc107;
+    font-weight: 600;
+}
+.banner-frete-cta {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+/* Mobile: banner frete */
+@media (max-width: 768px) {
+    .banner-frete-gratis { min-height: 220px; }
+    .banner-frete-conteudo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    .banner-frete-icone-wrap { width: 56px; height: 56px; font-size: 1.5rem; }
+    .banner-frete-titulo { font-size: 1.3rem; }
+    .banner-frete-subtitulo { font-size: 0.82rem; }
+    .banner-frete-bg::before,
+    .banner-frete-bg::after { display: none; }
+}
+
+
+/* ==========================================================================
+   FAIXA DE FRETE GRÁTIS SP (abaixo do carrossel)
+   ========================================================================== */
+.faixa-frete-gratis {
+    background: linear-gradient(90deg, #003ab5 0%, #005eff 60%, #0066cc 100%);
+    padding: 0;
+}
+.faixa-frete-inner {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             16px;
+    padding:         12px 20px;
+    flex-wrap:       wrap;
+}
+.faixa-frete-icone {
+    width:        36px;
+    height:       36px;
+    border-radius: 50%;
+    background:   rgba(255,255,255,0.15);
+    display:      flex;
+    align-items:  center;
+    justify-content: center;
+    color:        #fff;
+    font-size:    1rem;
+    flex-shrink:  0;
+}
+.faixa-frete-texto {
+    color:       #fff;
+    font-size:   0.88rem;
+    text-align:  center;
+    line-height: 1.4;
+}
+.faixa-frete-texto strong {
+    color:       #ffc107;
+    font-size:   0.95rem;
+}
+.faixa-frete-btn {
+    background:    rgba(255,255,255,0.15);
+    border:        1px solid rgba(255,255,255,0.4);
+    color:         #fff;
+    border-radius: 20px;
+    padding:       6px 16px;
+    font-size:     0.8rem;
+    font-weight:   600;
+    cursor:        pointer;
+    white-space:   nowrap;
+    transition:    background 0.2s;
+    flex-shrink:   0;
+}
+.faixa-frete-btn:hover {
+    background: rgba(255,255,255,0.28);
+}
+
+@media (max-width: 480px) {
+    .faixa-frete-inner { gap: 8px; padding: 10px 14px; }
+    .faixa-frete-icone { display: none; }
+    .faixa-frete-texto { font-size: 0.78rem; }
+}
+
+body.dark-mode .faixa-frete-gratis {
+    background: linear-gradient(90deg, #001f6b 0%, #003ab5 60%, #004499 100%);
+}
+
+/* ==========================================================================
+   FIXES v3 — Admin dark mode, nav abas fixo, botão login mobile
+   ========================================================================== */
+
+/* --- Admin: abas fixas no topo do modal (não somem com scroll) --- */
+/* Layout flex do modal admin — tabs sempre visíveis, body scrollável */
+#adminModal .modal-dialog {
+    margin: 1.5rem auto;
+}
+#adminModal .admin-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 88vh;
+    max-height: 88vh;
+    overflow: hidden;
+}
+#adminModal .modal-header {
+    flex-shrink: 0;
+    min-height: 64px;
+}
+#adminModal .admin-tabs-nav {
+    flex-shrink: 0;
+    position: relative; /* tabs nunca saem do fluxo */
+    z-index: 5;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+#adminModal .modal-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 !important;
+    min-height: 0; /* essencial para flex + overflow funcionar */
+}
+#adminModal #adminTabContent {
+    padding: 1rem;
+    min-height: 100%;
+}
+
+/* --- Admin: Dark Mode --- */
+body.dark-mode #adminModal .modal-content,
+body.dark-mode #adminModal .admin-modal-content {
+    background: #1a1a2e;
+    color: #e2e8f0;
+}
+body.dark-mode .admin-modal-header {
+    background: #0d0d1a;
+}
+body.dark-mode .admin-tabs-nav {
+    background: #12122a;
+    border-bottom-color: #2d2d4e;
+}
+body.dark-mode .admin-tab-btn {
+    color: #94a3b8;
+}
+body.dark-mode .admin-tab-btn:hover {
+    color: #60a5fa;
+    background: rgba(96,165,250,0.06);
+}
+body.dark-mode .admin-tab-btn.ativa {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+    background: rgba(96,165,250,0.08);
+}
+body.dark-mode .admin-section-header {
+    color: #e2e8f0;
+    border-bottom-color: #2d2d4e;
+}
+body.dark-mode #adminModal .table {
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .table-light {
+    background: #1e2240 !important;
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+}
+body.dark-mode #adminModal .form-control,
+body.dark-mode #adminModal .form-select {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .form-control::placeholder {
+    color: #64748b;
+}
+body.dark-mode #adminModal .form-label {
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .btn-outline-secondary {
+    color: #94a3b8;
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .badge.bg-light {
+    background: #2d2d4e !important;
+    color: #94a3b8 !important;
+}
+
+/* --- Botão de login no header: sempre mostra ícone + nome --- */
+#btnLoginHeader {
+    display: flex !important;
+    align-items: center;
+    gap: 0;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.usuario-header-nome {
+    display: inline !important;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+/* Em telas muito pequenas: reduz padding para caber */
+@media (max-width: 380px) {
+    #btnLoginHeader { padding: 5px 8px; font-size: 0.75rem; }
+    .usuario-header-nome { font-size: 0.75rem; }
+    .usuario-avatar-header { width: 20px; height: 20px; font-size: 0.55rem; }
+}
+
+/* ==========================================================================
+   ADMIN DARK MODE — complemento (modal-body, form-check, badges)
+   ========================================================================== */
+body.dark-mode #adminModal .modal-body {
+    background: #1a1a2e;
+}
+body.dark-mode #adminModal .form-check-label {
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .form-check-input {
+    background-color: #1e2240;
+    border-color: #3d4870;
+}
+body.dark-mode #adminModal .form-check-input:checked {
+    background-color: #005eff;
+    border-color: #005eff;
+}
+body.dark-mode #adminModal textarea {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .btn-warning {
+    color: #1a1a2e;
+}
+body.dark-mode #adminModal .table td,
+body.dark-mode #adminModal .table th {
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .sticky-top {
+    background: #1e2240 !important;
+}
+body.dark-mode #adminModal .admin-section-header {
+    border-bottom-color: #2d2d4e;
+}
+
+/* ==========================================================================
+   ADMIN LAYOUT MOBILE
+   ========================================================================== */
+@media (max-width: 575px) {
+    #adminModal .modal-dialog { margin: 0.5rem; }
+    #adminModal .admin-modal-content { height: 96vh; max-height: 96vh; }
+    #adminModal .admin-modal-header { padding: 10px 14px; }
+    .admin-badge-icon { width: 32px; height: 32px; font-size: 0.8rem; }
+    #adminModal .modal-title { font-size: 0.9rem; }
+    .admin-tab-btn { padding: 8px 10px; font-size: 0.7rem; }
 }
