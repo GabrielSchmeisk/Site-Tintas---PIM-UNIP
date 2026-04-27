@@ -99,7 +99,7 @@ box.style.backgroundSize     = ‘cover’;
 box.style.backgroundPosition = ‘center’;
 box.classList.remove(‘aguardando-foto’);
 
-```
+
             // Remove hint de upload se existir
             document.getElementById('preview-upload-hint')?.remove();
         } else {
@@ -120,7 +120,7 @@ box.classList.remove(‘aguardando-foto’);
         }
     }
 }
-```
+
 
 ];
 
@@ -145,7 +145,7 @@ return texto
 function isProdutoAcessorio(product) {
 if (!product) return false;
 
-```
+
 const nomes = [
     "pincel", "rolo", "fita", "lixa", "bandeja", "espatula",
     "desempenadeira", "extensor", "lona", "mascara", "aguarras",
@@ -160,7 +160,7 @@ return (
     categoria === 'acessorios'  ||
     nomes.some(t => nome.includes(t))
 );
-```
+
 
 }
 
@@ -184,7 +184,7 @@ function showToast(message, type = ‘success’, isFixed = false) {
 const toastEl   = document.getElementById(‘globalToast’);
 const messageEl = document.getElementById(‘globalToastMessage’);
 
-```
+
 if (!toastEl || !messageEl) return;
 
 toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-primary');
@@ -198,7 +198,7 @@ const toast = new bootstrap.Toast(toastEl, {
 });
 
 toast.show();
-```
+
 
 }
 
@@ -207,7 +207,7 @@ function fecharMenuMobile() {
 document.querySelectorAll(’.dropdown-side.active’)
 .forEach(el => el.classList.remove(‘active’));
 
-```
+
 const navbarCollapse = document.querySelector('.navbar-collapse.show');
 if (navbarCollapse) {
     new bootstrap.Collapse(navbarCollapse).hide();
@@ -218,7 +218,7 @@ if (offcanvasEl) {
     const instance = bootstrap.Offcanvas.getInstance(offcanvasEl);
     if (instance) instance.hide();
 }
-```
+
 
 }
 
@@ -227,12 +227,12 @@ function limparBackdropsTravados() {
 const backdrops = document.querySelectorAll(’.modal-backdrop’);
 backdrops.forEach(b => b.remove());
 
-```
+
 document.body.classList.remove('modal-open');
 document.body.style.overflow     = '';
 document.body.style.paddingRight = '';
 document.body.classList.remove('modal-open');
-```
+
 
 }
 
@@ -245,7 +245,7 @@ function renderProducts(items) {
 const container = document.getElementById(‘product-list’);
 if (!container) return;
 
-```
+
 const favorites = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
 
 // Promove produtos em promoção para o topo da lista
@@ -307,7 +307,7 @@ container.innerHTML = sortedItems.map(p => {
         </div>
     </div>`;
 }).join('');
-```
+
 
 }
 
@@ -345,7 +345,7 @@ container.innerHTML = sortedItems.map(p => {
   EM PROMOÇÃO
   </div>
   
-  ```
+  
    <div class="promo-price-block">
        ${precoAntigoHtml}
        <span class="promo-price-current">
@@ -360,7 +360,7 @@ container.innerHTML = sortedItems.map(p => {
    </div>
   
    <div id="promo-badge-img-inject" data-desconto="${badgeDescontoHtml}</div>
-  ```
+  
   
   `;
   }
@@ -370,7 +370,7 @@ function renderizarSugestoes(produtoAtual, containerId) {
 const container = document.getElementById(containerId);
 if (!container) return;
 
-```
+
 container.innerHTML = '';
 
 if (!produtoAtual.sugestoes || produtoAtual.sugestoes.length === 0) {
@@ -401,7 +401,7 @@ itensSugeridos.forEach(item => {
 });
 
 container.innerHTML = htmlGerado;
-```
+
 
 }
 
@@ -410,7 +410,7 @@ function renderFavoritesProfile() {
 const favContainer = document.getElementById(‘favorites-list’);
 if (!favContainer) return;
 
-```
+
 const favorites     = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
 const favoriteItems = products.filter(p => favorites.includes(p.id));
 
@@ -431,7 +431,7 @@ favContainer.innerHTML = favoriteItems.map(p => `
         </button>
     </div>
 `).join('');
-```
+
 
 }
 
@@ -440,7 +440,7 @@ function renderOrdersProfile() {
 const ordersContainer = document.getElementById(‘orders-list’);
 if (!ordersContainer) return;
 
-```
+
 const pedidos = JSON.parse(localStorage.getItem('fixtintas_orders') || '[]');
 
 if (pedidos.length === 0) {
@@ -472,7 +472,7 @@ ordersContainer.innerHTML = pedidos.map(p => `
         </div>
     </div>
 `).join('');
-```
+
 
 }
 
@@ -481,7 +481,7 @@ function renderCoresNoModalSpray() {
 const container = document.getElementById(‘sprayColorPicker’);
 if (!container) return;
 
-```
+
 const cores = [
     { id: 'white',    name: 'Branco',         hex: '#ffffff', price: 0  },
     { id: 'offwhite', name: 'Pérola',          hex: '#fdf5e6', price: 5  },
@@ -514,7 +514,7 @@ container.innerHTML = cores.map(cor => `
 
 renderizarSugestoes(tempProduct, 'sugestoes-spray');
 updateSprayPreview();
-```
+
 
 }
 
@@ -526,7 +526,7 @@ updateSprayPreview();
 function filterProducts(tag, event) {
 if (event && event.preventDefault) { event.preventDefault(); }
 
-```
+
 const list          = document.getElementById('product-list');
 const categoryTitle = document.getElementById('category-title');
 if (!list) return;
@@ -599,7 +599,7 @@ setTimeout(() => {
         window.scrollTo({ top: list.offsetTop - 100, behavior: 'smooth' });
     }
 }, 300);
-```
+
 
 }
 
@@ -609,7 +609,7 @@ const list          = document.getElementById(‘product-list’);
 const categoryTitle = document.getElementById(‘category-title’);
 if (!list) return;
 
-```
+
 let filtered;
 
 if (value === 'all') {
@@ -633,7 +633,7 @@ setTimeout(() => {
     renderProducts(filtered);
     list.style.opacity = '1';
 }, 200);
-```
+
 
 }
 
@@ -643,13 +643,13 @@ const inputBusca = document.getElementById(‘inputBusca’);
 const btnLimpar  = document.getElementById(‘btnLimparBusca’);
 const contadorEl = document.getElementById(‘busca-contador’);
 
-```
+
 if (inputBusca) inputBusca.value = '';
 if (btnLimpar)  btnLimpar.classList.remove('visivel');
 if (contadorEl) contadorEl.classList.remove('visivel');
 
 renderProducts(products);
-```
+
 
 }
 
@@ -662,7 +662,7 @@ function showProductDetails(id) {
 const product = products.find(p => p.id === id);
 if (!product) return;
 
-```
+
 // Atualiza a URL com o ID do produto
 const novaUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?produto=' + id;
 window.history.pushState({ path: novaUrl }, '', novaUrl);
@@ -918,7 +918,7 @@ modalElement.addEventListener('hidden.bs.modal', () => {
     const urlOriginal = window.location.protocol + "//" + window.location.host + window.location.pathname;
     window.history.pushState({ path: urlOriginal }, '', urlOriginal);
 }, { once: true });
-```
+
 
 }
 
@@ -994,13 +994,13 @@ const qtyInput     = document.getElementById(‘modal-qty’);
 const subtotalText = document.getElementById(‘modal-subtotal’);
 let currentQty     = parseInt(qtyInput.value);
 
-```
+
 currentQty += delta;
 if (currentQty < 1) currentQty = 1;
 
 qtyInput.value     = currentQty;
 subtotalText.innerText = `R$ ${(currentQty * price).toFixed(2)}`;
-```
+
 
 }
 
@@ -1009,7 +1009,7 @@ function addToCartFromModal(id) {
 const product = products.find(p => p.id === id);
 if (!product) return;
 
-```
+
 const qtyInput    = document.getElementById('modal-qty');
 const quantity    = qtyInput ? parseInt(qtyInput.value) : 1;
 const isAcessorio = isProdutoAcessorio(product);
@@ -1046,7 +1046,7 @@ if (isAcessorio) {
         modalDetailsEl.removeEventListener('hidden.bs.modal', handler);
     }, { once: true });
 }
-```
+
 
 }
 
@@ -1054,7 +1054,7 @@ if (isAcessorio) {
 function handleModalFavorite(id, event) {
 toggleFavorite(id, event);
 
-```
+
 const btn       = document.getElementById('btn-fav-modal');
 const icon      = btn.querySelector('i');
 const favorites = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
@@ -1069,7 +1069,7 @@ if (isFav) {
 }
 
 renderFavoritesProfile();
-```
+
 
 }
 
@@ -1078,7 +1078,7 @@ function shareProduct(id, name) {
 const url  = `${window.location.origin}${window.location.pathname}?produto=${id}`;
 const text = `Confira este produto: ${name}`;
 
-```
+
 if (navigator.share) {
     navigator.share({ title: name, text: text, url: url })
         .then(() => console.log('Compartilhado com sucesso!'))
@@ -1088,7 +1088,7 @@ if (navigator.share) {
         alert('Link copiado para a área de transferência!');
     });
 }
-```
+
 
 }
 
@@ -1101,7 +1101,7 @@ function openConfigModal(id) {
 const product = products.find(p => p.id == id);
 if (!product) return;
 
-```
+
 tempProduct = product;
 const nameLower   = product.name.toLowerCase();
 const isAcessorio = isProdutoAcessorio(product);
@@ -1191,7 +1191,7 @@ if (configModalEl) {
         atualizarSubtotalModal();
     }, { once: true });
 }
-```
+
 
 }
 
@@ -1200,7 +1200,7 @@ function modalTamanhos(product) {
 const sizeModalEl = document.getElementById(‘modalTamanhos’);
 if (!sizeModalEl) return;
 
-```
+
 let pending = parseInt(sessionStorage.getItem('pending_configs')) || 1;
 let total   = parseInt(sessionStorage.getItem('total_to_configure')) || 1;
 const atual = (total - pending) + 1;
@@ -1218,7 +1218,7 @@ sizeModal.show();
 
 sizeModalEl.addEventListener('shown.bs.modal', () => atualizarSubtotalModal(), { once: true });
 renderizarSugestoes(tempProduct, 'sugestoes-config');
-```
+
 
 }
 
@@ -1226,7 +1226,7 @@ renderizarSugestoes(tempProduct, 'sugestoes-config');
 function atualizarSubtotalModal() {
 if (!tempProduct) return;
 
-```
+
 const modalVisivel = document.querySelector('.modal.show');
 if (!modalVisivel) return;
 
@@ -1260,7 +1260,7 @@ display.textContent = valorFinal.toLocaleString('pt-BR', {
 });
 
 console.log(`Cálculo: Base(${precoBase}) + Tam(${ajusteTamanho}) + Extras(${ajusteExtras}) = ${valorFinal}`);
-```
+
 
 }
 
@@ -1279,7 +1279,7 @@ const wallLabel          = document.getElementById(‘wall-type-label’);
 const photoOverlay       = document.getElementById(‘photo-color-overlay’);
 const modalPriceElement  = document.getElementById(‘modalProductPrice’);
 
-```
+
 if (!selectedColorInput || !previewBox || !textureSelect || !tempProduct) return;
 
 // 1. Captura dos valores selecionados
@@ -1400,7 +1400,7 @@ tempProduct.currentCalculatedPrice = totalPrice;
 tempProduct.selectedColorName      = colorName;
 tempProduct.selectedTextureName    = texture;
 tempProduct.selectedSizeName       = sizeSelect ? sizeSelect.value : "Padrão";
-```
+
 
 }
 
@@ -1409,7 +1409,7 @@ function updateSprayPreview() {
 const modal              = document.getElementById(‘sprayConfigModal’);
 if (!modal) return;
 
-```
+
 const selectedColorInput = modal.querySelector('input[name="color"]:checked');
 const demaos             = parseInt(document.getElementById('spray-demaos')?.value) || 1;
 const previewBox         = document.getElementById('product-preview-spray');
@@ -1479,7 +1479,7 @@ if (selectedColorInput) {
 previewBox.style.backgroundSize     = "contain";
 previewBox.style.backgroundRepeat   = "no-repeat";
 previewBox.style.backgroundPosition = "center";
-```
+
 
 }
 
@@ -1506,7 +1506,7 @@ currentWallIndex += direction;
 if (currentWallIndex >= wallTypes.length) currentWallIndex = 0;
 if (currentWallIndex < 0) currentWallIndex = wallTypes.length - 1;
 
-```
+
 const sprayModal = document.getElementById('sprayConfigModal');
 if (sprayModal && sprayModal.classList.contains('show')) {
     updateSprayPreview();
@@ -1514,7 +1514,7 @@ if (sprayModal && sprayModal.classList.contains('show')) {
     updatePreview();
     atualizarBotaoUploadParede();
 }
-```
+
 
 }
 
@@ -1523,7 +1523,7 @@ function aplicarFotoParede(input) {
 const file = input.files[0];
 if (!file) return;
 
-```
+
 if (file.size > 10 * 1024 * 1024) {
     showToast('Foto muito grande. Use uma imagem menor que 10MB.', 'danger');
     return;
@@ -1545,7 +1545,7 @@ reader.onload = (e) => {
     showToast('Foto aplicada! Selecione uma cor para ver a simulação.', 'success');
 };
 reader.readAsDataURL(file);
-```
+
 
 }
 
@@ -1554,7 +1554,7 @@ function removerFotoParede() {
 userWallImage    = null;
 currentWallIndex = 0;
 
-```
+
 const previewBox   = document.getElementById('product-preview');
 const photoOverlay = document.getElementById('photo-color-overlay');
 
@@ -1574,7 +1574,7 @@ if (inputUpload) inputUpload.value = '';
 
 atualizarBotaoUploadParede();
 updatePreview();
-```
+
 
 }
 
@@ -1587,7 +1587,7 @@ function animateFlashlight(overlayId) {
 const overlay = document.getElementById(overlayId);
 if (!overlay || !overlay.classList.contains(‘flashlight-active’)) return;
 
-```
+
 if (overlay.dataset.touching === 'true') {
     flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
     return;
@@ -1611,7 +1611,7 @@ overlay.style.setProperty('--x', `${x}px`);
 overlay.style.setProperty('--y', `${y}px`);
 
 flashlightAnimFrame = requestAnimationFrame(() => animateFlashlight(overlayId));
-```
+
 
 }
 
@@ -1621,7 +1621,7 @@ const id      = type === ‘spray’ ? ‘flashlight-spray’ : ‘flashlight-no
 const overlay = document.getElementById(id);
 if (!overlay) return;
 
-```
+
 overlay.classList.toggle('flashlight-active');
 const isActive      = overlay.classList.contains('flashlight-active');
 const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
@@ -1648,7 +1648,7 @@ if (isActive) {
 } else {
     cancelAnimationFrame(flashlightAnimFrame);
 }
-```
+
 
 }
 
@@ -1675,7 +1675,7 @@ function addToCartSimple(id, quantity = 1) {
 const product = products.find(p => p.id === id);
 if (!product) return;
 
-```
+
 // Validação de estoque
 const check = podeAdicionarAoCarrinho(product.id, quantity);
 if (!check.ok) {
@@ -1712,7 +1712,7 @@ if (toastEl) {
     if (infoEl) infoEl.textContent = 'Adicionado ao carrinho!';
     new bootstrap.Toast(toastEl).show();
 }
-```
+
 
 }
 
@@ -1723,7 +1723,7 @@ const textureSelect      = document.getElementById(‘selectTexture’);
 const sizeSelect         = document.getElementById(‘selectSize’);
 if (!selectedColorInput || !tempProduct) return;
 
-```
+
 const color    = selectedColorInput.value;
 const texture  = textureSelect ? textureSelect.value : 'Fosco';
 const sizeName = sizeSelect    ? sizeSelect.value    : 'Padrão';
@@ -1782,7 +1782,7 @@ if (!isBulk) {
         limparBackdropsTravados();
     }
 }
-```
+
 
 }
 
@@ -1791,7 +1791,7 @@ function confirmSprayToCart() {
 const modalEl            = document.getElementById(‘sprayConfigModal’);
 const selectedColorInput = modalEl.querySelector(‘input[name=“color”]:checked’);
 
-```
+
 if (!selectedColorInput) {
     showToast("⚠️ Por favor, selecione uma cor antes de confirmar!", "danger");
     const preview = document.getElementById('product-preview-spray');
@@ -1839,7 +1839,7 @@ const textLabel  = document.getElementById('preview-text-spray');
 const priceLabel = document.getElementById('preview-price-spray');
 if (textLabel)  textLabel.innerText      = "Selecione uma cor";
 if (priceLabel) priceLabel.style.display = 'none';
-```
+
 
 }
 
@@ -1847,7 +1847,7 @@ if (priceLabel) priceLabel.style.display = 'none';
 function confirmAddToCartSizeOnly() {
 if (!tempProduct) return;
 
-```
+
 const sizeSelect     = document.getElementById('selectSizeOnly');
 const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
 const addPrice       = parseFloat(selectedOption.getAttribute('data-price-add')) || 0;
@@ -1891,7 +1891,7 @@ if (pending > 0) {
     showConfirmation(item);
     if (typeof limparBackdropsTravados === "function") limparBackdropsTravados();
 }
-```
+
 
 }
 
@@ -1899,7 +1899,7 @@ if (pending > 0) {
 function applyConfigToAll() {
 const pending = parseInt(sessionStorage.getItem(‘pending_configs’)) || 0;
 
-```
+
 for (let i = 0; i <= pending; i++) {
     confirmAddToCart(true);
 }
@@ -1911,7 +1911,7 @@ const configModal = bootstrap.Modal.getInstance(document.getElementById('product
 if (configModal) configModal.hide();
 
 showToast("Todas as latas foram configuradas!", "success");
-```
+
 
 }
 
@@ -1921,7 +1921,7 @@ let pending = parseInt(sessionStorage.getItem(‘pending_configs’)) || 1;
 pending–;
 sessionStorage.setItem(‘pending_configs’, pending);
 
-```
+
 const modalInstance = bootstrap.Modal.getInstance(modalEl);
 if (modalInstance) modalInstance.hide();
 
@@ -1959,7 +1959,7 @@ modalEl.addEventListener('hidden.bs.modal', function handler() {
         }
     }
 }, { once: true });
-```
+
 
 }
 
@@ -1971,7 +1971,7 @@ const container    = document.getElementById(‘cart-items-container’);
 const btnLimpar    = document.getElementById(‘btnLimparCarrinho’);
 const totalElement = document.getElementById(‘cart-total’);
 
-```
+
 const totalUnidades = cart.reduce((acc, i) => acc + i.quantity, 0);
 
 if (cartCount)       cartCount.innerText       = totalUnidades;
@@ -2049,7 +2049,7 @@ cart.forEach(item => {
 });
 
 if (totalElement) totalElement.innerText = `R$ ${total.toFixed(2)}`;
-```
+
 
 }
 
@@ -2057,7 +2057,7 @@ if (totalElement) totalElement.innerText = `R$ ${total.toFixed(2)}`;
 function showConfirmation(product) {
 const toastElement = document.getElementById(‘itemAddedToast’);
 
-```
+
 if (toastElement) {
     document.getElementById('toast-item-name').innerText = product.name;
 
@@ -2071,7 +2071,7 @@ if (toastElement) {
     const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
     toast.show();
 }
-```
+
 
 }
 
@@ -2079,7 +2079,7 @@ if (toastElement) {
 function save() {
 localStorage.setItem(‘fixtintas_cart’, JSON.stringify(cart));
 
-```
+
 const cartCount = document.getElementById('cart-count');
 if (cartCount) {
     cartCount.innerText = cart.reduce((acc, i) => acc + i.quantity, 0);
@@ -2093,7 +2093,7 @@ if (cartIcon) {
     cartIcon.classList.add('cart-added');
     setTimeout(() => cartIcon.classList.remove('cart-added'), 420);
 }
-```
+
 
 }
 
@@ -2114,7 +2114,7 @@ updateCartUI();
 async function clearCart() {
 if (cart.length === 0) return;
 
-```
+
 const isDark  = document.body.classList.contains('dark-mode');
 const bgModal = isDark ? '#1e2240' : '#fff';
 const bgBody  = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.5)';
@@ -2181,7 +2181,7 @@ if (userConfirmed) {
     updateCartUI();
     showToast('Carrinho esvaziado.', 'warning');
 }
-```
+
 
 }
 
@@ -2189,7 +2189,7 @@ if (userConfirmed) {
 function removeItemsByType(tipo) {
 const cartInicial = cart.length;
 
-```
+
 cart = cart.filter(item => {
     const nomeItem     = item.name.toLowerCase();
     const categoriaItem = (item.category || "").toLowerCase();
@@ -2205,7 +2205,7 @@ if (cart.length < cartInicial) {
     updateCartUI();
     console.log(`Todos os itens do tipo "${tipo}" foram removidos.`);
 }
-```
+
 
 }
 
@@ -2215,7 +2215,7 @@ const url = new URL(window.location);
 url.searchParams.set(‘aba’, ‘carrinho’);
 window.history.pushState({}, ‘’, url);
 
-```
+
 updateCartUI();
 
 const cartModalEl = document.getElementById('cartModal');
@@ -2228,7 +2228,7 @@ cartModalEl.addEventListener('hidden.bs.modal', () => {
     cleanUrl.searchParams.delete('aba');
     window.history.pushState({}, '', cleanUrl);
 }, { once: true });
-```
+
 
 }
 
@@ -2255,14 +2255,14 @@ cartModalEl.addEventListener('hidden.bs.modal', () => {
   secaoProdutos.scrollIntoView({ behavior: ‘smooth’, block: ‘start’ });
   }
   
-  ```
+  
    // Pequeno delay para o scroll terminar antes de abrir o modal
    setTimeout(() => {
        if (typeof showProductDetails === 'function') {
            showProductDetails(productId);
        }
    }, 400);
-  ```
+  
   
   }, { once: true });
   }
@@ -2278,7 +2278,7 @@ showToast(“O seu carrinho está vazio!”, “danger”);
 return;
 }
 
-```
+
 const nomeSalvo = localStorage.getItem('usuario_nome');
 let enderecoObj = null;
 try {
@@ -2319,7 +2319,7 @@ if (confirmModalEl) {
     setTimeout(() => { togglePaymentDetails(); }, 200);
     setTimeout(() => { _renderizarFreteCheckout(); }, 350);
 }
-```
+
 
 }
 
@@ -2328,7 +2328,7 @@ function togglePaymentDetails() {
 const select = document.getElementById(‘metodoPagamento’);
 if (!select) return;
 
-```
+
 const metodo = select.value;
 
 document.querySelectorAll('.payment-method-detail').forEach(div => {
@@ -2337,7 +2337,7 @@ document.querySelectorAll('.payment-method-detail').forEach(div => {
 
 const area = document.getElementById(`detalhe-${metodo}`);
 if (area) area.classList.remove('d-none');
-```
+
 
 }
 
@@ -2356,7 +2356,7 @@ const enderecoCompleto = localStorage.getItem(‘usuario_endereco_formatado’) 
 const selectPgto       = document.getElementById(‘metodoPagamento’);
 const metodoPagamento  = selectPgto ? selectPgto.value : “Não informado”;
 
-```
+
 if (cart.length === 0) {
     showToast("O carrinho está vazio!", "danger");
     return;
@@ -2449,7 +2449,7 @@ sessionStorage.removeItem('frete_selecionado');
 
 if (typeof updateCartUI === "function") updateCartUI();
 if (typeof renderOrdersProfile === "function") renderOrdersProfile();
-```
+
 
 }
 
@@ -2461,7 +2461,7 @@ if (typeof renderOrdersProfile === "function") renderOrdersProfile();
 function toggleFavorite(id, event) {
 if (event) event.stopPropagation();
 
-```
+
 let favorites = JSON.parse(localStorage.getItem('fixtintas_favorites')) || [];
 const index   = favorites.indexOf(id);
 
@@ -2475,7 +2475,7 @@ localStorage.setItem('fixtintas_favorites', JSON.stringify(favorites));
 renderProducts(products);
 renderFavoritesProfile();
 renderOrdersProfile();
-```
+
 
 }
 
@@ -2485,7 +2485,7 @@ document.querySelectorAll(’.login-tab’).forEach(tab => {
 tab.classList.toggle(‘ativa’, tab.id === `tab-${painel}`);
 });
 
-```
+
 document.querySelectorAll('.login-painel').forEach(p => {
     p.classList.toggle('d-none', p.dataset.painel !== painel);
 });
@@ -2495,7 +2495,7 @@ document.querySelectorAll('.login-erro').forEach(el => el.textContent = '');
 document.querySelectorAll('.login-input').forEach(el => {
     el.classList.remove('invalido', 'valido');
 });
-```
+
 
 }
 
@@ -2515,7 +2515,7 @@ const fill  = document.getElementById(‘senha-forca-fill’);
 const label = document.getElementById(‘senha-forca-label’);
 if (!wrap || !fill || !label) return;
 
-```
+
 if (!valor) {
     wrap.classList.remove('visivel');
     return;
@@ -2542,7 +2542,7 @@ fill.style.width      = nivel.pct;
 fill.style.background = nivel.cor;
 label.style.color     = nivel.cor;
 label.textContent     = nivel.txt;
-```
+
 
 }
 
@@ -2583,7 +2583,7 @@ const comp   = document.getElementById(‘addrComp’).value.trim();
 const bairro = document.getElementById(‘addrBairro’).value.trim();
 const cidade = document.getElementById(‘addrCidade’).value.trim();
 
-```
+
 if (!rua || !num || !bairro || !cidade) {
     showToast("⚠️ Preencha todos os campos obrigatórios.", "danger");
     return;
@@ -2606,7 +2606,7 @@ const modalConta = document.getElementById('minhaContaModal');
 if (modalConta) {
     bootstrap.Modal.getInstance(modalConta)?.hide();
 }
-```
+
 
 }
 
@@ -2615,7 +2615,7 @@ function loadAddressFields() {
 const salvo = JSON.parse(localStorage.getItem(‘usuario_endereco_obj’));
 if (!salvo) return;
 
-```
+
 const cepInput = document.getElementById('addrCEP');
 if (cepInput && salvo.cep) {
     const cepStr   = String(salvo.cep);
@@ -2629,7 +2629,7 @@ if (document.getElementById('addrNum'))    document.getElementById('addrNum').va
 if (document.getElementById('addrComp'))   document.getElementById('addrComp').value   = salvo.comp   || '';
 if (document.getElementById('addrBairro')) document.getElementById('addrBairro').value = salvo.bairro || '';
 if (document.getElementById('addrCidade')) document.getElementById('addrCidade').value = salvo.cidade || '';
-```
+
 
 }
 
@@ -2657,7 +2657,7 @@ if (document.getElementById('addrCidade')) document.getElementById('addrCidade')
   .then(data => {
   cepInput.disabled = false;
   
-  ```
+  
        if (data.erro) {
            showToast("CEP não encontrado. Preencha o endereço manualmente.", "warning");
            return;
@@ -2678,7 +2678,7 @@ if (document.getElementById('addrCidade')) document.getElementById('addrCidade')
        cepInput.disabled = false;
        showToast("Erro ao buscar CEP. Verifique sua conexão.", "danger");
    });
-  ```
+  
 
 }
 
@@ -2765,7 +2765,7 @@ if (document.getElementById('addrCidade')) document.getElementById('addrCidade')
   setTimeout(() => {
   const resultado = _simularFrete(cepLimpo, preco);
   
-  ```
+  
    if (!resultado.valido) {
        resultadoEl.innerHTML = `
            <div class="frete-erro">
@@ -2797,7 +2797,7 @@ if (document.getElementById('addrCidade')) document.getElementById('addrCidade')
    }
   
    if (btnEl) btnEl.disabled = false;
-  ```
+  
   
   }, 800);
   }
@@ -2809,7 +2809,7 @@ const wrap     = input?.closest(’[id^=“frete-input-wrap”]’);
 const badge    = wrap?.previousElementSibling;
 const linkCep  = wrap?.nextElementSibling?.nextElementSibling;
 
-```
+
 if (wrap)    wrap.style.display    = '';
 if (badge)   badge.style.display   = 'none';
 if (linkCep) linkCep.style.display = '';
@@ -2818,7 +2818,7 @@ const resultado = document.getElementById(resultadoId);
 if (resultado) resultado.style.display = 'none';
 input?.focus();
 input?.select();
-```
+
 
 }
 
@@ -2827,7 +2827,7 @@ function _renderizarFreteCheckout() {
 const container = document.getElementById(‘checkout-frete-resultado’);
 if (!container) return;
 
-```
+
 const enderecoSalvo = JSON.parse(localStorage.getItem('usuario_endereco_obj') || 'null');
 const cepSalvo      = enderecoSalvo?.cep || '';
 
@@ -2907,7 +2907,7 @@ container.innerHTML = `
 // Seleciona automaticamente a primeira opção
 const primeiroRadio = container.querySelector('input[name="frete_checkout"]');
 if (primeiroRadio) selecionarFreteCheckout(primeiroRadio);
-```
+
 
 }
 
@@ -2951,7 +2951,7 @@ const altura        = parseFloat(document.getElementById(‘calcAltura’).value
 const resultadoDiv  = document.getElementById(‘resultadoCalc’);
 const textoResultado = document.getElementById(‘textoResultado’);
 
-```
+
 if (!largura || !altura || largura <= 0 || altura <= 0) {
     showToast(`Por favor, insira valores válidos para largura e altura.`, 'danger');
     return;
@@ -2978,7 +2978,7 @@ if (litrosNecessarios <= 0.8) {
 
 textoResultado.innerHTML = `Sua parede tem <strong>${area.toFixed(2)}m²</strong>.<br>${recomendacao}`;
 resultadoDiv.classList.remove('d-none');
-```
+
 
 }
 
@@ -2993,7 +2993,7 @@ showToast(“Seu carrinho está vazio!”, “danger”);
 return;
 }
 
-```
+
 const grupos = {
     'Tintas e Acabamentos':  [],
     'Ferramentas':           [],
@@ -3089,7 +3089,7 @@ const modalHtml = `
 document.getElementById('modalListaMateriais')?.remove();
 document.body.insertAdjacentHTML('beforeend', modalHtml);
 new bootstrap.Modal(document.getElementById('modalListaMateriais')).show();
-```
+
 
 }
 
@@ -3098,7 +3098,7 @@ function gerarTextoLista() {
 const data  = new Date().toLocaleDateString(‘pt-BR’);
 let texto   = `📋 LISTA DE MATERIAIS - FixTintas\n📅 ${data}\n${'─'.repeat(32)}\n`;
 
-```
+
 cart.forEach(i => {
     texto += `\n• ${i.quantity}x ${i.displayName || i.name}\n  R$ ${(i.price * i.quantity).toFixed(2)}`;
 });
@@ -3106,7 +3106,7 @@ cart.forEach(i => {
 const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 texto += `\n\n${'─'.repeat(32)}\nTOTAL: R$ ${total.toFixed(2)}\n\nGerado pelo app FixTintas`;
 return texto;
-```
+
 
 }
 
@@ -3133,7 +3133,7 @@ showToast(“Seu carrinho está vazio!”, “danger”);
 return;
 }
 
-```
+
 if (typeof window.jspdf === 'undefined') {
     showToast("Biblioteca de PDF não carregada. Verifique sua conexão.", "danger");
     return;
@@ -3408,7 +3408,7 @@ for (let i = 1; i <= totalPaginas; i++) {
 const nomeArquivo = `FixTintas_Requisicao_${numRef}_${dataAtual.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
 doc.save(nomeArquivo);
 showToast(`PDF gerado com sucesso! <br><small>${nomeArquivo}</small>`, 'success');
-```
+
 
 }
 
@@ -3421,7 +3421,7 @@ function toggleDarkMode() {
 const body = document.body;
 const icon = document.getElementById(‘dark-mode-icon’);
 
-```
+
 body.classList.toggle('dark-mode');
 
 if (body.classList.contains('dark-mode')) {
@@ -3431,7 +3431,7 @@ if (body.classList.contains('dark-mode')) {
     icon.classList.replace('fa-sun', 'fa-moon');
     localStorage.setItem('theme', 'light');
 }
-```
+
 
 }
 
@@ -3470,7 +3470,7 @@ function _renderizarItensPopup(itens) {
 const lista = document.getElementById(‘popup-promo-lista’);
 if (!lista) return;
 
-```
+
 lista.innerHTML = itens.map(p => {
     const temDesconto  = p.oldPrice && p.oldPrice > p.price;
     const desconto     = temDesconto
@@ -3507,7 +3507,7 @@ lista.innerHTML = itens.map(p => {
         </div>
     `;
 }).join('');
-```
+
 
 }
 
@@ -3517,14 +3517,14 @@ const card = document.getElementById(‘popup-promo-card’);
 const aba  = document.getElementById(‘popup-promo-aba’);
 if (!card || !aba) return;
 
-```
+
 card.classList.add('saindo');
 setTimeout(() => {
     card.classList.add('d-none');
     card.classList.remove('saindo');
     aba.classList.remove('d-none');
 }, 310);
-```
+
 
 }
 
@@ -3534,10 +3534,10 @@ const card = document.getElementById(‘popup-promo-card’);
 const aba  = document.getElementById(‘popup-promo-aba’);
 if (!card || !aba) return;
 
-```
+
 aba.classList.add('d-none');
 card.classList.remove('d-none');
-```
+
 
 }
 
@@ -3547,14 +3547,14 @@ const popup = document.getElementById(‘popup-promocoes’);
 const card  = document.getElementById(‘popup-promo-card’);
 if (!popup || !card) return;
 
-```
+
 card.classList.add('saindo');
 setTimeout(() => {
     popup.classList.add('d-none');
     card.classList.remove('saindo');
     sessionStorage.setItem('popup_promo_fechado', 'true');
 }, 310);
-```
+
 
 }
 
@@ -3567,7 +3567,7 @@ function verificarOfertasFavoritos() {
 const favorites = JSON.parse(localStorage.getItem(‘fixtintas_favorites’)) || [];
 if (favorites.length === 0) return;
 
-```
+
 const ofertasNovas = products.filter(p =>
     favorites.includes(p.id) && p.promo === true
 );
@@ -3655,7 +3655,7 @@ document.getElementById('banner-oferta-wrapper')?.remove();
 document.body.appendChild(wrapper);
 
 setTimeout(fecharBannerOferta, 8000); // fecha automaticamente após 8s
-```
+
 
 }
 
@@ -3664,10 +3664,10 @@ function fecharBannerOferta() {
 const wrapper = document.getElementById(‘banner-oferta-wrapper’);
 if (!wrapper) return;
 
-```
+
 wrapper.classList.add('saindo');
 setTimeout(() => wrapper.remove(), 360);
-```
+
 
 }
 
@@ -3679,7 +3679,7 @@ setTimeout(() => wrapper.remove(), 360);
 document.addEventListener(‘mousemove’, (e) => {
 const overlays = [‘flashlight-normal’, ‘flashlight-spray’];
 
-```
+
 overlays.forEach(id => {
     const overlay = document.getElementById(id);
     if (overlay && overlay.classList.contains('flashlight-active')) {
@@ -3692,7 +3692,7 @@ overlays.forEach(id => {
         overlay.style.setProperty('--y', `${y}px`);
     }
 });
-```
+
 
 });
 
@@ -3716,7 +3716,7 @@ v = v.replace(/(\d{4})(?=\d)/g, ’$1 ’);
 e.target.value = v;
 }
 
-```
+
 // Máscara do CPF
 if (e.target.id === 'cardCPF') {
     let v = e.target.value.replace(/\D/g, '');
@@ -3752,7 +3752,7 @@ if (e.target.classList.contains('frete-input')) {
         e.target.dataset.ready = 'true';
     }
 }
-```
+
 
 });
 
@@ -3762,7 +3762,7 @@ const navbar = document.querySelector(’.navbar’);
 if (!navbar) return;
 if (document.body.classList.contains(‘modal-open’)) return;
 
-```
+
 const currentScrollY = window.scrollY;
 
 if (currentScrollY > lastScrollY && currentScrollY > 60) {
@@ -3780,7 +3780,7 @@ if (btnTopo) {
 }
 
 lastScrollY = currentScrollY;
-```
+
 
 }, { passive: true });
 
@@ -3788,7 +3788,7 @@ lastScrollY = currentScrollY;
 document.getElementById(‘loginForm’)?.addEventListener(‘submit’, function(e) {
 e.preventDefault();
 
-```
+
 const emailValido = _validarCampo('loginEmail', 'erro-loginEmail', v =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Digite um e-mail válido.'
 );
@@ -3821,7 +3821,7 @@ _iniciarSessao(resultado.usuario, lembrar);
 checkLoginPersistence();
 bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
 showToast(`Bem-vindo de volta, ${resultado.usuario.nome.split(' ')[0]}! 👋`, 'success');
-```
+
 
 });
 
