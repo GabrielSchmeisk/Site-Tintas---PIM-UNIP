@@ -1437,6 +1437,9 @@
                 <button class="admin-tab-btn" data-aba="exportar" onclick="renderAdminAba('exportar')">
                     <i class="fas fa-database me-1"></i> Backup
                 </button>
+                <button class="admin-tab-btn" data-aba="relatorio" onclick="renderAdminAba('relatorio')">
+                    <i class="fas fa-chart-bar me-1"></i> Relatório
+                </button>
             </div>
 
             <div class="modal-body p-0">
@@ -1466,6 +1469,57 @@
 <script>
     new window.VLibras.Widget('https://vlibras.gov.br/app');
 </script>
+
+
+<!-- =====================================================================
+     FIXBOT — Chatbot de Atendimento
+     ===================================================================== -->
+<div id="fixbot-wrapper">
+    <!-- Botão flutuante -->
+    <button id="fixbot-toggle" onclick="toggleFixbot()" title="Falar com o FixBot" aria-label="Abrir chat de atendimento">
+        <i class="fas fa-comments fixbot-icon-open"></i>
+        <i class="fas fa-times fixbot-icon-close d-none"></i>
+        <span class="fixbot-badge" id="fixbot-badge"></span>
+    </button>
+
+    <!-- Painel do chat -->
+    <div id="fixbot-painel" role="dialog" aria-label="FixBot - Atendimento">
+        <!-- Header -->
+        <div id="fixbot-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="fixbot-header-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:0.9rem;">FixBot</div>
+                    <div class="fixbot-online-dot">
+                        <span class="fixbot-dot"></span>
+                        <span style="font-size:0.68rem;opacity:0.85;">Online agora</span>
+                    </div>
+                </div>
+            </div>
+            <button class="fixbot-fechar-btn" onclick="toggleFixbot()" aria-label="Fechar chat">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+
+        <!-- Mensagens -->
+        <div id="fixbot-msgs" role="log" aria-live="polite"></div>
+
+        <!-- Input -->
+        <div id="fixbot-footer">
+            <input id="fixbot-input"
+                   type="text"
+                   placeholder="Digite sua dúvida..."
+                   autocomplete="off"
+                   maxlength="200"
+                   aria-label="Mensagem para o FixBot">
+            <button onclick="fixbotEnviar()" aria-label="Enviar mensagem">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
