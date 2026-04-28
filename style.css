@@ -1,0 +1,3488 @@
+/* ==========================================================================
+   1. VARIÁVEIS E RESET BASE
+   ========================================================================== */
+
+:root {
+    --primary-blue:   #005eff;
+    --primary-orange: #ff7a00;
+    --bg-body:        #f4f7f6;
+    --text-main:      #333;
+    --card-bg:        #fff;
+}
+
+body.dark-mode {
+    --bg-body:   #121212;
+    --text-main: #e0e0e0;
+    --card-bg:   #1e1e1e;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-body);
+    color:            var(--text-main);
+    font-family:      'Inter', 'Segoe UI', sans-serif;
+    transition:       background-color 0.3s, color 0.3s;
+}
+
+/* Remove o X nativo do input search */
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance:         none;
+}
+input[type="search"]::-ms-clear {
+    display: none;
+    width:   0;
+    height:  0;
+}
+
+/* Remove as setinhas padrão do input number */
+input#modal-qty::-webkit-outer-spin-button,
+input#modal-qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input#modal-qty {
+    -moz-appearance: textfield;
+}
+
+
+/* ==========================================================================
+   2. LAYOUT — HEADER E NAVEGAÇÃO
+   ========================================================================== */
+
+header {
+    background-color: var(--primary-blue);
+    position: fixed;
+    top:      0;
+    width:    100%;
+    z-index:  1040;
+}
+
+header, .navbar {
+    z-index: 1040 !important;
+}
+
+.navbar-brand {
+    padding-top:    5px;
+    padding-bottom: 5px;
+}
+
+.logo-header {
+    width:        45px;
+    height:       45px;
+    object-fit:   contain;
+    border-radius: 50%;
+    background:   #fff;
+    padding:      2px;
+    border:       2px solid #ffc107;
+}
+
+.nav-link:hover {
+    color: var(--primary-orange) !important;
+}
+
+/* Barra de busca na navbar */
+.busca-wrapper {
+    position:   relative;
+    width:      500px;
+    flex-shrink: 1;
+    min-width:  120px;
+    flex-wrap:  nowrap;
+}
+
+.busca-wrapper #inputBusca {
+    min-width: 0;
+}
+
+/* Toggle de modo escuro */
+.dark-mode-toggle {
+    cursor:  pointer;
+    padding: 10px;
+    color:   white;
+}
+
+
+/* ==========================================================================
+   3. LAYOUT — SIDEBAR DE CATEGORIAS E SUBMENUS
+   ========================================================================== */
+
+.filter-sidebar {
+    background:    #ffffff;
+    padding:       25px;
+    border-radius: 20px;
+    border:        1px solid rgba(0,0,0,0.05);
+    box-shadow:    0 4px 15px rgba(0,0,0,0.05);
+    z-index:       1000;
+}
+
+.custom-menu .list-group-item {
+    border:          none;
+    margin-bottom:   5px;
+    padding:         12px 18px;
+    font-size:       0.95rem;
+    color:           #444;
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    cursor:          pointer;
+    transition:      all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius:   8px !important;
+}
+
+.custom-menu .list-group-item:hover {
+    background-color: #f0f7ff;
+    color:            var(--primary-blue);
+}
+
+.custom-menu .list-group-item.active-filter {
+    background:  rgba(0, 94, 255, 0.08);
+    color:       var(--primary-blue);
+    font-weight: 700;
+    border-left: 3px solid var(--primary-blue) !important;
+}
+
+.dropdown-side .submenu {
+    display:       none;
+    position:      absolute;
+    left:          95%;
+    top:           0;
+    background:    #ffffff;
+    min-width:     220px;
+    border-radius: 15px;
+    box-shadow:    15px 15px 35px rgba(0,0,0,0.1);
+    border:        1px solid rgba(0,0,0,0.05);
+    z-index:       1200 !important;
+    padding:       10px;
+    list-style:    none;
+    margin-left:   5px;
+    animation:     fadeInSlide 0.3s ease;
+}
+
+.dropdown-side.active .submenu {
+    display: block !important;
+}
+
+.submenu li {
+    padding:       10px 15px;
+    border-radius: 8px;
+    color:         #555;
+    font-weight:   500;
+    transition:    0.2s;
+}
+
+.submenu li:hover {
+    background: #f0f7ff !important;
+    color:      var(--primary-blue) !important;
+}
+
+/* Barra de filtro de preços e título de categoria */
+.filtro-bar {
+    border-bottom: 2px solid rgba(0,0,0,0.07);
+    padding-bottom: 16px;
+    margin-bottom:  24px;
+}
+
+#category-title {
+    font-size:    1.35rem;
+    position:     relative;
+    padding-left: 14px;
+}
+
+#category-title::before {
+    content:    '';
+    position:   absolute;
+    left:       0;
+    top:        50%;
+    transform:  translateY(-50%);
+    width:      4px;
+    height:     70%;
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+#filterPrice {
+    border-radius:      20px !important;
+    padding:            5px 14px;
+    font-size:          0.82rem;
+    border:             1.5px solid #dce3f0;
+    cursor:             pointer;
+    appearance:         none;
+    background-image:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23005eff'/%3E%3C/svg%3E");
+    background-repeat:  no-repeat;
+    background-position: right 10px center;
+    padding-right:      28px;
+}
+
+.btn-limpar-filtros {
+    border-radius: 20px !important;
+    font-size:     0.8rem;
+    padding:       5px 14px;
+    border-color:  #dce3f0;
+    color:         #666;
+    transition:    all 0.2s;
+}
+
+.btn-limpar-filtros:hover {
+    border-color: var(--primary-blue);
+    color:        var(--primary-blue);
+    background:   rgba(0, 94, 255, 0.05);
+}
+
+/* Contador de resultados da busca */
+#busca-contador {
+    font-size: 0.78rem;
+    color:     #888;
+    padding:   6px 2px 10px;
+    display:   none;
+}
+
+#busca-contador.visivel { display: block; }
+#busca-contador strong  { color: var(--primary-blue); }
+
+/* Botão de limpar busca */
+.btn-limpar-busca {
+    position:  absolute;
+    right:     46px;
+    top:       50%;
+    transform: translateY(-50%);
+    background: none;
+    border:    none;
+    color:     #aaa;
+    cursor:    pointer;
+    font-size: 0.8rem;
+    padding:   4px 6px;
+    display:   none;
+    z-index:   5;
+    transition: color 0.2s;
+}
+
+.btn-limpar-busca:hover   { color: #e74c3c; }
+.btn-limpar-busca.visivel { display: block; }
+
+
+/* ==========================================================================
+   4. COMPONENTES — CARROSSEL
+   ========================================================================== */
+
+#heroCarousel {
+    overflow: hidden;
+}
+
+#heroCarousel .carousel-item {
+    /* aspect-ratio garante proporção em qualquer tela sem cortar */
+    aspect-ratio: 16 / 6;
+    max-height:   420px;
+    transition:   transform 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+    backface-visibility: hidden;
+}
+
+#heroCarousel img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    object-position: center;
+    filter:     brightness(0.6);
+    transition: transform 1.5s ease;
+}
+
+.carousel-item-next img,
+.carousel-item-prev img {
+    transform: scale(1.1);
+}
+
+.carousel-item.active img {
+    transform: scale(1);
+}
+
+/* Mobile: proporção mais quadrada para não cortar */
+@media (max-width: 575px) {
+    #heroCarousel .carousel-item {
+        aspect-ratio: 16 / 9;
+        max-height:   220px;
+    }
+    #heroCarousel img {
+        object-position: center center;
+        filter: brightness(0.7);
+    }
+    .carousel-caption h2 { font-size: 1.1rem !important; }
+    .carousel-caption p  { font-size: 0.8rem !important; display: none; }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+    #heroCarousel .carousel-item {
+        aspect-ratio: 16 / 7;
+        max-height:   320px;
+    }
+}
+
+.carousel-caption {
+    transition:       transform 1s ease, opacity 1s ease;
+    transition-delay: 0.3s;
+}
+
+/* Page header para páginas internas */
+.page-header {
+    background:      linear-gradient(rgba(0, 94, 255, 0.8), rgba(0, 94, 255, 0.8)),
+                     url('https://images.unsplash.com/photo-1589939705384-5185138a04b9?q=80&w=1470');
+    background-size: cover;
+    background-position: center;
+    padding:         80px 0;
+    color:           white;
+    margin-bottom:   50px;
+}
+
+.content-body {
+    line-height:    1.8;
+    color:          #444;
+    padding-bottom: 80px;
+}
+
+.content-body h2 {
+    color:        var(--primary-blue);
+    font-weight:  700;
+    margin-top:   30px;
+    margin-bottom: 20px;
+}
+
+
+/* ==========================================================================
+   5. COMPONENTES — CARDS DE PRODUTO
+   ========================================================================== */
+
+.product-card {
+    border-radius: 15px;
+    border:        none;
+    transition:    0.3s;
+    overflow:      hidden;
+}
+
+.product-card:hover {
+    transform:  translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    border:     1.5px solid rgba(0, 94, 255, 0.15) !important;
+}
+
+.product-card .card-body { position: relative; }
+
+.product-card .card-img-top {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.product-card .text-decoration-line-through {
+    font-size: 0.72rem;
+}
+
+.btn-add-cart {
+    background:  var(--primary-orange);
+    color:       #fff;
+    font-weight: bold;
+    border:      none;
+}
+
+.btn-add-cart:hover {
+    background: #e66e00;
+    color:      #fff;
+}
+
+.btn-favorite {
+    position:      absolute;
+    top:           10px;
+    left:          10px;
+    background:    white;
+    border:        none;
+    width:         32px;
+    height:        32px;
+    border-radius: 50%;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    box-shadow:    0 2px 5px rgba(0,0,0,0.2);
+    color:         #ff4757;
+    cursor:        pointer;
+    transition:    transform 0.2s;
+    z-index:       5;
+}
+
+.btn-favorite:hover { transform: scale(1.1); }
+
+.btn-ver-mais {
+    background:    transparent;
+    border:        2px solid var(--primary-blue);
+    color:         var(--primary-blue);
+    font-size:     0.78rem;
+    font-weight:   700;
+    padding:       6px 14px;
+    border-radius: 20px;
+    transition:    background 0.2s, color 0.2s, transform 0.15s;
+    white-space:   nowrap;
+}
+
+.product-card:hover .btn-ver-mais {
+    background: var(--primary-blue);
+    color:      #fff;
+    transform:  translateX(3px);
+}
+
+#product-list { transition: opacity 0.3s ease; }
+
+/* Animação de adição ao carrinho no botão */
+@keyframes cartBounce {
+    0%   { transform: scale(1);    }
+    40%  { transform: scale(1.12); }
+    70%  { transform: scale(0.96); }
+    100% { transform: scale(1);    }
+}
+
+.cart-added { animation: cartBounce 0.4s ease both; }
+
+
+/* ==========================================================================
+   6. COMPONENTES — PREVIEW DE TINTA (MODAL CONFIG)
+   ========================================================================== */
+
+/* Seletor de cor */
+.color-dot {
+    width:        45px !important;
+    height:       45px !important;
+    border-width: 2px;
+}
+
+.btn-check:checked + .rounded-circle {
+    border:     3px solid #ffc107 !important;
+    transform:  scale(1.1);
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.btn-check:checked ~ .small {
+    color:       var(--primary-blue) !important;
+    font-weight: bold;
+}
+
+/* Box de preview da parede */
+#product-preview {
+    width:         100%;
+    height:        120px;
+    border-radius: 12px;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    margin-top:    10px;
+    border:        1px solid rgba(0,0,0,0.1);
+    transition:    all 0.4s ease;
+    overflow:      hidden;
+    position:      relative;
+}
+
+/* Textura de fundo (porosidade da parede) */
+#product-preview::before {
+    content:    "";
+    position:   absolute;
+    top:        0; left: 0; width: 100%; height: 100%;
+    opacity:    0.12;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Camada de iluminação global */
+#product-preview::after {
+    content:    "";
+    position:   absolute;
+    top:        0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.15) 100%);
+    pointer-events: none;
+}
+
+#preview-text {
+    font-weight:  bold;
+    text-shadow:  0px 1px 3px rgba(0,0,0,0.5);
+    background:   rgba(0, 0, 0, 0.6);
+    color:        #ffffff !important;
+    padding:      4px 12px;
+    border-radius: 20px;
+    font-size:    0.85rem;
+}
+
+/* Setas de navegação do preview */
+.btn-nav-wall {
+    position:      absolute;
+    top:           45%;
+    transform:     translateY(-50%);
+    background:    white;
+    border:        none;
+    width:         32px;
+    height:        32px;
+    border-radius: 50%;
+    z-index:       10;
+    cursor:        pointer;
+    box-shadow:    0 2px 8px rgba(0,0,0,0.2);
+    transition:    all 0.2s ease;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    color:         #333;
+}
+
+.btn-nav-wall:hover {
+    background: #f8f9fa;
+    transform:  translateY(-50%) scale(1.1);
+    color:      #007bff;
+}
+
+.btn-nav-wall.left  { left:  -10px; }
+.btn-nav-wall.right { right: -10px; }
+
+/* Preview do spray */
+#product-preview-spray {
+    transition: background 0.3s ease-in-out;
+    border:     8px solid #eee;
+    position:   relative;
+    overflow:   hidden;
+}
+
+/* Overlay de lanterna (modo escuro no preview) */
+.flashlight-overlay {
+    position:  absolute;
+    top:       0; left: 0; width: 100%; height: 100%;
+    background: black;
+    pointer-events: none;
+    z-index:   10;
+    opacity:   0;
+    transition: opacity 0.5s ease;
+    mix-blend-mode: multiply;
+}
+
+.flashlight-active {
+    opacity:    0.95;
+    background: radial-gradient(
+        circle 100px at var(--x) var(--y),
+        transparent 10%,
+        rgba(0,0,0,0.95) 100%
+    );
+}
+
+/* Overlay de cor sobre foto da parede */
+.photo-color-overlay {
+    position:  absolute;
+    inset:     0;
+    display:   none;
+    pointer-events: none;
+    z-index:   3;
+    opacity:   0.5;
+    transition: background-color 0.35s ease, opacity 0.35s ease;
+    mix-blend-mode: multiply;
+}
+
+/* Estado "aguardando foto" */
+#product-preview.aguardando-foto {
+    background-color:   #e8e8e8 !important;
+    background-image:   repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px,
+        transparent 1px, transparent 10px
+    ) !important;
+}
+
+#preview-upload-hint {
+    position:  absolute;
+    inset:     0;
+    display:   flex;
+    flex-direction: column;
+    align-items:   center;
+    justify-content: center;
+    gap:       6px;
+    z-index:   6;
+    color:     #888;
+    pointer-events: none;
+}
+
+#preview-upload-hint i    { font-size: 1.8rem; opacity: 0.5; }
+#preview-upload-hint span { font-size: 0.7rem; font-weight: 600; opacity: 0.6; letter-spacing: 0.5px; }
+
+
+/* ==========================================================================
+   7. COMPONENTES — SEÇÃO DE MARCAS
+   ========================================================================== */
+
+.marcas-section {
+    border-top:  1px solid rgba(0,0,0,0.07);
+    padding-top: 20px;
+}
+
+.brand-card {
+    transition: all 0.3s ease;
+    border:     1px solid rgba(0,0,0,0.05);
+    cursor:     pointer;
+}
+
+.brand-card:hover {
+    transform:  translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    border-color: #ffc107;
+}
+
+.brand-logo {
+    max-height: 50px;
+    filter:     grayscale(100%);
+    opacity:    0.7;
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover .brand-logo {
+    filter:    grayscale(0%);
+    opacity:   1;
+    transform: scale(1.1);
+}
+
+
+/* ==========================================================================
+   8. COMPONENTES — FAIXA DE BENEFÍCIOS
+   ========================================================================== */
+
+.beneficios-strip {
+    background:    #fff;
+    padding:       32px 0;
+    margin-bottom: 48px;
+}
+
+.beneficio-icone-wrap {
+    width:         64px;
+    height:        64px;
+    border-radius: 50%;
+    background:    rgba(0, 94, 255, 0.08);
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    margin:        0 auto 14px;
+    transition:    background 0.3s, transform 0.3s;
+}
+
+.beneficio-item:hover .beneficio-icone-wrap {
+    background: rgba(0, 94, 255, 0.16);
+    transform:  translateY(-4px);
+}
+
+.beneficio-icone-wrap i {
+    font-size: 1.5rem;
+    color:     var(--primary-blue);
+}
+
+.beneficio-item h5 {
+    font-size:    0.95rem;
+    font-weight:  700;
+    margin-bottom: 4px;
+}
+
+.beneficio-item p {
+    font-size:    0.78rem;
+    color:        #888;
+    margin-bottom: 0;
+    line-height:  1.5;
+}
+
+
+/* ==========================================================================
+   9. COMPONENTES — CARRINHO
+   ========================================================================== */
+
+.cart-item-img {
+    width:         48px;
+    height:        48px;
+    border-radius: 10px;
+    object-fit:    cover;
+    flex-shrink:   0;
+    border:        1px solid rgba(0,0,0,0.07);
+}
+
+.cart-item-nome {
+    font-size: 0.88rem;
+    color:     var(--text-main);
+}
+
+.cart-item-detalhes {
+    display:        flex;
+    flex-direction: column;
+    gap:            1px;
+}
+
+.badge-detalhe-carrinho {
+    font-size:  0.68rem;
+    color:      var(--text-main);
+    opacity:    0.72;
+    line-height: 1.6;
+    display:    block;
+}
+
+.cart-item-qty .btn {
+    width:         28px;
+    height:        28px;
+    padding:       0;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size:     1rem;
+}
+
+.cart-item-qty span {
+    min-width:  20px;
+    text-align: center;
+    font-size:  0.9rem;
+}
+
+
+/* ==========================================================================
+   10. COMPONENTES — MODAIS (GERAL)
+   ========================================================================== */
+
+.modal          { z-index: 1060 !important; }
+.modal-backdrop { z-index: 1050 !important; }
+
+/* Animação de entrada dos modais */
+.modal.fade .modal-dialog {
+    transform:  translateY(30px);
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: translateY(0);
+}
+
+.modal-backdrop.show {
+    opacity: 0.6;
+}
+
+/* Modal de detalhes do produto */
+#productModal .modal-content {
+    border:        none;
+    border-radius: 15px;
+    overflow:      hidden;
+    box-shadow:    0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Animação do box de dica no modal */
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0);    }
+}
+
+.bg-light.border-warning {
+    animation:       slideInRight 0.6s ease-out both;
+    animation-delay: 0.3s;
+}
+
+
+/* ==========================================================================
+   11. COMPONENTES — ÁREA DO USUÁRIO (MINHA CONTA)
+   ========================================================================== */
+
+.account-option {
+    display:    flex;
+    align-items: center;
+    padding:    12px;
+    margin-bottom: 10px;
+    border:     1px solid #eee;
+    border-radius: 12px;
+    text-decoration: none;
+    color:      #333 !important;
+    transition: 0.3s;
+    gap:        15px;
+}
+
+.account-option:hover {
+    background:  #f0f7ff;
+    border-color: #005eff;
+    transform:   translateX(5px);
+}
+
+.account-option i {
+    font-size:  1.4rem;
+    width:      30px;
+    text-align: center;
+}
+
+.account-option span {
+    font-size:   1rem;
+    line-height: 1.2;
+}
+
+.account-option[aria-expanded="true"] .fa-chevron-down { transform: rotate(180deg); }
+.account-option .fa-chevron-down { transition: transform 0.3s ease; }
+
+#userAddress {
+    resize:    none;
+    font-size: 0.85rem;
+    border:    1px solid #dee2e6;
+}
+
+#userAddress:focus {
+    border-color: var(--primary-blue);
+    box-shadow:   0 0 0 0.2rem rgba(0, 94, 255, 0.25);
+}
+
+.account-option input:focus {
+    background-color: transparent;
+    border-bottom:    1px solid var(--primary-blue) !important;
+    border-radius:    0;
+}
+
+#orders-list { border: 1px inset rgba(0,0,0,0.03); }
+#orders-list::-webkit-scrollbar       { width: 4px; }
+#orders-list::-webkit-scrollbar-thumb { background: #005eff; border-radius: 10px; }
+
+#favorites-list { max-height: 250px; overflow-y: auto; padding-right: 5px; }
+#favorites-list::-webkit-scrollbar       { width: 5px; }
+#favorites-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+
+/* Avatar de iniciais do usuário — tamanho grande (modal) */
+.usuario-avatar-grande {
+    width:         72px;
+    height:        72px;
+    border-radius: 50%;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    font-size:     1.4rem;
+    font-weight:   800;
+    color:         #fff;
+    letter-spacing: 1px;
+    box-shadow:    0 4px 14px rgba(0,0,0,0.15);
+    flex-shrink:   0;
+    user-select:   none;
+}
+
+/* Avatar de iniciais do usuário — tamanho pequeno (header) */
+.usuario-avatar-header {
+    width:         24px;
+    height:        24px;
+    border-radius: 50%;
+    display:       inline-flex;
+    align-items:   center;
+    justify-content: center;
+    font-size:     0.6rem;
+    font-weight:   800;
+    color:         #fff;
+    flex-shrink:   0;
+    vertical-align: middle;
+    margin-right:  6px;
+}
+
+/* Estrelas de avaliação */
+.text-warning { color: #ffc107 !important; }
+
+.fa-star, .fa-star-half-alt {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+
+/* ==========================================================================
+   12. COMPONENTES — MODAL DE LOGIN
+   ========================================================================== */
+
+.login-modal-content {
+    border-radius: 20px !important;
+    overflow:      hidden;
+}
+
+.login-modal-header {
+    background: linear-gradient(135deg, #005eff 0%, #0040cc 100%);
+    padding:    28px 20px 20px;
+    text-align: center;
+    position:   relative;
+}
+
+.login-logo {
+    width:         52px;
+    height:        52px;
+    border-radius: 50%;
+    background:    #fff;
+    padding:       4px;
+    object-fit:    contain;
+    box-shadow:    0 4px 14px rgba(0,0,0,0.2);
+    margin-bottom: 8px;
+    display:       block;
+    margin-left:   auto;
+    margin-right:  auto;
+}
+
+.login-modal-titulo {
+    color:       #fff;
+    font-weight: 800;
+    font-size:   1.3rem;
+    margin:      0;
+}
+
+.login-modal-titulo span { color: #ffc107; }
+
+/* Abas */
+.login-tabs {
+    display:       flex;
+    border-bottom: 2px solid #f0f0f0;
+    background:    #fafafa;
+}
+
+.login-tab {
+    flex:       1;
+    padding:    12px;
+    background: none;
+    border:     none;
+    font-size:  0.88rem;
+    font-weight: 600;
+    color:      #888;
+    cursor:     pointer;
+    transition: color 0.2s;
+    position:   relative;
+}
+
+.login-tab::after {
+    content:    '';
+    position:   absolute;
+    bottom:     -2px;
+    left:       0;
+    width:      100%;
+    height:     2px;
+    background: var(--primary-blue);
+    transform:  scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.login-tab.ativa { color: var(--primary-blue); }
+
+.login-tab.ativa::after { transform: scaleX(1); }
+
+/* Campos de formulário */
+.login-campo { margin-bottom: 16px; }
+
+.login-label {
+    font-size:    0.75rem;
+    font-weight:  700;
+    color:        #555;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display:      block;
+    margin-bottom: 6px;
+}
+
+.login-input-wrap {
+    position:    relative;
+    display:     flex;
+    align-items: center;
+}
+
+.login-input-icon {
+    position:       absolute;
+    left:           12px;
+    color:          #aaa;
+    font-size:      0.85rem;
+    pointer-events: none;
+    z-index:        2;
+}
+
+.login-input {
+    width:         100%;
+    padding:       10px 40px 10px 36px;
+    border:        1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size:     0.88rem;
+    background:    #fff;
+    color:         #333;
+    outline:       none;
+    transition:    border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow:   0 0 0 3px rgba(0, 94, 255, 0.1);
+}
+
+.login-input.invalido {
+    border-color: #e74c3c;
+    box-shadow:   0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.login-input.valido { border-color: #27ae60; }
+
+.login-toggle-senha {
+    position:   absolute;
+    right:      10px;
+    background: none;
+    border:     none;
+    color:      #aaa;
+    cursor:     pointer;
+    font-size:  0.85rem;
+    padding:    4px;
+    transition: color 0.2s;
+    z-index:    2;
+}
+
+.login-toggle-senha:hover { color: var(--primary-blue); }
+
+.login-erro {
+    font-size:  0.72rem;
+    color:      #e74c3c;
+    font-weight: 600;
+    display:    block;
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+.login-lembrar {
+    display:     flex;
+    align-items: center;
+    gap:         7px;
+    font-size:   0.82rem;
+    color:       #666;
+    cursor:      pointer;
+    user-select: none;
+}
+
+.login-lembrar input { cursor: pointer; accent-color: var(--primary-blue); }
+
+.login-btn-submit {
+    width:         100%;
+    padding:       12px;
+    background:    linear-gradient(135deg, #005eff, #0040cc);
+    color:         #fff;
+    border:        none;
+    border-radius: 12px;
+    font-size:     0.9rem;
+    font-weight:   700;
+    cursor:        pointer;
+    transition:    opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+}
+
+.login-btn-submit:hover  { opacity: 0.9; transform: translateY(-1px); }
+.login-btn-submit:active { transform: translateY(0); }
+
+.login-switch-text {
+    text-align: center;
+    font-size:  0.82rem;
+    color:      #888;
+    margin-bottom: 0;
+}
+
+.login-link {
+    background:      none;
+    border:          none;
+    color:           var(--primary-blue);
+    font-weight:     700;
+    cursor:          pointer;
+    font-size:       0.82rem;
+    padding:         0;
+    text-decoration: underline;
+}
+
+/* Barra de força da senha */
+.senha-forca-wrap {
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+    margin-top:  6px;
+    display:     none;
+}
+
+.senha-forca-wrap.visivel { display: flex; }
+
+.senha-forca-barra {
+    flex:          1;
+    height:        4px;
+    background:    #eee;
+    border-radius: 4px;
+    overflow:      hidden;
+}
+
+.senha-forca-fill {
+    height:        100%;
+    width:         0%;
+    border-radius: 4px;
+    transition:    width 0.3s, background 0.3s;
+}
+
+.senha-forca-label {
+    font-size:   0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   13. COMPONENTES — FRETE
+   ========================================================================== */
+
+.frete-container {
+    background:    #f8faff;
+    border:        1px solid #e0eaff;
+    border-radius: 12px;
+    padding:       14px 16px;
+    margin-bottom: 16px;
+}
+
+.frete-titulo {
+    font-size:     0.78rem;
+    font-weight:   700;
+    color:         #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    display:       flex;
+    align-items:   center;
+    gap:           6px;
+}
+
+.frete-titulo i { color: var(--primary-blue); }
+
+.frete-input-group {
+    display:     flex;
+    gap:         8px;
+    align-items: stretch;
+}
+
+.frete-input {
+    flex:          1;
+    border:        1.5px solid #d0dcff;
+    border-radius: 8px;
+    padding:       8px 12px;
+    font-size:     0.85rem;
+    outline:       none;
+    background:    #fff;
+    color:         var(--text-main);
+    transition:    border-color 0.2s;
+    min-width:     0;
+}
+
+.frete-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow:   0 0 0 3px rgba(0, 94, 255, 0.1);
+}
+
+.frete-input::placeholder { color: #aab; }
+
+.frete-btn {
+    background:    var(--primary-blue);
+    color:         #fff;
+    border:        none;
+    border-radius: 8px;
+    padding:       8px 16px;
+    font-size:     0.82rem;
+    font-weight:   700;
+    cursor:        pointer;
+    white-space:   nowrap;
+    transition:    opacity 0.2s, transform 0.15s;
+    flex-shrink:   0;
+}
+
+.frete-btn:hover    { opacity: 0.88; transform: translateY(-1px); }
+.frete-btn:active   { transform: translateY(0); }
+.frete-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.frete-link-cep {
+    font-size:   0.7rem;
+    color:       var(--primary-blue);
+    text-decoration: none;
+    margin-top:  5px;
+    display:     inline-block;
+    opacity:     0.8;
+    transition:  opacity 0.2s;
+}
+
+.frete-link-cep:hover { opacity: 1; text-decoration: underline; }
+
+.frete-resultado {
+    margin-top: 12px;
+    display:    none;
+}
+
+/* Skeleton loader de frete */
+.frete-skeleton {
+    display:        flex;
+    flex-direction: column;
+    gap:            8px;
+}
+
+.frete-skeleton-linha {
+    height:          10px;
+    border-radius:   6px;
+    background:      linear-gradient(90deg, #e8eef8 25%, #d0dcf5 50%, #e8eef8 75%);
+    background-size: 200% 100%;
+    animation:       shimmer 1.4s infinite;
+}
+
+.frete-skeleton-linha:nth-child(2) { width: 65%; }
+
+@keyframes shimmer {
+    from { background-position:  200% 0;  }
+    to   { background-position: -200% 0; }
+}
+
+/* Cards de opção de frete */
+.frete-opcao {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         10px 12px;
+    border-radius:   10px;
+    border:          1.5px solid #e0eaff;
+    background:      #fff;
+    margin-bottom:   6px;
+    transition:      border-color 0.2s, background 0.2s;
+    gap:             10px;
+}
+
+.frete-opcao:last-child { margin-bottom: 0; }
+
+.frete-opcao:hover {
+    border-color: var(--primary-blue);
+    background:   #f0f5ff;
+}
+
+.frete-opcao-icon  { font-size: 1.2rem; flex-shrink: 0; }
+.frete-opcao-info  { flex-grow: 1; min-width: 0; }
+
+.frete-opcao-nome {
+    font-size:   0.82rem;
+    font-weight: 700;
+    color:       var(--text-main);
+    line-height: 1.2;
+}
+
+.frete-opcao-prazo {
+    font-size:  0.7rem;
+    color:      #888;
+    margin-top: 1px;
+}
+
+.frete-opcao-valor {
+    font-size:   0.88rem;
+    font-weight: 800;
+    color:       var(--primary-blue);
+    flex-shrink: 0;
+}
+
+.frete-opcao-valor.gratis { color: #27ae60; }
+
+.frete-erro {
+    font-size:     0.78rem;
+    color:         #e74c3c;
+    font-weight:   600;
+    display:       flex;
+    align-items:   center;
+    gap:           6px;
+    margin-top:    10px;
+    padding:       8px 10px;
+    background:    #fff5f5;
+    border-radius: 8px;
+    border:        1px solid #fcc;
+}
+
+.frete-nota {
+    font-size:   0.65rem;
+    color:       #aaa;
+    margin-top:  8px;
+    display:     flex;
+    align-items: center;
+    gap:         4px;
+}
+
+/* Badge de CEP salvo */
+.frete-cep-salvo {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    background:      #f0f7ff;
+    border:          1.5px solid #c8deff;
+    border-radius:   10px;
+    padding:         8px 12px;
+    margin-bottom:   8px;
+    gap:             8px;
+}
+
+.frete-cep-salvo-info {
+    display:     flex;
+    align-items: center;
+    gap:         7px;
+    font-size:   0.8rem;
+    color:       #1a4a8a;
+    font-weight: 600;
+}
+
+.frete-cep-salvo-info i { color: var(--primary-blue); font-size: 0.85rem; }
+
+.frete-cep-salvo-alterar {
+    background:   none;
+    border:       none;
+    color:        var(--primary-blue);
+    font-size:    0.72rem;
+    font-weight:  700;
+    cursor:       pointer;
+    padding:      2px 6px;
+    border-radius: 6px;
+    transition:   background 0.2s;
+    white-space:  nowrap;
+    flex-shrink:  0;
+}
+
+.frete-cep-salvo-alterar:hover { background: rgba(0, 94, 255, 0.1); }
+
+
+/* ==========================================================================
+   14. COMPONENTES — PROMOÇÕES (SELOS E PREÇOS)
+   ========================================================================== */
+
+.promo-seal {
+    display:         inline-flex;
+    align-items:     center;
+    gap:             6px;
+    background:      linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color:           #fff;
+    font-size:       0.72rem;
+    font-weight:     800;
+    padding:         5px 12px;
+    border-radius:   20px;
+    letter-spacing:  0.5px;
+    text-transform:  uppercase;
+    box-shadow:      0 4px 12px rgba(231, 76, 60, 0.35);
+    margin-bottom:   10px;
+}
+
+.promo-seal i {
+    font-size: 0.75rem;
+    animation: chama 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes chama {
+    from { transform: scale(1)    rotate(-5deg); }
+    to   { transform: scale(1.2)  rotate(5deg);  }
+}
+
+.promo-price-block {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+    margin-bottom:  12px;
+}
+
+.promo-price-old {
+    font-size:       0.9rem;
+    color:           #aaa;
+    text-decoration: line-through;
+    font-weight:     500;
+    line-height:     1;
+}
+
+.promo-price-current {
+    font-size:   2rem;
+    font-weight: 900;
+    color:       #e74c3c;
+    line-height: 1;
+}
+
+.promo-price-economia {
+    font-size:   0.75rem;
+    color:       #27ae60;
+    font-weight: 700;
+    margin-top:  2px;
+}
+
+.promo-badge-modal {
+    position:      absolute;
+    top:           12px;
+    left:          12px;
+    background:    linear-gradient(135deg, #e74c3c, #c0392b);
+    color:         #fff;
+    font-size:     0.75rem;
+    font-weight:   800;
+    padding:       5px 10px;
+    border-radius: 8px;
+    box-shadow:    0 3px 10px rgba(231, 76, 60, 0.4);
+    z-index:       2;
+    letter-spacing: 0.3px;
+}
+
+.promo-urgencia {
+    display:       flex;
+    align-items:   center;
+    gap:           6px;
+    background:    #fff8e1;
+    border:        1px solid #ffe082;
+    border-radius: 8px;
+    padding:       7px 12px;
+    font-size:     0.75rem;
+    color:         #7b5800;
+    font-weight:   600;
+    margin-bottom: 12px;
+}
+
+.promo-urgencia i { color: #f59e0b; }
+
+.price-normal-block { margin-bottom: 12px; }
+
+.price-normal-block h3 {
+    font-size:   1.8rem;
+    font-weight: 800;
+    color:       var(--primary-blue);
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+
+/* ==========================================================================
+   15. COMPONENTES — BANNER DE FAVORITOS EM OFERTA
+   ========================================================================== */
+
+@keyframes slideUpBanner {
+    from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0);    }
+}
+
+@keyframes slideDownBanner {
+    from { opacity: 1; transform: translateX(-50%) translateY(0);    }
+    to   { opacity: 0; transform: translateX(-50%) translateY(30px); }
+}
+
+#banner-oferta-wrapper {
+    position:  fixed;
+    bottom:    24px;
+    right:     24px;
+    left:      auto;
+    transform: none;
+    z-index:   9998;
+    min-width: 300px;
+    max-width: min(400px, calc(100vw - 48px));
+    animation: slideUpBanner 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (max-width: 480px) {
+    #banner-oferta-wrapper {
+        bottom: 12px;
+        right:  12px;
+        left:   12px;
+        max-width: none;
+    }
+}
+
+#banner-oferta-wrapper.saindo {
+    animation: slideDownBanner 0.35s ease forwards;
+}
+
+.banner-oferta-card {
+    background:    #ffffff;
+    border-radius: 18px;
+    box-shadow:    0 12px 40px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow:      hidden;
+    border:        1px solid rgba(0, 0, 0, 0.06);
+}
+
+.banner-oferta-header {
+    background:      linear-gradient(135deg, #005eff 0%, #0040cc 100%);
+    padding:         10px 16px;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             10px;
+}
+
+.banner-oferta-header-left {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+}
+
+.banner-oferta-logo {
+    width:         32px;
+    height:        32px;
+    border-radius: 50%;
+    background:    #fff;
+    padding:       3px;
+    object-fit:    contain;
+    flex-shrink:   0;
+    box-shadow:    0 2px 6px rgba(0,0,0,0.2);
+}
+
+.banner-oferta-titulo {
+    font-size:   0.82rem;
+    font-weight: 700;
+    color:       #fff;
+    line-height: 1.2;
+}
+
+.banner-oferta-subtitulo {
+    font-size:   0.68rem;
+    color:       rgba(255,255,255,0.8);
+    line-height: 1;
+}
+
+.banner-oferta-fechar {
+    background:    rgba(255,255,255,0.15);
+    border:        none;
+    color:         #fff;
+    width:         26px;
+    height:        26px;
+    border-radius: 50%;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    cursor:        pointer;
+    font-size:     0.85rem;
+    flex-shrink:   0;
+    transition:    background 0.2s;
+    line-height:   1;
+}
+
+.banner-oferta-fechar:hover { background: rgba(255,255,255,0.3); }
+
+.banner-oferta-body {
+    padding:        14px 16px;
+    display:        flex;
+    flex-direction: column;
+    gap:            10px;
+}
+
+.banner-produto-item {
+    display:       flex;
+    align-items:   center;
+    gap:           12px;
+    padding:       10px 12px;
+    border-radius: 12px;
+    background:    #f8f9fa;
+    border:        1px solid rgba(0,0,0,0.05);
+    cursor:        pointer;
+    transition:    background 0.2s, transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+}
+
+.banner-produto-item:hover {
+    background:   #f0f5ff;
+    border-color: rgba(0, 94, 255, 0.2);
+    transform:    translateY(-1px);
+    box-shadow:   0 4px 12px rgba(0, 94, 255, 0.1);
+}
+
+.banner-produto-img {
+    width:         44px;
+    height:        44px;
+    border-radius: 10px;
+    object-fit:    cover;
+    flex-shrink:   0;
+    box-shadow:    0 2px 6px rgba(0,0,0,0.1);
+}
+
+.banner-produto-info { flex-grow: 1; min-width: 0; }
+
+.banner-produto-nome {
+    font-size:     0.78rem;
+    font-weight:   700;
+    color:         #1a1a2e;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+
+.banner-produto-precos {
+    display:     flex;
+    align-items: center;
+    gap:         6px;
+}
+
+.banner-preco-antigo {
+    font-size:       0.68rem;
+    color:           #999;
+    text-decoration: line-through;
+}
+
+.banner-preco-atual {
+    font-size:   0.82rem;
+    font-weight: 800;
+    color:       #e74c3c;
+}
+
+.banner-badge-desconto {
+    background:    linear-gradient(135deg, #e74c3c, #c0392b);
+    color:         #fff;
+    font-size:     0.62rem;
+    font-weight:   800;
+    padding:       3px 7px;
+    border-radius: 20px;
+    flex-shrink:   0;
+    letter-spacing: 0.3px;
+    box-shadow:    0 2px 4px rgba(231, 76, 60, 0.35);
+}
+
+.banner-oferta-timer {
+    height:        3px;
+    background:    #eee;
+    border-radius: 0 0 18px 18px;
+    overflow:      hidden;
+}
+
+.banner-oferta-timer-bar {
+    height:        100%;
+    background:    linear-gradient(90deg, #005eff, #ffc107);
+    border-radius: inherit;
+    animation:     timerShrink 8s linear forwards;
+}
+
+@keyframes timerShrink {
+    from { width: 100%; }
+    to   { width: 0%;   }
+}
+
+
+/* ==========================================================================
+   16. COMPONENTES — POPUP DE PROMOÇÕES
+   ========================================================================== */
+
+.popup-promo {
+    position:        fixed;
+    bottom:          24px;
+    left:            20px;
+    z-index:         1045;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     flex-start;
+    gap:             8px;
+}
+
+@keyframes popupEntrada {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes popupSaida {
+    from { opacity: 1; transform: translateY(0)    scale(1);    }
+    to   { opacity: 0; transform: translateY(20px) scale(0.96); }
+}
+
+@keyframes abaEntrada {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes pulso {
+    0%, 100% { transform: scale(1);    }
+    50%       { transform: scale(1.08); }
+}
+
+.popup-promo-card {
+    width:         290px;
+    background:    #ffffff;
+    border-radius: 18px;
+    box-shadow:    0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+    border:        1px solid rgba(0, 0, 0, 0.06);
+    overflow:      hidden;
+    animation:     popupEntrada 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.popup-promo-card.saindo { animation: popupSaida 0.3s ease forwards; }
+
+.popup-promo-header {
+    background:      linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    padding:         12px 14px;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             8px;
+}
+
+.popup-promo-header-left {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+}
+
+.popup-promo-icone {
+    width:           34px;
+    height:          34px;
+    background:      rgba(255, 255, 255, 0.2);
+    border-radius:   10px;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    color:           #fff;
+    font-size:       1rem;
+    flex-shrink:     0;
+    animation:       pulso 2s ease-in-out infinite;
+}
+
+.popup-promo-titulo {
+    font-size:   0.85rem;
+    font-weight: 700;
+    color:       #fff;
+    line-height: 1.2;
+}
+
+.popup-promo-subtitulo {
+    font-size: 0.68rem;
+    color:     rgba(255, 255, 255, 0.82);
+}
+
+.popup-promo-btn-ctrl {
+    background:    rgba(255, 255, 255, 0.18);
+    border:        none;
+    color:         #fff;
+    width:         24px;
+    height:        24px;
+    border-radius: 50%;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    cursor:        pointer;
+    font-size:     0.72rem;
+    transition:    background 0.2s;
+    flex-shrink:   0;
+}
+
+.popup-promo-btn-ctrl:hover { background: rgba(255, 255, 255, 0.35); }
+
+.popup-promo-body {
+    padding:        12px 14px;
+    display:        flex;
+    flex-direction: column;
+    gap:            8px;
+    max-height:     280px;
+    overflow-y:     auto;
+}
+
+.popup-promo-body::-webkit-scrollbar       { width: 3px; }
+.popup-promo-body::-webkit-scrollbar-thumb { background: #e74c3c; border-radius: 10px; }
+
+.popup-promo-item {
+    display:       flex;
+    align-items:   center;
+    gap:           10px;
+    padding:       8px 10px;
+    border-radius: 12px;
+    background:    #fafafa;
+    border:        1px solid rgba(0, 0, 0, 0.05);
+    cursor:        pointer;
+    transition:    background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.popup-promo-item:hover {
+    background:   #fff5f5;
+    border-color: rgba(231, 76, 60, 0.25);
+    transform:    translateX(3px);
+    box-shadow:   0 2px 10px rgba(231, 76, 60, 0.1);
+}
+
+.popup-promo-item-img {
+    width:         42px;
+    height:        42px;
+    border-radius: 10px;
+    object-fit:    cover;
+    flex-shrink:   0;
+    box-shadow:    0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.popup-promo-item-info { flex-grow: 1; min-width: 0; }
+
+.popup-promo-item-nome {
+    font-size:     0.75rem;
+    font-weight:   700;
+    color:         #1a1a2e;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.popup-promo-item-precos {
+    display:     flex;
+    align-items: center;
+    gap:         5px;
+    flex-wrap:   wrap;
+}
+
+.popup-promo-preco-antigo {
+    font-size:       0.65rem;
+    color:           #aaa;
+    text-decoration: line-through;
+}
+
+.popup-promo-preco-atual {
+    font-size:   0.8rem;
+    font-weight: 800;
+    color:       #e74c3c;
+}
+
+.popup-promo-desconto {
+    font-size:     0.6rem;
+    font-weight:   800;
+    color:         #fff;
+    background:    linear-gradient(135deg, #e74c3c, #c0392b);
+    padding:       2px 6px;
+    border-radius: 20px;
+    flex-shrink:   0;
+    letter-spacing: 0.2px;
+}
+
+.popup-promo-footer {
+    padding:      10px 14px;
+    border-top:   1px solid #f0f0f0;
+    background:   #fafafa;
+}
+
+.popup-promo-cta {
+    width:         100%;
+    padding:       9px;
+    background:    linear-gradient(135deg, #005eff 0%, #0040cc 100%);
+    color:         #fff;
+    border:        none;
+    border-radius: 10px;
+    font-size:     0.78rem;
+    font-weight:   700;
+    cursor:        pointer;
+    transition:    opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.popup-promo-cta:hover { opacity: 0.92; transform: translateY(-1px); }
+
+/* Versão minimizada (aba lateral) */
+.popup-promo-aba {
+    display:       flex;
+    align-items:   center;
+    gap:           7px;
+    background:    linear-gradient(135deg, #e74c3c, #c0392b);
+    color:         #fff;
+    padding:       8px 14px 8px 12px;
+    border-radius: 0 10px 10px 0;
+    cursor:        pointer;
+    font-size:     0.78rem;
+    font-weight:   700;
+    box-shadow:    3px 4px 16px rgba(231, 76, 60, 0.35);
+    margin-left:   -20px;
+    transition:    margin-left 0.25s ease, box-shadow 0.2s;
+    animation:     abaEntrada 0.35s ease both;
+}
+
+.popup-promo-aba:hover {
+    margin-left: -4px;
+    box-shadow:  4px 6px 20px rgba(231, 76, 60, 0.45);
+}
+
+.popup-promo-badge-aba {
+    background:      #fff;
+    color:           #e74c3c;
+    font-size:       0.65rem;
+    font-weight:     800;
+    width:           18px;
+    height:          18px;
+    border-radius:   50%;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex-shrink:     0;
+}
+
+
+/* ==========================================================================
+   17. COMPONENTES — FOOTER
+   ========================================================================== */
+
+footer {
+    background-color: #0f172a !important;
+    position:         relative;
+    overflow:         hidden;
+}
+
+footer h5 {
+    font-size:     1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    position:      relative;
+    color:         #fff;
+}
+
+footer h5::after {
+    content:       '';
+    position:      absolute;
+    left:          0;
+    bottom:        -8px;
+    width:         30px;
+    height:        2px;
+    background:    var(--primary-orange);
+}
+
+.footer-link {
+    color:          #94a3b8;
+    text-decoration: none;
+    transition:     0.3s;
+    display:        block;
+    margin-bottom:  10px;
+}
+
+.footer-link:hover {
+    color:     var(--primary-orange);
+    transform: translateX(5px);
+}
+
+.social-icons a {
+    width:           38px;
+    height:          38px;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    background:      rgba(0, 0, 0, 0.05);
+    border-radius:   50%;
+    color:           var(--text-main);
+    margin-right:    10px;
+    transition:      0.3s;
+    text-decoration: none;
+}
+
+footer .social-icons a {
+    color:      #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.social-icons a:hover {
+    background: var(--primary-orange);
+    color:      #fff !important;
+    transform:  translateY(-3px);
+}
+
+
+/* ==========================================================================
+   18. COMPONENTES — ELEMENTOS FLUTUANTES
+   ========================================================================== */
+
+/* Botão WhatsApp */
+.btn-success.position-fixed:hover {
+    transform:        scale(1.1);
+    background-color: #25d366;
+    filter:           brightness(1.1);
+}
+
+.whatsapp-btn-wrap {
+    position: fixed;
+    bottom:   16px;
+    right:    16px;
+    z-index:  1050;
+}
+
+.whatsapp-pulse {
+    position:       absolute;
+    inset:          -4px;
+    border-radius:  50%;
+    background:     rgba(37, 211, 102, 0.35);
+    animation:      waPulse 2s ease-out infinite;
+    pointer-events: none;
+}
+
+@keyframes waPulse {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    70%  { transform: scale(1.5); opacity: 0;   }
+    100% { transform: scale(1.5); opacity: 0;   }
+}
+
+.whatsapp-tooltip {
+    position:       absolute;
+    bottom:         calc(100% + 8px);
+    right:          0;
+    background:     #0f172a;
+    color:          #fff;
+    font-size:      0.72rem;
+    font-weight:    600;
+    padding:        5px 10px;
+    border-radius:  8px;
+    white-space:    nowrap;
+    pointer-events: none;
+    opacity:        0;
+    transform:      translateY(4px);
+    transition:     opacity 0.2s, transform 0.2s;
+}
+
+.whatsapp-tooltip::after {
+    content:      '';
+    position:     absolute;
+    top:          100%;
+    right:        12px;
+    border:       5px solid transparent;
+    border-top-color: #0f172a;
+}
+
+.whatsapp-btn-wrap:hover .whatsapp-tooltip {
+    opacity:   1;
+    transform: translateY(0);
+}
+
+/* Botão voltar ao topo */
+#btn-voltar-topo {
+    position:      fixed;
+    bottom:        76px;
+    right:         20px;
+    width:         40px;
+    height:        40px;
+    border-radius: 50%;
+    background:    var(--primary-blue);
+    color:         #fff;
+    border:        none;
+    cursor:        pointer;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    font-size:     0.9rem;
+    box-shadow:    0 4px 14px rgba(0, 94, 255, 0.35);
+    z-index:       1045;
+    opacity:       0;
+    pointer-events: none;
+    transform:     translateY(10px);
+    transition:    opacity 0.3s, transform 0.3s;
+}
+
+#btn-voltar-topo.visivel {
+    opacity:       1;
+    pointer-events: auto;
+    transform:     translateY(0);
+}
+
+#btn-voltar-topo:hover {
+    background: #0040cc;
+    transform:  translateY(-2px);
+}
+
+
+/* ==========================================================================
+   19. ANIMAÇÕES GLOBAIS
+   ========================================================================== */
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateX(10px); }
+    to   { opacity: 1; transform: translateX(0);    }
+}
+
+
+/* ==========================================================================
+   20. MODO ESCURO — GLOBAL
+   ========================================================================== */
+
+body.dark-mode {
+    background-color: #121212;
+    color:            #e0e0e0;
+}
+
+body.dark-mode .navbar,
+body.dark-mode footer {
+    background-color: #000 !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .filter-sidebar {
+    background-color: #1e1e1e;
+    border-color:     #333;
+    color:            #fff;
+}
+
+body.dark-mode .text-muted,
+body.dark-mode .small {
+    color: #aaa !important;
+}
+
+body.dark-mode .form-control {
+    background-color: #2b2b2b !important;
+    border-color:     #444 !important;
+    color:            #fff !important;
+}
+
+body.dark-mode .form-control::placeholder { color: #777 !important; }
+
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .input-group-text {
+    background-color: #2d2d2d !important;
+    border-color:     #444 !important;
+    color:            #ffffff !important;
+}
+
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+
+body.dark-mode hr { border-color: #444 !important; opacity: 0.5; }
+
+body.dark-mode .offcanvas,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu,
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e !important;
+    color:            #ffffff !important;
+    border-color:     #333 !important;
+}
+
+body.dark-mode .offcanvas .text-muted,
+body.dark-mode .modal-content .text-muted,
+body.dark-mode .dropdown-menu .dropdown-item {
+    color: #bbb !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #333 !important;
+    color:            var(--primary-orange) !important;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .modal-header,
+body.dark-mode .modal-body,
+body.dark-mode .modal-footer {
+    background-color: #1a1a1a !important;
+    color:            #ffffff !important;
+    border-color:     #333 !important;
+}
+
+body.dark-mode .list-group-item {
+    background-color: #242424 !important;
+    color:            #ffffff !important;
+    border-color:     #333 !important;
+}
+
+body.dark-mode .list-group-item-action:hover,
+body.dark-mode .list-group-item-action:focus {
+    background-color: #333 !important;
+    color:            var(--primary-orange) !important;
+}
+
+body.dark-mode .modal-body .list-group-item,
+body.dark-mode .modal-body .card {
+    background-color: #242424 !important;
+    color:            #ffffff !important;
+    border-color:     #333 !important;
+}
+
+body.dark-mode .modal-body input,
+body.dark-mode .modal-body select,
+body.dark-mode .modal-body textarea {
+    background-color: #2d2d2d !important;
+    color:            #ffffff !important;
+    border:           1px solid #444 !important;
+}
+
+body.dark-mode .modal-body input::placeholder { color: #888 !important; }
+
+body.dark-mode .modal-body .list-group-item.active {
+    background-color: var(--primary-blue) !important;
+    border-color:     var(--primary-blue) !important;
+    color:            #fff !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+    background-color: #1a1a1a !important;
+    color:            #ffffff !important;
+}
+
+body.dark-mode label { color: #eee !important; }
+
+body.dark-mode .accordion-item   { background-color: #2b2b2b; border-color: #444; }
+body.dark-mode .accordion-button { background-color: #2b2b2b; color: #fff; }
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #333;
+    color:            #ffc107;
+}
+
+body.dark-mode .accordion-body.bg-light { background-color: #1a1a1a !important; color: #e0e0e0; }
+
+body.dark-mode .bg-white {
+    background-color: var(--card-bg) !important;
+    color:            var(--text-main) !important;
+    border-color:     #333 !important;
+}
+
+body.dark-mode iframe { filter: grayscale(20%) invert(5%) contrast(95%); }
+
+
+/* ==========================================================================
+   21. MODO ESCURO — COMPONENTES ESPECÍFICOS
+   ========================================================================== */
+
+/* Sidebar e submenus */
+body.dark-mode .dropdown-side .submenu {
+    background-color: #1e1e1e !important;
+    border-color:     #333 !important;
+    box-shadow:       15px 15px 35px rgba(0,0,0,0.5) !important;
+}
+
+body.dark-mode .submenu li { color: #e0e0e0 !important; }
+
+body.dark-mode .submenu li:hover {
+    background-color: #333 !important;
+    color:            var(--primary-orange) !important;
+}
+
+body.dark-mode .btn-nav-wall { background: #444; color: #fff; }
+
+/* Filtros */
+body.dark-mode .filtro-bar { border-bottom-color: #333; }
+
+body.dark-mode #filterPrice { border-color: #444; background-color: #2d2d2d; }
+
+body.dark-mode .btn-limpar-filtros { border-color: #444; color: #aaa; }
+
+body.dark-mode .custom-menu .list-group-item.active-filter { background: rgba(0, 94, 255, 0.15); }
+
+/* Busca */
+body.dark-mode #busca-contador { color: #777; }
+
+/* Benefícios */
+body.dark-mode .beneficios-strip     { background: #1a1a1a; border-top-color: var(--primary-blue); border-bottom-color: #333; }
+body.dark-mode .beneficio-item p     { color: #999; }
+
+/* Carrinho */
+body.dark-mode .cart-item-img        { border-color: #444; }
+body.dark-mode .badge-detalhe-carrinho { color: #bbb; }
+
+/* Login */
+body.dark-mode .login-modal-content  { background: #1a1a1a; }
+body.dark-mode .login-tabs           { background: #222; border-bottom-color: #333; }
+body.dark-mode .login-tab            { color: #666; }
+body.dark-mode .login-tab.ativa      { color: #90b8f8; }
+body.dark-mode .login-tab.ativa::after { background: #90b8f8; }
+body.dark-mode .login-label          { color: #aaa; }
+body.dark-mode .login-input          { background: #2d2d2d; border-color: #444; color: #e0e0e0; }
+body.dark-mode .login-input:focus    { border-color: var(--primary-blue); }
+body.dark-mode .login-input::placeholder { color: #666; }
+body.dark-mode .login-lembrar        { color: #aaa; }
+body.dark-mode .login-switch-text    { color: #777; }
+body.dark-mode .senha-forca-barra    { background: #333; }
+
+/* Preview de foto */
+body.dark-mode .photo-color-overlay            { mix-blend-mode: screen; opacity: 0.45; }
+body.dark-mode #product-preview.aguardando-foto { background-color: #333 !important; }
+body.dark-mode #preview-upload-hint            { color: #aaa; }
+body.dark-mode #foto-parede-container .text-muted { color: #bbb !important; }
+
+/* Frete */
+body.dark-mode .frete-container    { background: #1a2035; border-color: #2a3a5a; }
+body.dark-mode .frete-input        { background: #2d2d2d; border-color: #3a4a6a; color: #e0e0e0; }
+body.dark-mode .frete-input:focus  { border-color: var(--primary-blue); }
+body.dark-mode .frete-opcao        { background: #242424; border-color: #2a3a5a; }
+body.dark-mode .frete-opcao:hover  { background: #1e2d4a; border-color: var(--primary-blue); }
+body.dark-mode .frete-opcao-nome   { color: #e0e0e0; }
+body.dark-mode .frete-opcao-prazo  { color: #888; }
+body.dark-mode .frete-skeleton-linha {
+    background:      linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+}
+body.dark-mode .frete-erro         { background: #2a1515; border-color: #6a2020; color: #f08080; }
+body.dark-mode .frete-nota         { color: #666; }
+body.dark-mode .frete-cep-salvo    { background: #1a2540; border-color: #2a3a6a; }
+body.dark-mode .frete-cep-salvo-info  { color: #90b8f8; }
+body.dark-mode .frete-cep-salvo-alterar { color: #90b8f8; }
+body.dark-mode .frete-cep-salvo-alterar:hover { background: rgba(144, 184, 248, 0.1); }
+body.dark-mode .frete-opcao-selecionavel[style*="background"] { background: #1e2d4a !important; }
+
+/* Promoções — banner de favoritos */
+body.dark-mode .banner-oferta-card  { background: #1e1e1e; border-color: #333; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); }
+body.dark-mode .banner-produto-item { background: #2a2a2a; border-color: #3a3a3a; }
+body.dark-mode .banner-produto-item:hover { background: #2d3a52; border-color: rgba(0, 94, 255, 0.3); }
+body.dark-mode .banner-produto-nome { color: #e0e0e0; }
+body.dark-mode .banner-oferta-timer { background: #333; }
+
+/* Popup de promoções */
+body.dark-mode .popup-promo-card    { background: #1e1e1e; border-color: #333; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5); }
+body.dark-mode .popup-promo-item    { background: #2a2a2a; border-color: #3a3a3a; }
+body.dark-mode .popup-promo-item:hover { background: #3a1f1f; border-color: rgba(231, 76, 60, 0.3); }
+body.dark-mode .popup-promo-item-nome { color: #e0e0e0; }
+body.dark-mode .popup-promo-footer  { background: #1a1a1a; border-top-color: #333; }
+body.dark-mode .popup-promo-body::-webkit-scrollbar-thumb { background: #c0392b; }
+
+/* Promoção — preços no modal */
+body.dark-mode .promo-urgencia      { background: #2a2200; border-color: #6b4f00; color: #fcd34d; }
+body.dark-mode .promo-urgencia i    { color: #fbbf24; }
+body.dark-mode .promo-price-old     { color: #777; }
+
+/* Marcas */
+body.dark-mode .marcas-section      { border-top-color: #333; }
+
+/* Marcas: texto e cards no dark mode */
+body.dark-mode .brand-card {
+    background: #1e2240 !important;
+    border-color: #2d2d4e;
+}
+body.dark-mode .brand-card:hover {
+    background: #243060 !important;
+    border-color: #ffc107;
+}
+body.dark-mode .brand-logo {
+    filter: grayscale(0%) brightness(1.8);
+    opacity: 0.9;
+}
+body.dark-mode .marcas-section h2,
+body.dark-mode .marcas-section p,
+body.dark-mode .marcas-section span {
+    color: #e2e8f0 !important;
+}
+
+/* Benefícios strip no dark mode */
+body.dark-mode .beneficios-strip {
+    background: #1a1a2e;
+    border-top: 1px solid #2d2d4e;
+    border-bottom: 1px solid #2d2d4e;
+}
+body.dark-mode .beneficio-item h5,
+body.dark-mode .beneficio-item p {
+    color: #e2e8f0 !important;
+}
+body.dark-mode .beneficio-icone-wrap {
+    background: rgba(0, 94, 255, 0.2);
+}
+
+/* Perfil modal dark mode */
+body.dark-mode #minhaContaModal .modal-content {
+    background: #1a1a2e;
+    color: #e2e8f0;
+}
+body.dark-mode #minhaContaModal .modal-body {
+    background: #1a1a2e;
+}
+body.dark-mode .account-option {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode .account-option:hover {
+    background: #243060;
+    color: #60a5fa;
+}
+body.dark-mode #minhaContaModal .collapse .bg-light {
+    background: #1e2240 !important;
+    border-color: #2d2d4e !important;
+}
+body.dark-mode #minhaContaModal .form-control {
+    background: #12122a;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #minhaContaModal .form-control::placeholder { color: #64748b; }
+
+/* Admin: hover da lista no dark mode */
+body.dark-mode #adminModal .list-group-item,
+body.dark-mode #adminModal .list-group-item-action {
+    background: #1e2240;
+    color: #e2e8f0;
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .list-group-item:hover,
+body.dark-mode #adminModal .list-group-item-action:hover {
+    background: #243060;
+    color: #60a5fa;
+}
+
+/* Voltar ao topo */
+body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.2); }
+
+
+/* ==========================================================================
+   22. RESPONSIVIDADE
+   ========================================================================== */
+
+@media (min-width: 992px) {
+    .filter-sidebar.sticky-top { top: 100px !important; }
+}
+
+@media (max-width: 991.98px) {
+    .filter-sidebar { margin-bottom: 30px; padding: 15px; }
+
+    .dropdown-side .submenu {
+        position:   static;
+        left:       0;
+        width:      100%;
+        min-width:  100%;
+        margin-left: 0;
+        box-shadow: none;
+        border:     none;
+        border-left: 3px solid var(--primary-orange);
+        background: #f8f9fa;
+        animation:  none;
+    }
+
+    .product-card { margin-bottom: 20px; }
+
+    footer { text-align: center; }
+    footer h5::after { left: 50%; transform: translateX(-50%); }
+    .social-icons    { justify-content: center; margin-bottom: 20px; }
+
+    .busca-wrapper { width: 100%; margin-top: 8px; margin-bottom: 4px; }
+}
+
+@media (max-width: 768px) {
+    .carousel-caption h2 { font-size: 1.5rem !important; }
+    .carousel-caption p  { font-size: 1rem !important;  }
+}
+
+@media (max-width: 575.98px) {
+    .display-5  { font-size: 1.8rem; }
+    .page-header { padding: 40px 0; }
+    .btn-add-cart { padding: 12px; font-size: 0.9rem; }
+    .logo-header  { width: 35px; height: 35px; }
+}
+
+@media (max-width: 576px) {
+    .btn-success.position-fixed {
+        width:  40px !important;
+        height: 40px !important;
+    }
+    .btn-success.position-fixed i { font-size: 1.2rem; }
+}
+
+@media (max-width: 480px) {
+    .popup-promo-card { width: calc(100vw - 40px); }
+    .popup-promo      { left: 14px; bottom: 16px;  }
+}
+
+@media (pointer: coarse) {
+    .nav-link, .custom-menu .list-group-item, .footer-link { padding: 12px 10px; }
+}
+/* ==========================================================================
+   TAREFA 1 — PERFIL DO USUÁRIO (MODAL REFORMULADO)
+   ========================================================================== */
+
+/* Header com gradiente no modal de perfil */
+.perfil-modal-header {
+    background: linear-gradient(135deg, #003ab5 0%, #005eff 60%, #0080ff 100%);
+    padding: 2.5rem 1.5rem 1.5rem;
+    text-align: center;
+    position: relative;
+    color: #fff;
+}
+
+/* Container do avatar com suporte a foto */
+.perfil-avatar-wrap {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 auto 0.5rem;
+    border: 4px solid rgba(255,255,255,0.35);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    position: relative;
+}
+.perfil-avatar-wrap:hover {
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+/* Foto de perfil dentro do avatar grande */
+.usuario-avatar-foto-grande {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Foto de perfil no header da navbar */
+.usuario-avatar-header {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.usuario-avatar-header.usuario-avatar-foto {
+    object-fit: cover;
+}
+
+/* Botões de ação sobre o avatar */
+.perfil-avatar-acoes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 0.5rem;
+}
+.perfil-avatar-btn {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.perfil-avatar-btn:hover {
+    background: rgba(255,255,255,0.32);
+}
+.perfil-avatar-btn-danger:hover {
+    background: rgba(220,53,69,0.55);
+}
+
+/* Nome e e-mail no header do perfil */
+.perfil-nome {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    transition: opacity 0.2s;
+}
+.perfil-nome:hover {
+    opacity: 0.8;
+    text-decoration: underline dotted rgba(255,255,255,0.6);
+}
+.perfil-email {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+/* Avatar mini para tabela de admin */
+.usuario-avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   TAREFA 6 — MODAL DE PRODUTO ENRIQUECIDO
+   ========================================================================== */
+
+/* Container do conteúdo extra abaixo da imagem */
+.modal-extra-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Card de informação (como usar / características) */
+.modal-info-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.modal-info-card-header {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 1px solid #e9ecef;
+}
+.modal-info-card-header i {
+    color: #005eff;
+    font-size: 0.8rem;
+}
+.modal-info-card-body {
+    padding: 10px 12px;
+}
+
+/* Passo de "como usar" */
+.modal-info-passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #555;
+    padding: 3px 0;
+    line-height: 1.4;
+}
+.modal-info-passo i {
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* Linha de característica técnica */
+.modal-caract-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.75rem;
+    border-bottom: 1px dotted #eee;
+}
+.modal-caract-linha:last-child {
+    border-bottom: none;
+}
+.modal-caract-label {
+    color: #888;
+    font-weight: 500;
+}
+.modal-caract-valor {
+    color: #222;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Resumo de avaliações */
+.modal-avaliacoes-resumo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.modal-aval-nota {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #222;
+    line-height: 1;
+}
+.modal-aval-estrelas {
+    font-size: 0.7rem;
+}
+.modal-aval-badge {
+    margin-left: auto;
+    background: #d1e7dd;
+    color: #0f5132;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   TAREFA 7 — PAINEL ADMINISTRATIVO
+   ========================================================================== */
+
+/* Header do modal admin */
+.admin-modal-header {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 0;
+}
+.admin-modal-header .btn-close {
+    filter: invert(1);
+}
+.admin-badge-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ffc107, #ff8c00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+}
+
+/* Barra de abas do admin */
+.admin-tabs-nav {
+    display: flex;
+    background: #f0f2f5;
+    border-bottom: 2px solid #dee2e6;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.admin-tabs-nav::-webkit-scrollbar { display: none; }
+
+.admin-tab-btn {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+}
+.admin-tab-btn:hover {
+    color: #005eff;
+    background: rgba(0,94,255,0.04);
+}
+.admin-tab-btn.ativa {
+    color: #005eff;
+    border-bottom-color: #005eff;
+    background: rgba(0,94,255,0.05);
+}
+
+/* Cabeçalho de seção dentro do admin */
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* ==========================================================================
+   TAREFA 5 — RESPONSIVIDADE (CORREÇÕES MOBILE/TABLET)
+   ========================================================================== */
+
+/* --- MOBILE (≤ 576px) --- */
+@media (max-width: 576px) {
+
+    /* Navbar: compactar */
+    .navbar-brand span {
+        font-size: 0.9rem !important;
+    }
+    #btnLoginHeader .d-none.d-md-inline { display: none !important; }
+
+    /* Hero: texto menor */
+    .hero-section h1 { font-size: 1.6rem !important; }
+    .hero-section p  { font-size: 0.9rem !important; }
+
+    /* Produtos: 1 coluna forçada em telas muito pequenas */
+    #product-list .col-sm-6 { flex: 0 0 100%; max-width: 100%; }
+
+    /* Cards de produto: altura de imagem menor */
+    .product-card .card-img-top { height: 180px !important; }
+
+    /* Modal de produto: coluna única empilhada */
+    #productModal .modal-body .row > .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    #productModal .modal-body {
+        padding: 1rem !important;
+    }
+
+    /* Modal de perfil: avatar menor */
+    .perfil-avatar-wrap { width: 70px; height: 70px; font-size: 1.5rem; }
+    .perfil-modal-header { padding: 2rem 1rem 1rem; }
+
+    /* Carrinho: itens mais compactos */
+    .cart-item-nome { font-size: 0.78rem !important; }
+    .cart-item-qty  { gap: 2px !important; }
+
+    /* Badges do header: esconder em telas muito pequenas */
+    .badge-mobile-hidden { display: none !important; }
+
+    /* Frete: ajuste do input */
+    .frete-input { font-size: 0.8rem; }
+    .frete-btn   { font-size: 0.8rem; padding: 6px 10px; }
+
+    /* Filtro de preço: rolagem horizontal */
+    .price-filter-wrap {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    /* Checkout / confirmação */
+    .checkout-summary { font-size: 0.8rem; }
+
+    /* Admin tabs: ícones apenas */
+    .admin-tab-btn { padding: 8px 12px; font-size: 0.72rem; }
+
+    /* Botões de ação do carrinho */
+    .cart-action-btns { flex-direction: column; gap: 8px; }
+
+    /* Toast: largura máxima */
+    .toast-container { max-width: 90vw !important; }
+
+    /* Modal extra content: oculta avaliações em telas muito pequenas */
+    .modal-avaliacoes-resumo { display: none; }
+}
+
+/* --- TABLET (577px – 991px) --- */
+@media (min-width: 577px) and (max-width: 991px) {
+
+    /* Produtos: 2 colunas em tablet */
+    #product-list .col-lg-4 { flex: 0 0 50%; max-width: 50%; }
+
+    /* Hero: tamanho intermediário */
+    .hero-section h1 { font-size: 2rem !important; }
+
+    /* Sidebar: ocultar em tablet, usar offcanvas */
+    .sidebar-desktop { display: none; }
+
+    /* Modal de produto: imagem menor */
+    #productModal .col-md-6:first-child img {
+        height: 220px !important;
+    }
+
+    /* Navbar */
+    .navbar-brand span { font-size: 1rem !important; }
+
+    /* Cards de produto */
+    .product-card .card-img-top { height: 200px !important; }
+}
+
+/* --- TOUCH: aumentar área de toque em botões pequenos --- */
+@media (pointer: coarse) {
+    .btn-favorite,
+    .perfil-avatar-btn,
+    .admin-tab-btn {
+        min-height: 36px;
+        min-width: 36px;
+    }
+    .cart-item .btn-sm {
+        min-width: 32px;
+        min-height: 32px;
+    }
+    /* Evita zoom no iOS ao focar inputs */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* --- AJUSTE GERAL: modal scroll em telas pequenas --- */
+@media (max-height: 700px) {
+    .modal-dialog-scrollable .modal-body {
+        max-height: 60vh;
+    }
+}
+
+/* ==========================================================================
+   FIXES — CORREÇÕES DE BUGS (v2)
+   ========================================================================== */
+
+/* FIX: Espaço entre o fundo azul do perfil e o conteúdo abaixo */
+#minhaContaModal .modal-body {
+    padding-top: 1.5rem !important;
+    background: #fff;
+}
+body.dark-mode #minhaContaModal .modal-body {
+    background: #1a1a2e;
+}
+
+/* FIX: Produtos no celular — 2 por fileira */
+@media (max-width: 575px) {
+    #product-list > div {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding: 6px !important;
+    }
+    #product-list > div .product-card .card-img-top {
+        height: 130px !important;
+    }
+    #product-list > div .product-card .card-body {
+        padding: 8px 8px 6px !important;
+    }
+    #product-list > div .product-card .card-title {
+        font-size: 0.75rem !important;
+        margin-bottom: 4px !important;
+    }
+    #product-list > div .product-card .card-text {
+        display: none !important;
+    }
+    #product-list > div .product-card .product-price {
+        font-size: 0.85rem !important;
+    }
+    #product-list > div .product-card .btn {
+        font-size: 0.7rem !important;
+        padding: 5px 8px !important;
+    }
+}
+
+/* FIX: Dark mode — Modal de produto (Como usar, Características, Avaliações) */
+body.dark-mode .modal-info-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+body.dark-mode .modal-info-card-header {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-bottom-color: #334155;
+}
+body.dark-mode .modal-info-passo {
+    color: #94a3b8;
+}
+body.dark-mode .modal-caract-linha {
+    border-bottom-color: #334155;
+}
+body.dark-mode .modal-caract-label {
+    color: #64748b;
+}
+body.dark-mode .modal-caract-valor {
+    color: #e2e8f0;
+}
+body.dark-mode .modal-avaliacoes-resumo {
+    background: #0f172a;
+    border-color: #334155;
+}
+body.dark-mode .modal-aval-nota {
+    color: #e2e8f0;
+}
+body.dark-mode .modal-aval-badge {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+body.dark-mode .modal-extra-content .mb-3 {
+    border-color: #334155 !important;
+}
+
+/* FIX: Banner frete grátis SP */
+.banner-frete-gratis {
+    position: relative;
+    width: 100%;
+    min-height: 340px;
+    background: linear-gradient(135deg, #003ab5 0%, #005eff 50%, #0066cc 100%);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.banner-frete-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 80% 50%, rgba(255,193,7,0.12) 0%, transparent 60%),
+        radial-gradient(circle at 10% 80%, rgba(0,0,0,0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+/* Padrão de bolinhas decorativas */
+.banner-frete-bg::before {
+    content: '';
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,0.06);
+}
+.banner-frete-bg::after {
+    content: '';
+    position: absolute;
+    right: 12%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 30px solid rgba(255,255,255,0.08);
+}
+.banner-frete-conteudo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem 3rem;
+    width: 100%;
+}
+.banner-frete-icone-wrap {
+    flex-shrink: 0;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #fff;
+}
+.banner-frete-texto {
+    flex: 1;
+    min-width: 0;
+}
+.banner-frete-tag {
+    display: inline-block;
+    background: rgba(255,193,7,0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.4);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+.banner-frete-titulo {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+.banner-frete-subtitulo {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+.banner-frete-destaque {
+    color: #ffc107;
+    font-weight: 600;
+}
+.banner-frete-cta {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+/* Mobile: banner frete */
+@media (max-width: 768px) {
+    .banner-frete-gratis { min-height: 220px; }
+    .banner-frete-conteudo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    .banner-frete-icone-wrap { width: 56px; height: 56px; font-size: 1.5rem; }
+    .banner-frete-titulo { font-size: 1.3rem; }
+    .banner-frete-subtitulo { font-size: 0.82rem; }
+    .banner-frete-bg::before,
+    .banner-frete-bg::after { display: none; }
+}
+
+
+/* ==========================================================================
+   FAIXA DE FRETE GRÁTIS SP (abaixo do carrossel)
+   ========================================================================== */
+.faixa-frete-gratis {
+    background: linear-gradient(90deg, #003ab5 0%, #005eff 60%, #0066cc 100%);
+    padding: 0;
+}
+.faixa-frete-inner {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             16px;
+    padding:         12px 20px;
+    flex-wrap:       wrap;
+}
+.faixa-frete-icone {
+    width:        36px;
+    height:       36px;
+    border-radius: 50%;
+    background:   rgba(255,255,255,0.15);
+    display:      flex;
+    align-items:  center;
+    justify-content: center;
+    color:        #fff;
+    font-size:    1rem;
+    flex-shrink:  0;
+}
+.faixa-frete-texto {
+    color:       #fff;
+    font-size:   0.88rem;
+    text-align:  center;
+    line-height: 1.4;
+}
+.faixa-frete-texto strong {
+    color:       #ffc107;
+    font-size:   0.95rem;
+}
+.faixa-frete-btn {
+    background:    rgba(255,255,255,0.15);
+    border:        1px solid rgba(255,255,255,0.4);
+    color:         #fff;
+    border-radius: 20px;
+    padding:       6px 16px;
+    font-size:     0.8rem;
+    font-weight:   600;
+    cursor:        pointer;
+    white-space:   nowrap;
+    transition:    background 0.2s;
+    flex-shrink:   0;
+}
+.faixa-frete-btn:hover {
+    background: rgba(255,255,255,0.28);
+}
+
+@media (max-width: 480px) {
+    .faixa-frete-inner { gap: 8px; padding: 10px 14px; }
+    .faixa-frete-icone { display: none; }
+    .faixa-frete-texto { font-size: 0.78rem; }
+}
+
+body.dark-mode .faixa-frete-gratis {
+    background: linear-gradient(90deg, #001f6b 0%, #003ab5 60%, #004499 100%);
+}
+
+/* ==========================================================================
+   FIXES v3 — Admin dark mode, nav abas fixo, botão login mobile
+   ========================================================================== */
+
+/* --- Admin: abas fixas no topo do modal (não somem com scroll) --- */
+/* Layout flex do modal admin — tabs sempre visíveis, body scrollável */
+#adminModal .modal-dialog {
+    margin: 1.5rem auto;
+}
+#adminModal .admin-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 88vh;
+    max-height: 88vh;
+    overflow: hidden;
+}
+#adminModal .modal-header {
+    flex-shrink: 0;
+    min-height: 64px;
+}
+#adminModal .admin-tabs-nav {
+    flex-shrink: 0;
+    position: relative; /* tabs nunca saem do fluxo */
+    z-index: 5;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+#adminModal .modal-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 !important;
+    min-height: 0; /* essencial para flex + overflow funcionar */
+}
+#adminModal #adminTabContent {
+    padding: 1rem;
+    min-height: 100%;
+}
+
+/* --- Admin: Dark Mode --- */
+body.dark-mode #adminModal .modal-content,
+body.dark-mode #adminModal .admin-modal-content {
+    background: #1a1a2e;
+    color: #e2e8f0;
+}
+body.dark-mode .admin-modal-header {
+    background: #0d0d1a;
+}
+body.dark-mode .admin-tabs-nav {
+    background: #12122a;
+    border-bottom-color: #2d2d4e;
+}
+body.dark-mode .admin-tab-btn {
+    color: #94a3b8;
+}
+body.dark-mode .admin-tab-btn:hover {
+    color: #60a5fa;
+    background: rgba(96,165,250,0.06);
+}
+body.dark-mode .admin-tab-btn.ativa {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+    background: rgba(96,165,250,0.08);
+}
+body.dark-mode .admin-section-header {
+    color: #e2e8f0;
+    border-bottom-color: #2d2d4e;
+}
+body.dark-mode #adminModal .table {
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .table-light {
+    background: #1e2240 !important;
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+}
+body.dark-mode #adminModal .form-control,
+body.dark-mode #adminModal .form-select {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .form-control::placeholder {
+    color: #64748b;
+}
+body.dark-mode #adminModal .form-label {
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .btn-outline-secondary {
+    color: #94a3b8;
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .badge.bg-light {
+    background: #2d2d4e !important;
+    color: #94a3b8 !important;
+}
+
+/* --- Botão de login no header: sempre mostra ícone + nome --- */
+#btnLoginHeader {
+    display: flex !important;
+    align-items: center;
+    gap: 0;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.usuario-header-nome {
+    display: inline !important;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+/* Em telas muito pequenas: reduz padding para caber */
+@media (max-width: 380px) {
+    #btnLoginHeader { padding: 5px 8px; font-size: 0.75rem; }
+    .usuario-header-nome { font-size: 0.75rem; }
+    .usuario-avatar-header { width: 20px; height: 20px; font-size: 0.55rem; }
+}
+
+/* ==========================================================================
+   ADMIN DARK MODE — complemento (modal-body, form-check, badges)
+   ========================================================================== */
+body.dark-mode #adminModal .modal-body {
+    background: #1a1a2e;
+}
+body.dark-mode #adminModal .form-check-label {
+    color: #94a3b8;
+}
+body.dark-mode #adminModal .form-check-input {
+    background-color: #1e2240;
+    border-color: #3d4870;
+}
+body.dark-mode #adminModal .form-check-input:checked {
+    background-color: #005eff;
+    border-color: #005eff;
+}
+body.dark-mode #adminModal textarea {
+    background: #1e2240;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal .btn-warning {
+    color: #1a1a2e;
+}
+body.dark-mode #adminModal .table td,
+body.dark-mode #adminModal .table th {
+    border-color: #2d2d4e;
+}
+body.dark-mode #adminModal .sticky-top {
+    background: #1e2240 !important;
+}
+body.dark-mode #adminModal .admin-section-header {
+    border-bottom-color: #2d2d4e;
+}
+
+/* ==========================================================================
+   ADMIN LAYOUT MOBILE
+   ========================================================================== */
+@media (max-width: 575px) {
+    #adminModal .modal-dialog { margin: 0.5rem; }
+    #adminModal .admin-modal-content { height: 96vh; max-height: 96vh; }
+    #adminModal .admin-modal-header { padding: 10px 14px; }
+    .admin-badge-icon { width: 32px; height: 32px; font-size: 0.8rem; }
+    #adminModal .modal-title { font-size: 0.9rem; }
+    .admin-tab-btn { padding: 8px 10px; font-size: 0.7rem; }
+}
+
+/* ==========================================================================
+   FIXES FINAIS v4 — Responsividade, Admin, Dark Mode
+   ========================================================================== */
+
+/* --- Cards mobile: preço sem quebra de linha --- */
+@media (max-width: 575px) {
+    .product-price,
+    .product-card .card-title,
+    .product-card .fw-bold {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .product-card .card-body {
+        padding: 8px !important;
+    }
+    /* Botão de adicionar ao carrinho em mobile */
+    .product-card .btn {
+        font-size: 0.68rem !important;
+        padding: 4px 6px !important;
+        white-space: nowrap;
+    }
+    /* Badge de promoção compacto */
+    .badge-promo {
+        font-size: 0.6rem !important;
+        padding: 2px 5px !important;
+    }
+}
+
+/* --- Admin: input de estoque inline --- */
+.admin-estoque-input {
+    height: 26px !important;
+    font-size: 0.75rem !important;
+}
+body.dark-mode .admin-estoque-input {
+    background: #12122a;
+    border-color: #2d2d4e;
+    color: #e2e8f0;
+}
+
+/* --- Admin: detalhe de usuário dark mode --- */
+body.dark-mode #adminTabContent .border {
+    border-color: #2d2d4e !important;
+}
+body.dark-mode #adminTabContent .text-muted {
+    color: #64748b !important;
+}
+body.dark-mode #adminTabContent li {
+    color: #e2e8f0;
+}
+
+/* --- Botões mobile no header: sem overflow --- */
+#btnLoginHeaderMobile {
+    max-width: 120px;
+    overflow: hidden;
+}
+#btnLoginHeaderMobile .usuario-header-nome {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* --- Navbar mobile: z-index correto para collapse sobre conteúdo --- */
+#navbarNav.show {
+    z-index: 1039;
+    background: var(--primary-blue, #005eff);
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- Dark mode: faixa de frete no modo escuro --- */
+body.dark-mode .faixa-frete-gratis {
+    background: linear-gradient(90deg, #001f6b 0%, #002fa0 60%, #003280 100%);
+}
+
+/* --- Alerta carrinho abandonado --- */
+@keyframes slideUpBanner {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ==========================================================================
+   FIXES v5 — Dark Mode Admin completo, pedido-card, estoque badge
+   ========================================================================== */
+
+/* Pedido card no perfil — dark mode */
+.pedido-card {
+    background: #fff;
+    transition: background 0.2s;
+}
+body.dark-mode .pedido-card {
+    background: #1e2240;
+    color: #e2e8f0;
+}
+body.dark-mode .pedido-card .text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — tabela de produtos completa */
+body.dark-mode #adminModal .table-light,
+body.dark-mode #adminModal thead.table-light th,
+body.dark-mode #adminModal thead.table-light {
+    background: #12122a !important;
+    color: #94a3b8 !important;
+}
+body.dark-mode #adminModal tbody tr {
+    background: transparent;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover td {
+    background: rgba(96,165,250,0.08);
+    color: #60a5fa;
+}
+body.dark-mode #adminModal .text-muted {
+    color: #64748b !important;
+}
+body.dark-mode #adminModal small.text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — exportar/importar */
+body.dark-mode #adminModal .alert-warning {
+    background: rgba(255,193,7,0.08);
+    border-color: rgba(255,193,7,0.2);
+    color: #ffc107;
+}
+body.dark-mode #adminModal .btn-outline-success {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+body.dark-mode #adminModal .btn-outline-success:hover {
+    background: #22c55e;
+    color: #fff;
+}
+body.dark-mode #adminModal .btn-outline-secondary {
+    border-color: #4b5563;
+    color: #9ca3af;
+}
+
+/* Admin dark mode — input de estoque */
+body.dark-mode .admin-estoque-input {
+    background: #0d0d1a !important;
+    border-color: #2d2d4e !important;
+    color: #e2e8f0 !important;
+}
+
+/* Badge de estoque no modal de produto */
+.badge-sem-estoque {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+body.dark-mode .badge-sem-estoque {
+    background: rgba(220,38,38,0.15);
+    border-color: rgba(220,38,38,0.3);
+    color: #f87171;
+}
+
+/* Admin dark mode — detalhe de usuário */
+body.dark-mode #adminTabContent .col-md-4 .border,
+body.dark-mode #adminTabContent .col-md-8 .border,
+body.dark-mode #adminTabContent .border {
+    border-color: #2d2d4e !important;
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .text-center.p-2 {
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .fw-bold.fs-5,
+body.dark-mode #adminTabContent .fw-bold.fs-6 {
+    color: #e2e8f0;
+}
+body.dark-mode #adminTabContent ul li {
+    color: #cbd5e1;
+    border-color: #2d2d4e !important;
+}
+
+/* Admin dark mode — badge de promo na tabela */
+body.dark-mode #adminModal .bg-secondary.bg-opacity-25 {
+    background: rgba(148,163,184,0.15) !important;
+    color: #94a3b8 !important;
+}

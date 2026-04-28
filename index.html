@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<!-- ============================================================
+     HEAD — Meta, Título e Dependências Externas
+     ============================================================ -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FixTintas | Quem entende de tintas, Vem aqui!</title>
+
+    <link rel="icon" type="image/png" href="https://i.imgur.com/zLZeeV9.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- ============================================================
+     HEADER — Navbar Principal
+     ============================================================ -->
+<header class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+    <div class="container">
+
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <img src="https://i.imgur.com/PmT6Skb.png" alt="Logo FixTintas" class="logo-header me-2">
+            <span class="fw-bold h3 mb-0">Fix<span class="text-warning">Tintas</span></span>
+        </a>
+
+        <!-- Ações fixas mobile (fora do collapse) -->
+        <div class="d-flex align-items-center gap-1 d-lg-none ms-auto me-2">
+            <button id="btnLoginHeaderMobile"
+                    class="btn btn-outline-light btn-sm d-flex align-items-center"
+                    onclick="handleProfileClick()"
+                    style="font-size:0.8rem; padding:5px 10px;">
+                <span id="btnLoginHeaderMobileSpan"><i class="fas fa-user me-1"></i><span class="usuario-header-nome">Entrar</span></span>
+            </button>
+            <button class="btn btn-outline-light btn-sm position-relative" onclick="showCart()" style="padding:5px 10px;">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count-mobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.55rem;">0</span>
+            </button>
+        </div>
+
+        <!-- Botão colapso mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <!-- Links de navegação -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link active" href="index.html">Início</a></li>
+                <li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
+                <li class="nav-item"><a class="nav-link" href="contato.html">Contatos</a></li>
+                <li class="nav-item">
+                    <a class="nav-link text-warning fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#calcModal">
+                        <i class="fas fa-calculator me-1"></i> Calculadora
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Campo de busca -->
+            <div class="input-group busca-wrapper">
+                <input id="inputBusca"
+                       class="form-control border-light"
+                       type="search"
+                       placeholder="Buscar tintas, rolos..."
+                       aria-label="Buscar produtos"
+                       autocomplete="off">
+                <button id="btnLimparBusca"
+                        class="btn-limpar-busca"
+                        type="button"
+                        onclick="limparBusca()"
+                        aria-label="Limpar busca">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn btn-warning" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Toggle de modo escuro -->
+            <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+                <i class="fas fa-moon" id="dark-mode-icon"></i>
+            </div>
+
+            <!-- Minha Conta e Carrinho — apenas desktop (lg+) -->
+            <div class="d-none d-lg-flex align-items-center gap-2">
+                <button id="btnAbrirAdmin"
+                        class="btn btn-outline-warning d-none align-items-center"
+                        onclick="abrirPainelAdmin()"
+                        title="Painel Admin"
+                        style="padding: 6px 10px;">
+                    <i class="fas fa-shield-alt"></i>
+                </button>
+                <button id="btnLoginHeader"
+                        class="btn btn-outline-light d-flex align-items-center"
+                        onclick="handleProfileClick()"
+                        style="font-size:0.85rem;">
+                    <span><i class="fas fa-user me-2"></i>Entrar</span>
+                </button>
+                <button class="btn btn-outline-light position-relative" onclick="showCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+
+<!-- ============================================================
+     ELEMENTOS FLUTUANTES
+     ============================================================ -->
+
+<!-- Botão voltar ao topo -->
+<button id="btn-voltar-topo"
+        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        aria-label="Voltar ao topo">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Botão WhatsApp com tooltip e animação de pulso -->
+<div class="whatsapp-btn-wrap">
+    <div class="whatsapp-pulse"></div>
+    <div class="whatsapp-tooltip">Fale conosco!</div>
+    <a href="https://wa.me/551600000000"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="btn btn-success rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+       style="width: 45px; height: 45px; transition: transform 0.3s;">
+        <i class="fab fa-whatsapp fa-lg"></i>
+    </a>
+</div>
+
+
+<!-- ============================================================
+     MAIN — Conteúdo Principal
+     ============================================================ -->
+<main>
+
+    <!-- Carrossel de banners -->
+    <div id="heroCarousel" class="carousel slide shadow-sm mb-3" data-bs-ride="carousel" data-bs-interval="10000">
+        <div class="carousel-inner">
+
+            <div class="carousel-item active">
+                <img src="https://i.imgur.com/4yoCwNp.png" class="d-block w-100" alt="Reforma">
+            </div>
+            <div class="carousel-item">
+                <img src="https://i.imgur.com/cbLkXnb.jpeg" class="d-block w-100" alt="Reforma">
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1595844730298-b960ff98fee0?q=80&w=1470" class="d-block w-100" alt="Pintura">
+                <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-2">
+                    <h2 class="display-4 fw-bold text-warning">Cores que Transformam</h2>
+                    <p class="lead text-white">"Quem entende de tintas, Vem aqui!"</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1562259949-e8e7689d7828?q=80&w=1431" class="d-block w-100" alt="Reforma">
+                <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-2">
+                    <h2 class="display-4 fw-bold text-warning">Qualidade Garantida</h2>
+                    <p class="lead text-white">As melhores marcas para sua reforma ou construção.</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1525909002-1b05e0c869d8?q=80&w=1470" class="d-block w-100" alt="Reforma">
+                <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-2">
+                    <h2 class="display-4 fw-bold text-warning">Não te deixa na mão</h2>
+                    <p class="lead text-white">Cores vivas que fixam em uma única pincelada.</p>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
+    <!-- Faixa de frete grátis SP — abaixo do carrossel -->
+    <div class="faixa-frete-gratis container-fluid px-0 mb-4">
+        <div class="faixa-frete-inner">
+            <span class="faixa-frete-icone"><i class="fas fa-truck"></i></span>
+            <span class="faixa-frete-texto">
+                <strong>Frete GRÁTIS para São Paulo</strong>
+                e para demais cidades em compras acima de R$&nbsp;300
+            </span>
+        </div>
+    </div>
+
+    <!-- Faixa de benefícios -->
+    <div class="beneficios-strip">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3 beneficio-item">
+                    <div class="beneficio-icone-wrap">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h5>Entrega Rápida</h5>
+                    <p>Receba em até 24h na sua obra.</p>
+                </div>
+                <div class="col-6 col-md-3 beneficio-item">
+                    <div class="beneficio-icone-wrap">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5>Compra Segura</h5>
+                    <p>Seus dados protegidos.</p>
+                </div>
+                <div class="col-6 col-md-3 beneficio-item">
+                    <div class="beneficio-icone-wrap">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <h5>Troca Fácil</h5>
+                    <p>Até 7 dias para devolução.</p>
+                </div>
+                <div class="col-6 col-md-3 beneficio-item">
+                    <div class="beneficio-icone-wrap">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <h5>Ofertas Diárias</h5>
+                    <p>Preços imbatíveis todo dia.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de produtos e filtros -->
+    <div class="container mb-5" id="produtos">
+        <div class="row">
+
+            <!-- Sidebar de categorias -->
+            <aside class="col-lg-3 mb-4">
+                <div class="filter-sidebar sticky-top" style="top: 90px;">
+                    <h5 class="mb-4 d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-paint-bucket me-2"></i>Categorias</span>
+                    </h5>
+                    <ul class="list-group list-group-flush custom-menu">
+                        <li class="list-group-item dropdown-side">Interior <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('interior')">Ver Tudo</li>
+                                <li onclick="filterProducts('acrilica')">Tinta acrílica</li>
+                                <li onclick="filterProducts('latex')">Tinta látex</li>
+                                <li onclick="filterProducts('fosca')">Tinta fosca</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Exterior <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('exterior')">Ver Tudo</li>
+                                <li onclick="filterProducts('impermeavel')">Tinta impermeável</li>
+                                <li onclick="filterProducts('acrilica-ext')">Acrílica externa</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Móveis <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('esmalte')">Esmalte</li>
+                                <li onclick="filterProducts('verniz')">Verniz</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Especial <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('epoxi')">Tinta epóxi</li>
+                                <li onclick="filterProducts('termica')">Tinta térmica</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Marcas <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('suvinil')">Suvinil</li>
+                                <li onclick="filterProducts('coral')">Coral</li>
+                                <li onclick="filterProducts('sherwin')">Sherwin-Williams</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Ferramentas <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('rolos')">Rolos</li>
+                                <li onclick="filterProducts('pinceis')">Pincéis</li>
+                                <li onclick="filterProducts('bandejas')">Bandejas</li>
+                            </ul>
+                        </li>
+                        <li class="list-group-item dropdown-side">Acessórios <i class="fas fa-chevron-right float-end small mt-1"></i>
+                            <ul class="submenu shadow">
+                                <li onclick="filterProducts('lixas')">Lixas</li>
+                                <li onclick="filterProducts('fitas')">Fitas</li>
+                                <li onclick="filterProducts('extensores')">Extensores</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Grade de produtos -->
+            <section class="col-lg-9">
+
+                <!-- Barra de filtro de preço e título -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 filtro-bar">
+                    <h3 id="category-title" class="fw-bold mb-0">Todos os produtos</h3>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="filterPrice" class="form-select form-select-sm shadow-none" style="width: auto; min-width: 160px;" onchange="filterByPrice(this.value)">
+                            <option value="all">Todos os preços</option>
+                            <option value="0-50">R$ 0,00 - R$ 50,00</option>
+                            <option value="51-100">R$ 51,00 - R$ 100,00</option>
+                            <option value="101-150">R$ 101,00 - R$ 150,00</option>
+                            <option value="151-9999">Acima de R$ 150,00</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="filterProducts('all')">Limpar Filtros</button>
+                    </div>
+                </div>
+
+                <!-- Contador de resultados de busca -->
+                <div id="busca-contador"></div>
+
+                <!-- Lista de produtos (preenchida via JS) -->
+                <div class="row g-4" id="product-list"></div>
+
+            </section>
+        </div>
+    </div>
+
+    <!-- Seção de marcas parceiras -->
+    <div id="nossas-marcas" class="container mt-5 marcas-section">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold text-primary">Marcas que Trabalhamos</h2>
+            <div class="mx-auto bg-warning" style="height: 4px; width: 60px; border-radius: 2px;"></div>
+            <p class="lead mt-3 text-muted">As melhores marcas para garantir durabilidade.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="https://www.suvinil.com.br" target="_blank" class="text-decoration-none">
+                    <div class="brand-card shadow-sm h-100 d-flex align-items-center justify-content-center p-4 bg-white rounded-4">
+                        <img src="https://i.imgur.com/xh3cjzs.png" class="img-fluid brand-logo" alt="Suvinil">
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="https://www.coral.com.br" target="_blank" class="text-decoration-none">
+                    <div class="brand-card shadow-sm h-100 d-flex align-items-center justify-content-center p-4 bg-white rounded-4">
+                        <img src="https://i.imgur.com/RHKMmga.png" class="img-fluid brand-logo" alt="Coral">
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="https://www.lukscolor.com.br" target="_blank" class="text-decoration-none">
+                    <div class="brand-card shadow-sm h-100 d-flex align-items-center justify-content-center p-4 bg-white rounded-4">
+                        <img src="https://i.imgur.com/PosoSIn.png" class="img-fluid brand-logo" alt="Lukscolor">
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="https://www.tigre.com.br" target="_blank" class="text-decoration-none">
+                    <div class="brand-card shadow-sm h-100 d-flex align-items-center justify-content-center p-4 bg-white rounded-4">
+                        <img src="https://i.imgur.com/LdKukiA.png" class="img-fluid brand-logo" alt="Tigre">
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="https://www.pinceisatlas.com.br" target="_blank" class="text-decoration-none">
+                    <div class="brand-card shadow-sm h-100 d-flex align-items-center justify-content-center p-4 bg-white rounded-4">
+                        <img src="https://i.imgur.com/Ukzcx7y.jpeg" class="img-fluid brand-logo" alt="Pincéis Atlas">
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer id="contato" class="text-white pt-5 pb-4">
+    <div class="container">
+        <div class="row g-5">
+
+            <!-- Sobre a empresa -->
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://i.imgur.com/PmT6Skb.png"
+                         alt="Logo FixTintas"
+                         width="40"
+                         height="40"
+                         class="me-2 rounded-circle bg-white p-1 shadow-sm">
+                    <span class="fw-bold text-white h4 mb-0">Fix<span class="text-warning">Tintas</span></span>
+                </div>
+                <p class="text" style="line-height: 1.8;">
+                    A maior variedade de tintas e acessórios para sua obra. Qualidade que você confia para transformar seus ambientes com cores que inspiram.
+                </p>
+                <div class="social-icons mt-4">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <!-- Links da loja -->
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold">Loja</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#produtos" class="footer-link">Produtos</a></li>
+                    <li><a href="sobre.html" class="footer-link">Sobre Nós</a></li>
+                    <li><a href="index.html#nossas-marcas" class="footer-link">Marcas</a></li>
+                    <li><a href="#" class="footer-link">Promoções</a></li>
+                </ul>
+            </div>
+
+            <!-- Links de suporte -->
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold">Suporte</h5>
+                <ul class="list-unstyled">
+                    <li><a href="javascript:void(0)" onclick="handleProfileClick()" class="footer-link">Minha Conta</a></li>
+                    <li><a href="termos.html" class="footer-link">Termos de Uso</a></li>
+                    <li><a href="politicas.html" class="footer-link">Políticas</a></li>
+                    <li><a href="politicas.html" class="footer-link">Privacidade</a></li>
+                </ul>
+            </div>
+
+            <!-- Informações de contato -->
+            <div class="col-lg-4 col-md-6">
+                <h5 class="fw-bold">Contato</h5>
+                <p class="text mb-2"><i class="fas fa-phone-alt text-warning me-2"></i> (16) 0000-0000</p>
+                <p class="text mb-2"><i class="fas fa-envelope text-warning me-2"></i> sac@fixtintas.com.br</p>
+                <p class="text mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i> Avenida Carlos Consoni, 10 - RP</p>
+                <p class="text mb-0 small opacity-75"><i class="fas fa-clock text-warning me-2"></i> Seg. a Sex. das 08h às 18h</p>
+                <div class="mt-4">
+                    <i class="fab fa-cc-visa fa-2x me-2 opacity-50"></i>
+                    <i class="fab fa-cc-mastercard fa-2x me-2 opacity-50"></i>
+                    <i class="fas fa-barcode fa-2x opacity-50"></i>
+                    <i class="fab fa-pix fa-2x ms-2 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <hr class="mt-5 border-secondary opacity-25">
+
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="text mb-1">© 2026 <strong>FixTintas Comércio de Tintas LTDA.</strong></p>
+                <p class="text small opacity-50 mb-0">CNPJ: 12.345.678/0001-90 | Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                <p class="text mb-0">Transformando ambientes com você.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<!-- ============================================================
+     MODAIS — Carrinho
+     ============================================================ -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="cartModalLabel">
+                    <i class="fas fa-shopping-cart me-2"></i>Meu Carrinho
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4" id="cart-items-container"></div>
+
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button id="btnLimparCarrinho" class="btn btn-link text-danger btn-sm w-100 mb-3" onclick="clearCart()" style="display: none; text-decoration: none;">
+                    <i class="fas fa-trash-alt me-2"></i>Esvaziar Carrinho
+                </button>
+
+                <hr class="w-100 mt-0 mb-3 opacity-10">
+
+                <div class="w-100 d-flex justify-content-between align-items-center mb-3">
+                    <span class="h5 mb-0">Total:</span>
+                    <span class="h4 text-primary fw-bold mb-0" id="cart-total">R$ 0,00</span>
+                </div>
+
+                <div class="d-flex gap-2 w-100 mt-2">
+                    <button class="btn btn-outline-primary btn-sm flex-grow-1" onclick="gerarListaMateriais()">
+                        <i class="fas fa-clipboard-list me-1"></i> Lista de Materiais
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm flex-grow-1" onclick="gerarPDF()">
+                        <i class="fas fa-file-pdf me-1"></i> Gerar PDF
+                    </button>
+                </div>
+
+                <button class="btn btn-warning w-100 py-3 fw-bold shadow-sm" onclick="checkout()">
+                    FINALIZAR COMPRA
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Minha Conta (TAREFA 1 — Reformulado)
+     ============================================================ -->
+<div class="modal fade" id="minhaContaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 480px;">
+        <div class="modal-content border-0 rounded-4 overflow-hidden">
+
+            <!-- Header com gradiente -->
+            <div class="perfil-modal-header">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+
+                <!-- Avatar com ações -->
+                <div class="perfil-avatar-wrap" id="userAvatarContainer">FT</div>
+                <div class="perfil-avatar-acoes">
+                    <button class="perfil-avatar-btn" onclick="uploadFotoPerfil()" title="Alterar foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button class="perfil-avatar-btn perfil-avatar-btn-danger" onclick="removerFotoPerfil()" title="Remover foto" id="btnRemoverFoto">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Nome editável -->
+                <div id="userDisplayName" class="perfil-nome" onclick="editarNomePerfil()" title="Clique para editar">
+                    Bem-vindo!
+                </div>
+                <div id="editNomeWrap" class="d-none d-flex gap-1 align-items-center mt-1">
+                    <input type="text" id="editNomeInput" class="form-control form-control-sm"
+                           style="max-width:180px; font-size:0.85rem;"
+                           onkeydown="if(event.key==='Enter') salvarNomePerfil(); if(event.key==='Escape') cancelarEdicaoNome();">
+                    <button class="btn btn-sm btn-success py-0 px-2" onclick="salvarNomePerfil()"><i class="fas fa-check"></i></button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="cancelarEdicaoNome()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <p class="perfil-email" id="userDisplayEmail">FixTintas</p>
+            </div>
+
+            <div class="modal-body p-3 pt-0">
+
+                <!-- Meus Pedidos -->
+                <a href="#collapsePedidos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false" onclick="renderOrdersProfile()">
+                    <i class="fas fa-shopping-bag text-primary"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Meus Pedidos</span>
+                        <small class="text-muted">Histórico e rastreio</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapsePedidos">
+                    <div class="p-2 bg-light rounded-3 mb-2" id="orders-list" style="max-height: 260px; overflow-y: auto;">
+                        <p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>
+                    </div>
+                </div>
+
+                <!-- Favoritos -->
+                <a href="#collapseFavoritos" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-heart text-danger"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Favoritos</span>
+                        <small class="text-muted">Sua lista de desejos</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseFavoritos">
+                    <div class="p-2 bg-light rounded-3 mb-2" id="favorites-list" style="max-height: 220px; overflow-y: auto;">
+                        <p class="text-muted small text-center py-2 mb-0">Nenhum favorito ainda.</p>
+                    </div>
+                </div>
+
+                <!-- Endereço de entrega -->
+                <a href="#collapseEndereco" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Endereço de Entrega</span>
+                        <small class="text-muted">Configure onde receber seus produtos</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseEndereco">
+                    <div class="p-3 bg-light rounded-3 mb-2 border">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="text" id="addrCEP"
+                                       class="form-control form-control-sm border-0 shadow-sm"
+                                       placeholder="CEP (00000-000)"
+                                       maxlength="9"
+                                       inputmode="numeric"
+                                       required>
+                            </div>
+                            <div class="col-6">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary w-100"
+                                        onclick="buscarCEP()"
+                                        style="font-size: 0.75rem;">
+                                    <i class="fas fa-search me-1"></i>Buscar CEP
+                                </button>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="addrRua" class="form-control form-control-sm border-0 shadow-sm" placeholder="Rua/Logradouro" required>
+                            </div>
+                            <div class="col-4">
+                                <input type="number" id="addrNum" class="form-control form-control-sm border-0 shadow-sm" placeholder="Nº" required
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" id="addrComp" class="form-control form-control-sm border-0 shadow-sm" placeholder="Complemento">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" id="addrBairro" class="form-control form-control-sm border-0 shadow-sm" placeholder="Bairro" required>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" id="addrCidade" class="form-control form-control-sm border-0 shadow-sm" placeholder="Cidade" required>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary mt-3 w-100" onclick="saveAddress()">
+                            <i class="fas fa-save me-1"></i> Salvar Endereço
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Segurança — Alterar Senha -->
+                <a href="#collapseSenha" class="account-option" data-bs-toggle="collapse" role="button" aria-expanded="false">
+                    <i class="fas fa-lock text-warning"></i>
+                    <div class="flex-grow-1">
+                        <span class="d-block fw-bold">Segurança</span>
+                        <small class="text-muted">Alterar senha</small>
+                    </div>
+                    <i class="fas fa-chevron-down small text-muted"></i>
+                </a>
+                <div class="collapse" id="collapseSenha">
+                    <div class="p-3 bg-light rounded-3 mb-2 border">
+                        <div class="mb-2">
+                            <input type="password" id="senhaAtualInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Senha atual">
+                        </div>
+                        <div class="mb-2">
+                            <input type="password" id="novaSenhaInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Nova senha (mín. 6 caracteres)">
+                        </div>
+                        <div class="mb-2">
+                            <input type="password" id="confSenhaInput"
+                                   class="form-control form-control-sm border-0 shadow-sm"
+                                   placeholder="Confirmar nova senha">
+                        </div>
+                        <div id="erroAlterarSenha" class="text-danger small mb-2"></div>
+                        <button class="btn btn-sm btn-warning w-100" onclick="alterarSenha()">
+                            <i class="fas fa-key me-1"></i> Alterar Senha
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ações de autenticação -->
+                <div id="authOptions" class="mt-3 d-flex flex-column gap-2">
+                    <button id="btnAbrirAdminModal"
+                            class="btn btn-warning d-none w-100"
+                            onclick="abrirPainelAdmin()">
+                        <i class="fas fa-shield-alt me-2"></i>Painel Administrativo
+                    </button>
+                    <button id="btnIrLogin" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-2"></i>Entrar na Conta
+                    </button>
+                    <button id="btnSair" class="btn btn-outline-danger w-100 d-none" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sair da Conta
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Login e Cadastro
+     ============================================================ -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg login-modal-content">
+
+            <!-- Cabeçalho com logo -->
+            <div class="login-modal-header">
+                <img src="https://i.imgur.com/PmT6Skb.png" alt="FixTintas" class="login-logo">
+                <h5 class="login-modal-titulo">Fix<span>Tintas</span></h5>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Abas Entrar / Criar Conta -->
+            <div class="login-tabs">
+                <button class="login-tab ativa" id="tab-entrar" onclick="alternarAbaLogin('entrar')">Entrar</button>
+                <button class="login-tab" id="tab-cadastro" onclick="alternarAbaLogin('cadastro')">Criar Conta</button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <!-- Formulário de login -->
+                <form id="loginForm" class="login-painel" data-painel="entrar" novalidate>
+                    <div class="login-campo">
+                        <label class="login-label">E-mail</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-envelope login-input-icon"></i>
+                            <input type="email" id="loginEmail"
+                                   class="login-input"
+                                   placeholder="seu@email.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-loginEmail"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="loginSenha"
+                                   class="login-input"
+                                   placeholder="••••••••"
+                                   autocomplete="current-password"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('loginSenha', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="login-erro" id="erro-loginSenha"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="login-lembrar">
+                            <input type="checkbox" id="loginLembrar" checked>
+                            <span>Lembrar-me</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="login-btn-submit">
+                        <i class="fas fa-sign-in-alt me-2"></i>Entrar na Conta
+                    </button>
+                    <p class="login-switch-text mt-3">
+                        Não tem conta?
+                        <button type="button" class="login-link" onclick="alternarAbaLogin('cadastro')">Criar agora</button>
+                    </p>
+                </form>
+
+                <!-- Formulário de cadastro -->
+                <form id="cadastroForm" class="login-painel d-none" data-painel="cadastro" novalidate>
+                    <div class="login-campo">
+                        <label class="login-label">Nome Completo</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-user login-input-icon"></i>
+                            <input type="text" id="cadNome"
+                                   class="login-input"
+                                   placeholder="Seu nome completo"
+                                   autocomplete="name"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-cadNome"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">E-mail</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-envelope login-input-icon"></i>
+                            <input type="email" id="cadEmail"
+                                   class="login-input"
+                                   placeholder="seu@email.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                        <span class="login-erro" id="erro-cadEmail"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="cadSenha"
+                                   class="login-input"
+                                   placeholder="Mínimo 6 caracteres"
+                                   autocomplete="new-password"
+                                   oninput="atualizarForcaSenha(this.value)"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('cadSenha', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <!-- Barra de força da senha -->
+                        <div class="senha-forca-wrap" id="senha-forca-wrap">
+                            <div class="senha-forca-barra">
+                                <div class="senha-forca-fill" id="senha-forca-fill"></div>
+                            </div>
+                            <span class="senha-forca-label" id="senha-forca-label"></span>
+                        </div>
+                        <span class="login-erro" id="erro-cadSenha"></span>
+                    </div>
+                    <div class="login-campo">
+                        <label class="login-label">Confirmar Senha</label>
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input type="password" id="cadSenhaConf"
+                                   class="login-input"
+                                   placeholder="Repita a senha"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button" class="login-toggle-senha"
+                                    onclick="toggleSenhaVisivel('cadSenhaConf', this)"
+                                    tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span class="login-erro" id="erro-cadSenhaConf"></span>
+                    </div>
+                    <button type="submit" class="login-btn-submit">
+                        <i class="fas fa-user-plus me-2"></i>Criar Minha Conta
+                    </button>
+                    <p class="login-switch-text mt-3">
+                        Já tem conta?
+                        <button type="button" class="login-link" onclick="alternarAbaLogin('entrar')">Entrar agora</button>
+                    </p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Configuração de Tinta
+     ============================================================ -->
+<div class="modal fade" id="productConfigModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productConfigModalLabel">Configurar Tinta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Preview de superfície -->
+                <div id="preview-container" class="text-center mb-4" style="perspective: 1000px; padding: 10px;">
+                    <label class="form-label fw-bold small text-uppercase d-block mb-3">Simulação de Superfície:</label>
+
+                    <div class="position-relative d-inline-block w-100">
+                        <button type="button" class="btn-nav-wall left" onclick="changeWall(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="btn-nav-wall right" onclick="changeWall(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <div id="product-preview" style="
+                            width: 100%; height: 180px; border-radius: 4px;
+                            transform: rotateY(-8deg) rotateX(2deg);
+                            box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
+                            display: flex; align-items: center; justify-content: center;
+                            transition: all 0.4s ease; position: relative; overflow: hidden;
+                            background-color: #eee;">
+                            <div id="flashlight-normal" class="flashlight-overlay"></div>
+                            <div id="photo-color-overlay" class="photo-color-overlay"></div>
+                            <span id="preview-text" class="fw-bold px-3" style="z-index: 5;">
+                                Selecione as opções
+                            </span>
+                        </div>
+
+                        <div class="preview-floor" style="
+                            width: 100%; height: 12px; background: #ddd;
+                            margin-top: -2px; border-radius: 0 0 4px 4px;
+                            transform: rotateY(-8deg); border-bottom: 2px solid #bbb;">
+                        </div>
+
+                        <div id="wall-type-label" class="mt-2 small fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
+                            Parede Lisa
+                        </div>
+
+                        <div class="text-center mt-2">
+                            <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleFlashlight('normal')" style="font-size: 0.7rem; border-radius: 20px;">
+                                <i class="fas fa-lightbulb"></i> Testar no Escuro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload de foto da parede -->
+                <div id="foto-parede-container" class="d-none mb-2 text-center">
+                    <p class="small text-muted mb-2">
+                        <i class="fas fa-image me-1"></i>
+                        Envie uma foto da sua parede para simular a tinta
+                    </p>
+                    <label class="btn btn-sm btn-primary w-100 mb-1">
+                        <i class="fas fa-camera me-1"></i> Selecionar Foto da Parede
+                        <input type="file" id="uploadWall" accept="image/*" capture="environment" hidden
+                               onchange="aplicarFotoParede(this)">
+                    </label>
+                    <button class="btn btn-sm btn-outline-danger w-100 d-none"
+                            id="btnRemoverFoto" onclick="removerFotoParede()">
+                        <i class="fas fa-times me-1"></i> Remover Foto
+                    </button>
+                </div>
+
+                <!-- Formulário de configuração -->
+                <form id="productConfigForm">
+
+                    <!-- Seleção de cor -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Selecione a Cor:</label>
+                        <div class="d-flex gap-3 flex-wrap justify-content-center" id="colorPicker">
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="white" value="Branco" data-price-color="0" checked>
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="white" style="background: #ffffff;"></label>
+                                <div class="small mt-1 text-muted">Branco</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="offwhite" value="Pérola" data-price-color="5">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="offwhite" style="background: #fdf5e6;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 5</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="gray" value="Cinza Platina" data-price-color="10">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="gray" style="background: #bdc3c7;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 10</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="black" value="Preto Absoluto" data-price-color="25">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="black" style="background: #2c3e50;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 25</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="blue" value="Azul Naval" data-price-color="15">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="blue" style="background: #005eff;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 15</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="green" value="Verde Floresta" data-price-color="15">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="green" style="background: #27ae60;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 15</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="yellow" value="Amarelo Sol" data-price-color="20">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="yellow" style="background: #f1c40f;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 20</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="red" value="Vermelho Rubi" data-price-color="30">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="red" style="background: #e74c3c;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 30</div>
+                            </div>
+                            <div class="text-center">
+                                <input type="radio" class="btn-check" name="color" id="terracota" value="Terracota" data-price-color="18">
+                                <label class="btn btn-outline-secondary p-0 rounded-circle shadow-sm color-dot" for="terracota" style="background: #e67e22;"></label>
+                                <div class="small mt-1 text-muted">+ R$ 18</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seleção de acabamento -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Acabamento e Efeitos:</label>
+                        <select class="form-select" id="selectTexture">
+                            <option value="Fosco" data-price-texture="0">Fosco (Esconde imperfeições) - Padrão</option>
+                            <option value="Acetinado" data-price-texture="25">Acetinado (Toque de seda) + R$ 25,00</option>
+                            <option value="Semibrilho" data-price-texture="40">Semibrilho (Fácil de limpar) + R$ 40,00</option>
+                            <option value="Cimento Queimado" data-price-texture="60">Efeito Cimento Queimado + R$ 60,00</option>
+                            <option value="Metalizado" data-price-texture="85">Brilho Metalizado Premium + R$ 85,00</option>
+                        </select>
+                    </div>
+
+                    <!-- Seleção de tamanho -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Tamanho (Volume):</label>
+                        <select class="form-select" id="selectSize" onchange="atualizarSubtotalModal()">
+                            <option value="Quarto 800ml" data-price-add="-15">Quarto 800ml (Pequenos reparos) - Desconto R$ 15,00</option>
+                            <option value="Galão 3,6L" data-price-add="0" selected>Galão 3,6L (Padrão) - Preço Base</option>
+                            <option value="Balde 10L" data-price-add="80">Balde 10L + R$ 80,00</option>
+                            <option value="Lata 18L" data-price-add="165">Lata 18L (Grande porte) + R$ 165,00</option>
+                        </select>
+                        <div class="form-text mt-1" style="font-size: 0.75rem;">
+                            * O rendimento varia conforme o tamanho escolhido.
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Sugestões de produtos complementares -->
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-magic me-2 text-warning"></i>Combine com estes itens:
+                    </h6>
+                    <div id="sugestoes-container" class="row gx-2 gy-3"></div>
+
+                </form>
+
+                <!-- Subtotal do item -->
+                <div class="d-flex justify-content-between align-items-center mt-3 p-2 bg-light rounded">
+                    <span class="text-muted small">Subtotal do item:</span>
+                    <span class="h5 mb-0 text-primary" id="modalSubtotal">R$ 0,00</span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btnApplyToAll" class="btn btn-outline-primary" onclick="applyConfigToAll()" style="display:none;">
+                    Confirmar todas
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmAddToCart()">
+                    Confirmar esta lata
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Configuração de Spray
+     ============================================================ -->
+<div class="modal fade" id="sprayConfigModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="sprayModalLabel"><i class="fas fa-spray-can me-2"></i>Configurar Spray</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Preview 3D do spray -->
+                <div id="preview-container-spray" class="text-center mb-4" style="perspective: 1000px; padding: 10px;">
+                    <label class="form-label fw-bold small text-uppercase d-block mb-3">Simulação de Superfície:</label>
+
+                    <div class="position-relative d-inline-block w-100">
+                        <div id="product-preview-spray" style="
+                            width: 100%;
+                            height: 180px;
+                            border-radius: 4px;
+                            transform: rotateY(-8deg) rotateX(2deg);
+                            box-shadow: 15px 10px 25px rgba(0,0,0,0.2);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.4s ease;
+                            position: relative;
+                            overflow: hidden;
+                            background-color: #eee;">
+                        </div>
+
+                        <div class="preview-floor" style="
+                            width: 100%;
+                            height: 12px;
+                            background: #ddd;
+                            margin-top: -2px;
+                            border-radius: 0 0 4px 4px;
+                            transform: rotateY(-8deg);
+                            border-bottom: 2px solid #bbb;">
+                        </div>
+
+                        <div class="mt-2 small fw-bold text-muted text-uppercase" style="letter-spacing: 1px; font-size: 0.65rem;">
+                            Visualização 3D
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seleção de demãos -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-uppercase">Demãos:</label>
+                    <select id="spray-demaos" class="form-select form-select-sm border-secondary" onchange="updateSprayPreview()">
+                        <option value="1">1 Demão</option>
+                        <option value="2">2 Demãos</option>
+                        <option value="3">3 Demãos (Cobertura Total)</option>
+                    </select>
+                </div>
+
+                <!-- Paleta de cores do spray (preenchida via JS) -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold d-block text-center mb-3 text-uppercase small">Escolha a Cor do Spray:</label>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center" id="sprayColorPicker"></div>
+                </div>
+
+                <!-- Subtotal do spray -->
+                <div class="bg-light p-3 rounded-3 text-center mb-3">
+                    <span class="text-muted d-block small">Subtotal</span>
+                    <span class="h3 fw-bold text-primary mb-0" id="modalSprayPrice">R$ 0,00</span>
+                </div>
+
+                <!-- Sugestões de produtos complementares -->
+                <div class="suggestions-container mt-4">
+                    <h6>Combine com estes itens:</h6>
+                    <div id="sugestoes-spray" class="d-flex overflow-auto gap-3 pb-2"></div>
+                </div>
+
+                <div class="alert alert-info py-2 shadow-sm border-0 mb-0" style="font-size: 0.85rem;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta configuração será aplicada a <strong>1 unidade</strong>.
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow" onclick="confirmSprayToCart()">
+                    CONFIRMAR ESTA COR <i class="fas fa-check ms-2"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Tamanhos (Massa, Verniz, etc.)
+     ============================================================ -->
+<div class="modal fade" id="modalTamanhos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalTamanhosLabel">Configurar Produto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-5 text-center mb-3 mb-md-0">
+                        <img id="modalTamanhosImg" src="" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-uppercase">Escolha o Tamanho:</label>
+                            <select id="selectSizeOnly" class="form-select form-select-lg border-2 border-primary" onchange="atualizarSubtotalModal()">
+                                <option value="Quarto 900ml" data-price-add="0" selected>Galao 900ml (Preço Base)</option>
+                                <option value="Lata 3,6L" data-price-add="45.50">Lata 3,6L (+ R$ 45,50)</option>
+                                <option value="Balde 18L" data-price-add="180.00">Balde 18L (+ R$ 180,00)</option>
+                            </select>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 text-center">
+                            <span class="text-muted d-block small">Subtotal</span>
+                            <span class="h3 fw-bold text-primary mb-0" id="modalProductPriceOnly">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sugestões de produtos complementares -->
+                <div class="suggestions-container mt-4">
+                    <h6>Combine com estes itens:</h6>
+                    <div id="sugestoes-config" class="d-flex overflow-auto gap-3 pb-2"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning px-4 fw-bold" onclick="confirmAddToCartSizeOnly()">
+                    <i class="fas fa-shopping-cart me-2"></i>ADICIONAR AO CARRINHO
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Calculadora de Tinta
+     ============================================================ -->
+<div class="modal fade" id="calcModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paint-roller me-2"></i>Calculadora de Tinta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="small text-muted">Descubra a quantidade ideal para sua pintura (considerando 2 demãos).</p>
+                <form id="calcForm">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Largura da Parede (m)</label>
+                            <input type="number" id="calcLargura" class="form-control" placeholder="Ex: 4.5" step="0.1">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Altura da Parede (m)</label>
+                            <input type="number" id="calcAltura" class="form-control" placeholder="Ex: 2.8" step="0.1">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary w-100 fw-bold" onclick="calcularTinta()">CALCULAR AGORA</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="resultadoCalc" class="mt-4 d-none">
+                    <div class="alert alert-info border-0 shadow-sm">
+                        <h6 class="fw-bold mb-1">Resultado Estimado:</h6>
+                        <p class="mb-0" id="textoResultado"></p>
+                    </div>
+                    <small class="text-muted d-block" style="font-size: 0.7rem;">
+                        *Cálculo baseado em um rendimento médio de 10m² por litro/demão.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Finalizar Pedido (Checkout)
+     ============================================================ -->
+<div class="modal fade" id="confirmAddressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-truck me-2"></i>Finalizar Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Endereço de entrega -->
+                <p class="mb-2 fw-bold small text-muted text-uppercase">Entregar em:</p>
+                <div class="p-3 bg-light rounded border mb-3 d-flex justify-content-between align-items-center">
+                    <strong id="displayConfirmEndereco" class="text-dark small">---</strong>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#minhaContaModal">
+                        Alterar
+                    </button>
+                </div>
+
+                <!-- Opções de frete -->
+                <p class="mb-2 fw-bold small text-muted text-uppercase">
+                    <i class="fas fa-truck me-1"></i> Opções de Entrega:
+                </p>
+                <div id="checkout-frete-resultado" class="mb-3">
+                    <div class="text-center py-2">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="small text-muted ms-2">Calculando frete...</span>
+                    </div>
+                </div>
+
+                <!-- Método de pagamento -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Forma de Pagamento</label>
+                    <select id="metodoPagamento" class="form-select border-primary fw-bold" onchange="togglePaymentDetails()">
+                        <option value="PIX">💠 PIX</option>
+                        <option value="Cartão">💳 Cartão de Crédito</option>
+                        <option value="Boleto">📄 Boleto Bancário</option>
+                    </select>
+                </div>
+
+                <!-- Detalhes do método de pagamento -->
+                <div id="paymentDetails" class="p-3 border rounded bg-light mb-3">
+
+                    <!-- PIX -->
+                    <div id="detalhe-PIX" class="payment-method-detail text-center">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=FixTintas" class="img-fluid mb-2" style="max-width: 130px;">
+                        <p class="small fw-bold text-primary mb-0">Chave: sac@fixtintas.com.br</p>
+                    </div>
+
+                    <!-- Cartão de crédito -->
+                    <div id="detalhe-Cartão" class="payment-method-detail d-none">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="small fw-bold text-muted">NÚMERO DO CARTÃO</label>
+                                <input type="text" id="cardNum" class="form-control form-control-sm"
+                                       placeholder="0000 0000 0000 0000" maxlength="19">
+                            </div>
+                            <div class="col-12">
+                                <label class="small fw-bold text-muted">NOME NO CARTÃO</label>
+                                <input type="text" id="cardName" class="form-control form-control-sm"
+                                       placeholder="NOME IGUAL AO CARTÃO">
+                            </div>
+                            <div class="col-12">
+                                <label class="small fw-bold text-muted">CPF DO TITULAR</label>
+                                <input type="text" id="cardCPF" class="form-control form-control-sm"
+                                       placeholder="000.000.000-00" maxlength="14">
+                            </div>
+                            <div class="col-12">
+                                <label class="small fw-bold text-muted">CVV (3 dígitos)</label>
+                                <input type="text" id="cardCVV" class="form-control form-control-sm"
+                                       placeholder="000" maxlength="3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boleto -->
+                    <div id="detalhe-Boleto" class="payment-method-detail d-none text-center">
+                        <i class="fas fa-barcode fa-3x text-muted mb-2"></i>
+                        <p class="small mb-0 text-muted">O boleto será gerado ao finalizar.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success w-100 fw-bold" onclick="processarCompraFinal()">Confirmar e Finalizar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS — Detalhes do Produto
+     ============================================================ -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="modal-content-details"></div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     TOASTS — Notificações
+     ============================================================ -->
+
+<!-- Toast global de avisos -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="globalToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="globalToastMessage"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast de confirmação de item adicionado ao carrinho -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="itemAddedToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong id="toast-item-name">Produto</strong> adicionado ao carrinho!
+                <div id="toast-item-info" class="small opacity-75"></div>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     POPUP DE PROMOÇÕES
+     ============================================================ -->
+<div id="popup-promocoes" class="popup-promo d-none" role="complementary" aria-label="Promoções ativas">
+
+    <!-- Versão minimizada (aba lateral) -->
+    <div id="popup-promo-aba" class="popup-promo-aba d-none" onclick="expandirPopupPromo()">
+        <i class="fas fa-tags"></i>
+        <span>Ofertas</span>
+        <span id="popup-promo-badge" class="popup-promo-badge-aba">0</span>
+    </div>
+
+    <!-- Versão expandida (card completo) -->
+    <div id="popup-promo-card" class="popup-promo-card">
+
+        <!-- Header -->
+        <div class="popup-promo-header">
+            <div class="popup-promo-header-left">
+                <div class="popup-promo-icone">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div>
+                    <div class="popup-promo-titulo">Ofertas Relâmpago</div>
+                    <div class="popup-promo-subtitulo">Só por tempo limitado!</div>
+                </div>
+            </div>
+            <div class="d-flex gap-1">
+                <button class="popup-promo-btn-ctrl"
+                        onclick="minimizarPopupPromo()"
+                        title="Minimizar"
+                        aria-label="Minimizar popup">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="popup-promo-btn-ctrl"
+                        onclick="fecharPopupPromo()"
+                        title="Fechar"
+                        aria-label="Fechar popup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista de produtos em promoção (preenchida via JS) -->
+        <div class="popup-promo-body" id="popup-promo-lista"></div>
+
+        <!-- Footer com CTA -->
+        <div class="popup-promo-footer">
+            <button class="popup-promo-cta"
+                    onclick="fecharPopupPromo(); filterProducts('all');"
+                    data-bs-dismiss="modal">
+                <i class="fas fa-store me-1"></i>
+                Ver todas as ofertas
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL — PAINEL ADMINISTRATIVO (TAREFA 7)
+     ============================================================ -->
+<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-height:90vh;">
+        <div class="modal-content border-0 shadow-lg admin-modal-content">
+
+            <div class="modal-header border-0 admin-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="admin-badge-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Painel Administrativo</h5>
+                        <small class="text-muted">FixTintas — Gestão do sistema</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Abas de navegação -->
+            <div class="admin-tabs-nav">
+                <button class="admin-tab-btn ativa" data-aba="produtos" onclick="renderAdminAba('produtos')">
+                    <i class="fas fa-box me-1"></i> Produtos
+                </button>
+                <button class="admin-tab-btn" data-aba="usuarios" onclick="renderAdminAba('usuarios')">
+                    <i class="fas fa-users me-1"></i> Usuários
+                </button>
+                <button class="admin-tab-btn" data-aba="pedidos" onclick="renderAdminAba('pedidos')">
+                    <i class="fas fa-receipt me-1"></i> Pedidos
+                </button>
+                <button class="admin-tab-btn" data-aba="adicionar" onclick="renderAdminAba('adicionar')">
+                    <i class="fas fa-plus me-1"></i> Novo Produto
+                </button>
+                <button class="admin-tab-btn" data-aba="exportar" onclick="renderAdminAba('exportar')">
+                    <i class="fas fa-database me-1"></i> Backup
+                </button>
+            </div>
+
+            <div class="modal-body p-0">
+                <div id="adminTabContent" class="p-3"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     SCRIPTS — Dependências e App
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="admin.js"></script>
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Plugin de acessibilidade VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+
+</body>
+</html>
