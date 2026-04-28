@@ -359,11 +359,21 @@ function getEstoque(productId) {
 }
 
 function decrementarEstoque(itens) {
+    const zerados = [];
     itens.forEach(item => {
         const p = (typeof products !== 'undefined') && products.find(p => p.id === item.productId);
-        if (p) p.estoque = Math.max(0, (p.estoque ?? 0) - item.quantity);
+        if (p) {
+            p.estoque = Math.max(0, (p.estoque ?? 0) - item.quantity);
+            if (p.estoque === 0) zerados.push(item);
+        }
     });
     _persistirTodosProdutos();
+    if (typeof renderProducts === 'function') renderProducts(products);
+
+    // Mostra sugestões para itens que zeraram o estoque
+    zerados.forEach(item => {
+        setTimeout(() => _mostrarSugestaoSubstituto(item), 1500);
+    });
 }
 
 function validarEstoqueCarrinho() {
@@ -374,6 +384,62 @@ function validarEstoqueCarrinho() {
     }).map(item => ({
         nome: item.name, solicitado: item.quantity, disponivel: getEstoque(item.productId)
     }));
+}
+
+/**
+ * Retorna até 3 produtos substitutos para um produto sem estoque.
+ * Prioriza: mesma subcategoria → mesma categoria → qualquer produto com estoque.
+ */
+function _getProdutosSubstitutos(productId, limite = 3) {
+    if (typeof products === 'undefined') return [];
+    const prod = products.find(p => p.id === productId);
+    if (!prod) return [];
+
+    const disponiveis = products.filter(p => p.id !== productId && (p.estoque ?? 0) > 0);
+
+    // 1. Mesma sub-categoria
+    let subs = disponiveis.filter(p => p.sub === prod.sub && p.category === prod.category);
+    // 2. Mesma categoria
+    if (subs.length < limite) {
+        subs = [...new Set([...subs, ...disponiveis.filter(p => p.category === prod.category)])];
+    }
+    // 3. Usa sugestões do próprio produto
+    if (subs.length < limite && prod.sugestoes?.length) {
+        const sugsIds = prod.sugestoes;
+        subs = [...new Set([...subs, ...disponiveis.filter(p => sugsIds.includes(p.id))])];
+    }
+    // 4. Qualquer um com estoque
+    if (subs.length < limite) {
+        subs = [...new Set([...subs, ...disponiveis])];
+    }
+    return subs.slice(0, limite);
+}
+
+/**
+ * Exibe um toast com sugestões de substituto para item sem estoque.
+ */
+function _mostrarSugestaoSubstituto(item) {
+    const subs = _getProdutosSubstitutos(item.productId);
+    if (!subs.length) return;
+
+    const listaHtml = subs.map(p =>
+        `<span style="display:block;margin-top:4px;">
+            <a href="javascript:void(0)"
+               onclick="showProductDetails(${p.id})"
+               style="color:#fff;font-weight:700;text-decoration:underline;">
+               ${p.name}
+            </a>
+            — R$&nbsp;${p.price.toFixed(2)}
+         </span>`
+    ).join('');
+
+    showToast(
+        `⚠️ <strong>${item.name}</strong> ficou sem estoque!<br>
+         <small style="opacity:0.9;">Veja produtos similares:</small>
+         ${listaHtml}`,
+        'warning',
+        true
+    );
 }
 
 /** Verifica se pode adicionar N unidades ao carrinho */
@@ -437,13 +503,185 @@ function renderAdminAba(aba) {
     const body = document.getElementById('adminTabContent');
     if (!body) return;
     const map = {
-        produtos : _renderAdminProdutos,
-        usuarios : _renderAdminUsuarios,
-        pedidos  : _renderAdminPedidos,
-        adicionar: _renderAdminAdicionarProduto,
-        exportar : _renderAdminExportar,
+        produtos  : _renderAdminProdutos,
+        usuarios  : _renderAdminUsuarios,
+        pedidos   : _renderAdminPedidos,
+        adicionar : _renderAdminAdicionarProduto,
+        exportar  : _renderAdminExportar,
+        relatorio : _renderAdminRelatorio,
     };
     body.innerHTML = map[aba] ? map[aba]() : '';
+}
+
+/* Aba Relatório */
+function _renderAdminRelatorio() {
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem(DB.ORDERS)) || []; } catch {}
+
+    const totalVendas    = todos.reduce((s, p) => s + (p.total || 0), 0);
+    const ticketMedio    = todos.length ? totalVendas / todos.length : 0;
+    const totalPedidos   = todos.length;
+    const totalUsuarios  = _getUsers().length;
+
+    // Contagem por método de pagamento
+    const pgtoCount = {};
+    todos.forEach(p => {
+        const k = p.pagamento || 'Não informado';
+        pgtoCount[k] = (pgtoCount[k] || 0) + 1;
+    });
+    const topPgto = Object.entries(pgtoCount).sort((a, b) => b[1] - a[1]);
+
+    // Contagem de vendas por produto
+    const prodVendas = {};
+    todos.forEach(p => {
+        (p.itens || []).forEach(item => {
+            if (!prodVendas[item.productId ?? item.name]) {
+                prodVendas[item.productId ?? item.name] = { nome: item.name, qtd: 0, receita: 0 };
+            }
+            prodVendas[item.productId ?? item.name].qtd     += item.quantity;
+            prodVendas[item.productId ?? item.name].receita += item.price * item.quantity;
+        });
+    });
+    const rankProd = Object.values(prodVendas).sort((a, b) => b.qtd - a.qtd);
+    const topProdutos  = rankProd.slice(0, 5);
+    const baixoProdutos = rankProd.slice(-3).reverse();
+
+    // Vendas por mês (últimos 6)
+    const vendasMes = {};
+    todos.forEach(p => {
+        const d = new Date(p.dataHora || p.data);
+        const key = isNaN(d) ? p.data : `${d.getMonth() + 1}/${d.getFullYear()}`;
+        if (!vendasMes[key]) vendasMes[key] = { count: 0, total: 0 };
+        vendasMes[key].count++;
+        vendasMes[key].total += p.total || 0;
+    });
+    const mesesHtml = Object.entries(vendasMes).slice(-6).map(([mes, v]) => `
+        <tr>
+            <td style="font-size:0.78rem;">${mes}</td>
+            <td style="font-size:0.78rem;">${v.count}</td>
+            <td style="font-size:0.78rem;" class="text-success fw-bold">R$&nbsp;${v.total.toFixed(2)}</td>
+        </tr>`).join('') || '<tr><td colspan="3" class="text-muted text-center">Sem dados.</td></tr>';
+
+    const pgtoHtml = topPgto.map(([k, v]) => `
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="fw-bold" style="min-width:120px;font-size:0.8rem;">${k}</div>
+            <div class="flex-grow-1 rounded-pill bg-primary bg-opacity-25" style="height:10px;">
+                <div class="rounded-pill bg-primary" style="height:10px;width:${Math.round(v/totalPedidos*100)||0}%;"></div>
+            </div>
+            <div class="text-muted" style="font-size:0.75rem;min-width:40px;text-align:right;">${v}x</div>
+        </div>`).join('') || '<p class="text-muted small">Sem dados.</p>';
+
+    const topProdHtml = topProdutos.map((p, i) => `
+        <tr>
+            <td><span class="badge bg-${i===0?'warning text-dark':i===1?'secondary':i===2?'danger':'light text-muted border'}">${i+1}º</span></td>
+            <td style="font-size:0.78rem;">${p.nome}</td>
+            <td style="font-size:0.78rem;" class="fw-bold">${p.qtd} un.</td>
+            <td style="font-size:0.78rem;" class="text-success">R$&nbsp;${p.receita.toFixed(2)}</td>
+        </tr>`).join('') || '<tr><td colspan="4" class="text-muted text-center">Sem dados.</td></tr>';
+
+    const baixoProdHtml = baixoProdutos.map(p => `
+        <tr>
+            <td style="font-size:0.78rem;">${p.nome}</td>
+            <td style="font-size:0.78rem;" class="text-danger fw-bold">${p.qtd} un.</td>
+            <td style="font-size:0.78rem;">R$&nbsp;${p.receita.toFixed(2)}</td>
+        </tr>`).join('') || '<tr><td colspan="3" class="text-muted text-center">Sem dados.</td></tr>';
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Relatório Geral</h6>
+            <span class="badge bg-secondary" style="font-size:0.65rem;">Baseado em ${totalPedidos} pedidos</span>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row g-2 mb-3">
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded-3 border text-center">
+                    <div class="fw-bold text-primary fs-5">${totalPedidos}</div>
+                    <div class="small text-muted">Total de Pedidos</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded-3 border text-center">
+                    <div class="fw-bold text-success" style="font-size:0.88rem;">R$&nbsp;${totalVendas.toFixed(2)}</div>
+                    <div class="small text-muted">Receita Total</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded-3 border text-center">
+                    <div class="fw-bold text-warning" style="font-size:0.88rem;">R$&nbsp;${ticketMedio.toFixed(2)}</div>
+                    <div class="small text-muted">Ticket Médio</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded-3 border text-center">
+                    <div class="fw-bold fs-5">${totalUsuarios}</div>
+                    <div class="small text-muted">Usuários</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- Métodos de Pagamento -->
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <h6 style="font-size:0.8rem;" class="fw-bold text-uppercase mb-3">
+                        <i class="fas fa-credit-card me-1 text-primary"></i>Método + Usado
+                    </h6>
+                    ${pgtoHtml}
+                </div>
+            </div>
+
+            <!-- Vendas por mês -->
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <h6 style="font-size:0.8rem;" class="fw-bold text-uppercase mb-2">
+                        <i class="fas fa-calendar me-1 text-primary"></i>Vendas por Período
+                    </h6>
+                    <div class="table-responsive" style="max-height:160px;overflow-y:auto;">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr><th style="font-size:0.72rem;">Mês</th><th style="font-size:0.72rem;">Pedidos</th><th style="font-size:0.72rem;">Receita</th></tr>
+                            </thead>
+                            <tbody>${mesesHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mais vendidos -->
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <h6 style="font-size:0.8rem;" class="fw-bold text-uppercase mb-2">
+                        <i class="fas fa-trophy me-1 text-warning"></i>Mais Vendidos
+                    </h6>
+                    <div class="table-responsive" style="max-height:160px;overflow-y:auto;">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr><th></th><th style="font-size:0.72rem;">Produto</th><th style="font-size:0.72rem;">Qtd</th><th style="font-size:0.72rem;">Receita</th></tr>
+                            </thead>
+                            <tbody>${topProdHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menos vendidos -->
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <h6 style="font-size:0.8rem;" class="fw-bold text-uppercase mb-2">
+                        <i class="fas fa-arrow-down me-1 text-danger"></i>Menor Saída
+                    </h6>
+                    <div class="table-responsive" style="max-height:160px;overflow-y:auto;">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr><th style="font-size:0.72rem;">Produto</th><th style="font-size:0.72rem;">Qtd</th><th style="font-size:0.72rem;">Receita</th></tr>
+                            </thead>
+                            <tbody>${baixoProdHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>`;
 }
 
 /* Aba Produtos */
@@ -531,8 +769,11 @@ function _renderAdminUsuarios() {
                 : '<span class="badge bg-light text-muted border" style="font-size:0.62rem;">Usuário</span>'}</td>
             <td>
                 <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="_renderAdminDetalheUsuario('${u.id}')" title="Relatório">
+                    <button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="_renderAdminDetalheUsuario('${u.id}')" title="Histórico">
                         <i class="fas fa-chart-line" style="font-size:0.65rem;"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-success py-0 px-1" onclick="adminEditarUsuario('${u.id}')" title="Editar">
+                        <i class="fas fa-user-edit" style="font-size:0.65rem;"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-${u.isAdmin ? 'secondary' : 'warning'} py-0 px-1"
                             onclick="adminAlternarAdmin('${u.id}')"
@@ -879,13 +1120,50 @@ function adminRemoverProduto(id) {
     renderAdminAba('produtos');
 }
 
+/**
+ * Alterna promoção de um produto.
+ * Máximo de 5 produtos em promoção simultânea.
+ * Se ativando: abre prompt para definir % de desconto.
+ */
 function adminAlternarPromo(id) {
     const produto = (typeof products !== 'undefined') && products.find(p => p.id === id);
     if (!produto) return;
-    produto.promo = !produto.promo;
+
+    if (!produto.promo) {
+        // Verifica limite
+        const emPromo = products.filter(p => p.promo === true).length;
+        if (emPromo >= 5) {
+            showToast('⚠️ Limite de 5 promoções simultâneas atingido. Remova uma antes de adicionar.', 'warning');
+            return;
+        }
+
+        // Solicita percentual de desconto
+        const pctStr = prompt(`Desconto em % para "${produto.name}":\n(Deixe em branco para usar preço atual)`);
+        if (pctStr === null) return; // Cancelado
+
+        const pct = parseFloat(pctStr);
+        if (!isNaN(pct) && pct > 0 && pct < 100) {
+            produto.oldPrice = parseFloat(produto.price.toFixed(2));
+            produto.price    = parseFloat((produto.oldPrice * (1 - pct / 100)).toFixed(2));
+        } else if (pctStr.trim() !== '') {
+            showToast('⚠️ Percentual inválido. Use um número entre 1 e 99.', 'warning');
+            return;
+        }
+
+        produto.promo = true;
+        showToast(`"${produto.name}" em promoção! 🔥${!isNaN(pct) && pct > 0 ? ' Desconto: ' + pct + '%' : ''}`, 'success');
+    } else {
+        // Remover promoção: restaura preço original se havia desconto
+        if (produto.oldPrice) {
+            produto.price    = produto.oldPrice;
+            produto.oldPrice = null;
+        }
+        produto.promo = false;
+        showToast(`"${produto.name}" saiu da promoção.`, 'warning');
+    }
+
     _persistirProduto(id);
     if (typeof renderProducts === 'function') renderProducts(products);
-    showToast(produto.promo ? `"${produto.name}" em promoção! 🔥` : `"${produto.name}" saiu da promoção.`, produto.promo ? 'success' : 'warning');
     renderAdminAba('produtos');
 }
 
@@ -910,6 +1188,180 @@ function adminAlternarAdmin(userId) {
     users[idx].isAdmin = !users[idx].isAdmin;
     _saveUsers(users);
     showToast(`${users[idx].nome}: ${users[idx].isAdmin ? 'promovido a Admin ✅' : 'revertido para Usuário'}`, users[idx].isAdmin ? 'success' : 'warning');
+    renderAdminAba('usuarios');
+}
+
+/* --------------------------------------------------------------------------
+   GESTÃO DE USUÁRIOS ADMIN — editar nome, senha, foto, excluir
+   -------------------------------------------------------------------------- */
+
+/** Abre modal de edição de usuário pelo admin */
+function adminEditarUsuario(userId) {
+    const users = _getUsers();
+    const u     = users.find(u => u.id === userId);
+    if (!u) return;
+
+    const av      = _gerarDadosAvatar(u.nome);
+    const fotoHtml = u.foto
+        ? `<img src="${u.foto}" class="rounded-circle" width="52" height="52" style="object-fit:cover;border:3px solid #005eff;">`
+        : `<div class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white" style="width:52px;height:52px;font-size:1rem;background:${av.cor};">${av.iniciais}</div>`;
+
+    // Remove modal anterior se existir
+    document.getElementById('adminEditUserModal')?.remove();
+
+    const isDark = document.body.classList.contains('dark-mode');
+    const bg     = isDark ? '#1a1a2e' : '#fff';
+    const txt    = isDark ? '#e2e8f0' : '#212529';
+
+    const el = document.createElement('div');
+    el.id        = 'adminEditUserModal';
+    el.className = 'modal fade';
+    el.tabIndex  = -1;
+    el.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+            <div class="modal-content border-0 shadow-lg" style="background:${bg};color:${txt};">
+                <div class="modal-header" style="background:linear-gradient(135deg,#005eff,#0040cc);color:#fff;border-radius:calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0;">
+                    <h6 class="modal-title fw-bold mb-0"><i class="fas fa-user-edit me-2"></i>Editar Usuário</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Avatar -->
+                    <div class="text-center mb-3">
+                        <div id="adminEditAvatar">${fotoHtml}</div>
+                        <div class="d-flex justify-content-center gap-2 mt-2">
+                            <label class="btn btn-sm btn-outline-primary" style="cursor:pointer;">
+                                <i class="fas fa-camera me-1"></i>Foto
+                                <input type="file" accept="image/*" class="d-none"
+                                       onchange="adminEditarFotoUsuario('${u.id}', this)">
+                            </label>
+                            ${u.foto ? `<button class="btn btn-sm btn-outline-danger" onclick="adminRemoverFotoUsuario('${u.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Nome -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:0.82rem;">Nome completo</label>
+                        <input type="text" id="adminEditNome" class="form-control form-control-sm"
+                               value="${u.nome}" placeholder="Nome completo">
+                    </div>
+
+                    <!-- Email (readonly) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:0.82rem;">E-mail <span class="text-muted">(não editável)</span></label>
+                        <input type="text" class="form-control form-control-sm" value="${u.email}" readonly
+                               style="opacity:0.6;">
+                    </div>
+
+                    <!-- Nova senha -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:0.82rem;">Nova senha <span class="text-muted">(deixe em branco para manter)</span></label>
+                        <input type="password" id="adminEditSenha" class="form-control form-control-sm"
+                               placeholder="Mínimo 6 caracteres">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                    <button class="btn btn-sm btn-outline-danger" onclick="adminExcluirUsuario('${u.id}')">
+                        <i class="fas fa-user-times me-1"></i>Excluir conta
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button class="btn btn-sm btn-primary" onclick="adminSalvarEdicaoUsuario('${u.id}')">
+                            <i class="fas fa-save me-1"></i>Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(el);
+    bootstrap.Modal.getOrCreateInstance(el).show();
+}
+
+function adminSalvarEdicaoUsuario(userId) {
+    const users  = _getUsers();
+    const idx    = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+
+    const novoNome  = document.getElementById('adminEditNome')?.value.trim();
+    const novaSenha = document.getElementById('adminEditSenha')?.value;
+
+    if (!novoNome || novoNome.length < 2) {
+        showToast('⚠️ Nome deve ter no mínimo 2 caracteres.', 'warning');
+        return;
+    }
+    if (novaSenha && novaSenha.length < 6) {
+        showToast('⚠️ Senha deve ter no mínimo 6 caracteres.', 'warning');
+        return;
+    }
+
+    users[idx].nome = novoNome;
+    if (novaSenha) {
+        users[idx].senhaHash = _hashSenha(novaSenha);
+    }
+    _saveUsers(users);
+
+    // Atualiza sessão se for o próprio usuário logado
+    const sessao = _getUsuarioSessao();
+    if (sessao?.id === userId) {
+        checkLoginPersistence();
+    }
+
+    showToast(`✅ Usuário "${novoNome}" atualizado.`, 'success');
+    bootstrap.Modal.getInstance(document.getElementById('adminEditUserModal'))?.hide();
+    renderAdminAba('usuarios');
+}
+
+function adminEditarFotoUsuario(userId, input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Imagem muito grande (máx. 2MB).', 'warning'); return; }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const users = _getUsers();
+        const idx   = users.findIndex(u => u.id === userId);
+        if (idx === -1) return;
+        users[idx].foto = e.target.result;
+        _saveUsers(users);
+        // Atualiza preview no modal
+        const el = document.getElementById('adminEditAvatar');
+        if (el) el.innerHTML = `<img src="${e.target.result}" class="rounded-circle" width="52" height="52" style="object-fit:cover;border:3px solid #005eff;">`;
+        showToast('✅ Foto atualizada.', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function adminRemoverFotoUsuario(userId) {
+    const users = _getUsers();
+    const idx   = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+    delete users[idx].foto;
+    _saveUsers(users);
+    const el = document.getElementById('adminEditAvatar');
+    if (el) {
+        const av = _gerarDadosAvatar(users[idx].nome);
+        el.innerHTML = `<div class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white" style="width:52px;height:52px;font-size:1rem;background:${av.cor};">${av.iniciais}</div>`;
+    }
+    showToast('Foto removida.', 'warning');
+}
+
+function adminExcluirUsuario(userId) {
+    const sessao = _getUsuarioSessao();
+    if (sessao?.id === userId) {
+        showToast('⚠️ Você não pode excluir sua própria conta.', 'danger');
+        return;
+    }
+    const users = _getUsers();
+    const u     = users.find(u => u.id === userId);
+    if (!u) return;
+
+    if (!confirm(`Excluir permanentemente a conta de "${u.nome}"? Esta ação não pode ser desfeita.`)) return;
+
+    const atualizados = users.filter(u => u.id !== userId);
+    _saveUsers(atualizados);
+    showToast(`🗑️ Conta de "${u.nome}" excluída.`, 'warning');
+    bootstrap.Modal.getInstance(document.getElementById('adminEditUserModal'))?.hide();
     renderAdminAba('usuarios');
 }
 
@@ -1054,42 +1506,108 @@ function abrirModalComprovante(pedido) {
         document.body.appendChild(modalEl);
     }
 
+    // Ícone do pagamento
+    const pgtoIconMap = { 'Pix': 'fa-qrcode', 'Cartão': 'fa-credit-card', 'Boleto': 'fa-barcode' };
+    const pgtoIcon   = pgtoIconMap[pedido.pagamento] || 'fa-money-bill';
+    const statusCor  = pedido.status === 'Cancelado' ? '#dc3545' : '#27ae60';
+    const pedidoJSON = JSON.stringify(pedido).replace(/"/g,'&quot;');
+    const dataHora   = pedido.hora ? `${pedido.data} às ${pedido.hora}` : pedido.data;
+
     modalEl.innerHTML = `
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px;">
-            <div class="modal-content border-0 shadow-lg" style="background:${isDark ? '#1a1a2e' : '#fff'};color:${textColor};">
-                <div class="modal-header border-0" style="background:linear-gradient(135deg,#005eff,#0040cc);color:#fff;border-radius:calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0;">
-                    <div>
-                        <h6 class="modal-title fw-bold mb-0">
-                            <i class="fas fa-receipt me-2"></i>Comprovante #${pedido.id}
-                        </h6>
-                        <small style="opacity:0.75;">${pedido.data} · ${pedido.pagamento || 'Pagamento'}</small>
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable comprovante-dialog">
+            <div class="modal-content border-0 shadow-lg comprovante-content" style="background:${isDark ? '#1a1a2e' : '#fff'};color:${textColor};">
+
+                <!-- HEADER GRADIENTE -->
+                <div class="comprovante-header">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-receipt" style="font-size:1.2rem;opacity:0.9;"></i>
+                                <span class="fw-bold" style="font-size:1rem;">Comprovante de Pedido</span>
+                            </div>
+                            <div style="font-size:0.82rem;opacity:0.8;">
+                                <span class="comprovante-numero">#${pedido.id}</span>
+                                &nbsp;·&nbsp;${dataHora}
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="margin-top:2px;"></button>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                    <!-- Status badge -->
+                    <div class="mt-3 d-flex align-items-center gap-3 flex-wrap">
+                        <span class="comprovante-status-badge" style="background:${statusCor}20;border:1px solid ${statusCor};color:${statusCor === '#27ae60' ? '#fff' : '#fff'};">
+                            <i class="fas fa-check-circle me-1" style="color:${statusCor};"></i>
+                            <span style="color:#fff;">${pedido.status || 'Confirmado'}</span>
+                        </span>
+                        <span class="comprovante-pgto-badge">
+                            <i class="fas ${pgtoIcon} me-1"></i>${pedido.pagamento || 'Não informado'}
+                        </span>
+                    </div>
                 </div>
-                <div class="modal-body p-3">
-                    <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;">
+
+                <!-- BODY -->
+                <div class="modal-body comprovante-body">
+
+                    <!-- Itens do pedido -->
+                    <div class="comprovante-section-title">
+                        <i class="fas fa-shopping-bag me-1"></i> ITENS DO PEDIDO
+                    </div>
+                    <div class="comprovante-itens-lista" style="max-height:240px;overflow-y:auto;">
                         ${itensHtml}
                     </div>
-                    <div class="p-3 rounded-3" style="background:${bgCard};border:1px solid ${borderCol};">
-                        <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem;">
-                            <span class="text-muted">Subtotal</span>
+
+                    <!-- Resumo financeiro -->
+                    <div class="comprovante-resumo" style="background:${bgCard};border:1px solid ${borderCol};">
+                        <div class="comprovante-resumo-linha">
+                            <span>Subtotal (${(pedido.itens||[]).reduce((s,i)=>s+i.quantity,0)} itens)</span>
                             <span>R$&nbsp;${subtotal.toFixed(2)}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2" style="font-size:0.82rem;">
-                            <span class="text-muted">Frete (${freteNome}${fretePrazo ? ' · ' + fretePrazo : ''})</span>
+                        <div class="comprovante-resumo-linha">
+                            <span class="text-muted">Frete — ${freteNome}${fretePrazo ? ' (' + fretePrazo + ')' : ''}</span>
                             <span class="${freteVal === 0 ? 'text-success fw-bold' : ''}">${freteVal === 0 ? 'GRÁTIS' : 'R$&nbsp;' + freteVal.toFixed(2)}</span>
                         </div>
-                        <div class="d-flex justify-content-between fw-bold pt-2" style="border-top:1px solid ${borderCol};font-size:0.95rem;">
-                            <span>Total</span>
-                            <span class="text-primary">R$&nbsp;${pedido.total.toFixed(2)}</span>
+                        <div class="comprovante-resumo-total" style="border-top:2px solid ${borderCol};">
+                            <span class="fw-bold" style="font-size:0.95rem;">TOTAL</span>
+                            <span class="fw-bold text-primary" style="font-size:1.05rem;">R$&nbsp;${pedido.total.toFixed(2)}</span>
                         </div>
                     </div>
-                    ${pedido.endereco ? `<div class="mt-2 small text-muted"><i class="fas fa-map-marker-alt me-1"></i>${pedido.endereco}</div>` : ''}
+
+                    <!-- Detalhes de pagamento e entrega -->
+                    <div class="row g-2 mt-1">
+                        <div class="col-6">
+                            <div class="comprovante-info-card" style="background:${bgCard};border:1px solid ${borderCol};">
+                                <div class="comprovante-info-label"><i class="fas ${pgtoIcon} me-1 text-primary"></i>PAGAMENTO</div>
+                                <div class="comprovante-info-val">${pedido.pagamento || '—'}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="comprovante-info-card" style="background:${bgCard};border:1px solid ${borderCol};">
+                                <div class="comprovante-info-label"><i class="fas fa-truck me-1 text-primary"></i>ENTREGA</div>
+                                <div class="comprovante-info-val">${freteNome}${fretePrazo ? `<br><small style="opacity:.7;">${fretePrazo}</small>` : ''}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${pedido.endereco ? `
+                    <div class="comprovante-endereco" style="background:${bgCard};border:1px solid ${borderCol};">
+                        <div class="comprovante-info-label"><i class="fas fa-map-marker-alt me-1 text-primary"></i>ENDEREÇO DE ENTREGA</div>
+                        <div style="font-size:0.8rem;">${pedido.endereco}</div>
+                    </div>` : ''}
+
+                    <!-- Rodapé do comprovante -->
+                    <div class="comprovante-rodape text-center text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Pedido processado com segurança pela FixTintas
+                    </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-                    <button class="btn btn-primary btn-sm" onclick="gerarComprovantePDF(${JSON.stringify(pedido).replace(/"/g,'&quot;')})">
-                        <i class="fas fa-download me-1"></i>Baixar PDF
+
+                <!-- FOOTER -->
+                <div class="modal-footer comprovante-footer">
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Fechar
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="gerarComprovantePDF(${pedidoJSON})">
+                        <i class="fas fa-file-pdf me-1"></i>Baixar PDF
                     </button>
                 </div>
             </div>
@@ -1206,36 +1724,36 @@ const products = [
     { id: 4,  name: "Tinta Toque de Seda",          category: "interior",    sub: "fosca",        brand: "sherwin", price: 58.0,  oldPrice: 97.0,   promo: true,  estoque: 18, desc: "Acabamento acetinado com toque aveludado fino.",                        img: "https://placehold.co/400x400/005eff/fff?text=Toque+Seda",      sugestoes: [12, 14, 15] },
     { id: 23, name: "Tinta Direto no Gesso",        category: "interior",    sub: "latex",        brand: "coral",   price: 48.0,  oldPrice: 80.0,   promo: true,  estoque: 22, desc: "Não precisa de fundo, fixa direto na placa de gesso.",                  img: "https://placehold.co/400x400/005eff/fff?text=Gesso+Coral",     sugestoes: [11, 21, 15] },
     // --- TINTAS EXTERIOR ---
-    { id: 5,  name: "Tinta Acrílica Emborrachada",  category: "exterior",    sub: "acrilica-ext", brand: "coral",   price: 80.0,  oldPrice: 133.0,  promo: true,  estoque: 15, desc: "Acompanha a dilatação da parede, evitando microfissuras.",              img: "https://placehold.co/400x400/005eff/fff?text=Emborrachada",    sugestoes: [11, 27, 16] },
-    { id: 6,  name: "Impermeabilizante Fachada",    category: "exterior",    sub: "impermeavel",  brand: "sherwin", price: 120.0, oldPrice: 200.0,  promo: true,  estoque: 12, desc: "Proteção máxima contra infiltrações e batida de chuva.",                img: "https://placehold.co/400x400/005eff/fff?text=Impermeavel",     sugestoes: [11, 13, 16] },
-    { id: 17, name: "Textura Rústica",              category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 85.0,  oldPrice: 142.0,  promo: true,  estoque: 20, desc: "Efeito riscado decorativo de alta resistência.",                        img: "https://placehold.co/400x400/005eff/fff?text=Textura+Rustica", sugestoes: [28, 21, 14] },
-    { id: 24, name: "Tinta para Pisos",             category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 72.0,  oldPrice: 120.0,  promo: true,  estoque: 17, desc: "Alta resistência a tráfego de pessoas e carros.",                       img: "https://placehold.co/400x400/005eff/fff?text=Piso+Resistente", sugestoes: [11, 22, 13] },
+    { id: 5,  name: "Tinta Acrílica Emborrachada",  category: "exterior",    sub: "acrilica-ext", brand: "coral",   price: 80.0,  estoque: 15, desc: "Acompanha a dilatação da parede, evitando microfissuras.",              img: "https://placehold.co/400x400/005eff/fff?text=Emborrachada",    sugestoes: [11, 27, 16] },
+    { id: 6,  name: "Impermeabilizante Fachada",    category: "exterior",    sub: "impermeavel",  brand: "sherwin", price: 120.0,  estoque: 12, desc: "Proteção máxima contra infiltrações e batida de chuva.",                img: "https://placehold.co/400x400/005eff/fff?text=Impermeavel",     sugestoes: [11, 13, 16] },
+    { id: 17, name: "Textura Rústica",              category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 85.0,  estoque: 20, desc: "Efeito riscado decorativo de alta resistência.",                        img: "https://placehold.co/400x400/005eff/fff?text=Textura+Rustica", sugestoes: [28, 21, 14] },
+    { id: 24, name: "Tinta para Pisos",             category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 72.0,  estoque: 17, desc: "Alta resistência a tráfego de pessoas e carros.",                       img: "https://placehold.co/400x400/005eff/fff?text=Piso+Resistente", sugestoes: [11, 22, 13] },
     // --- MÓVEIS E MADEIRAS ---
-    { id: 7,  name: "Esmalte Sintético Premium",    category: "moveis",      sub: "esmalte",      brand: "suvinil", price: 45.0,  oldPrice: 75.0,   promo: true,  estoque: 28, desc: "Máxima durabilidade para madeiras, portas e metais.",                   img: "https://placehold.co/400x400/005eff/fff?text=Esmalte+Luxo",    sugestoes: [12, 22, 15] },
-    { id: 8,  name: "Verniz Marítimo",              category: "moveis",      sub: "verniz",       brand: "coral",   price: 70.0,  oldPrice: 117.0,  promo: true,  estoque: 14, desc: "Proteção UV e contra maresia para ambientes externos.",                 img: "https://placehold.co/400x400/005eff/fff?text=Verniz+Maritimo", sugestoes: [12, 15, 22] },
-    { id: 18, name: "Stain Impregnante",            category: "moveis",      sub: "verniz",       brand: "sherwin", price: 78.0,  oldPrice: 130.0,  promo: true,  estoque: 10, desc: "Não descasca, protege a madeira de dentro para fora.",                  img: "https://placehold.co/400x400/005eff/fff?text=Stain+Madeira",   sugestoes: [12, 15, 30] },
-    { id: 25, name: "Tinta Spray Multiuso",         category: "moveis",      sub: "esmalte",      brand: "sherwin", price: 25.0,  oldPrice: 42.0,   promo: true,  estoque: 50, desc: "Secagem rápida para pequenos reparos e artesanato.",                    img: "https://placehold.co/400x400/005eff/fff?text=Spray+Sherwin",   sugestoes: [14, 15, 30] },
+    { id: 7,  name: "Esmalte Sintético Premium",    category: "moveis",      sub: "esmalte",      brand: "suvinil", price: 45.0,  estoque: 28, desc: "Máxima durabilidade para madeiras, portas e metais.",                   img: "https://placehold.co/400x400/005eff/fff?text=Esmalte+Luxo",    sugestoes: [12, 22, 15] },
+    { id: 8,  name: "Verniz Marítimo",              category: "moveis",      sub: "verniz",       brand: "coral",   price: 70.0,  estoque: 14, desc: "Proteção UV e contra maresia para ambientes externos.",                 img: "https://placehold.co/400x400/005eff/fff?text=Verniz+Maritimo", sugestoes: [12, 15, 22] },
+    { id: 18, name: "Stain Impregnante",            category: "moveis",      sub: "verniz",       brand: "sherwin", price: 78.0,  estoque: 10, desc: "Não descasca, protege a madeira de dentro para fora.",                  img: "https://placehold.co/400x400/005eff/fff?text=Stain+Madeira",   sugestoes: [12, 15, 30] },
+    { id: 25, name: "Tinta Spray Multiuso",         category: "moveis",      sub: "esmalte",      brand: "sherwin", price: 25.0,  estoque: 50, desc: "Secagem rápida para pequenos reparos e artesanato.",                    img: "https://placehold.co/400x400/005eff/fff?text=Spray+Sherwin",   sugestoes: [14, 15, 30] },
     // --- ESPECIAIS ---
-    { id: 9,  name: "Tinta Epóxi Base Água",        category: "especial",    sub: "epoxi",        brand: "suvinil", price: 155.0, oldPrice: 258.0,  promo: true,  estoque: 8,  desc: "Resistência extrema para pisos, banheiros e cozinhas.",                 img: "https://placehold.co/400x400/005eff/fff?text=Epoxi+Agua",      sugestoes: [11, 13, 22] },
-    { id: 10, name: "Tinta Térmica Refletiva",      category: "especial",    sub: "termica",      brand: "sherwin", price: 210.0, oldPrice: 350.0,  promo: true,  estoque: 5,  desc: "Reduz a temperatura interna e economiza energia.",                      img: "https://placehold.co/400x400/005eff/fff?text=Tinta+Termica",   sugestoes: [11, 16, 13] },
-    { id: 26, name: "Esmalte Vitrificado",          category: "especial",    sub: "epoxi",        brand: "coral",   price: 180.0, oldPrice: 300.0,  promo: true,  estoque: 6,  desc: "Acabamento de alto brilho que parece vidro.",                           img: "https://placehold.co/400x400/005eff/fff?text=Vitrificar",      sugestoes: [12, 22, 14] },
+    { id: 9,  name: "Tinta Epóxi Base Água",        category: "especial",    sub: "epoxi",        brand: "suvinil", price: 155.0,  estoque: 8,  desc: "Resistência extrema para pisos, banheiros e cozinhas.",                 img: "https://placehold.co/400x400/005eff/fff?text=Epoxi+Agua",      sugestoes: [11, 13, 22] },
+    { id: 10, name: "Tinta Térmica Refletiva",      category: "especial",    sub: "termica",      brand: "sherwin", price: 210.0,  estoque: 5,  desc: "Reduz a temperatura interna e economiza energia.",                      img: "https://placehold.co/400x400/005eff/fff?text=Tinta+Termica",   sugestoes: [11, 16, 13] },
+    { id: 26, name: "Esmalte Vitrificado",          category: "especial",    sub: "epoxi",        brand: "coral",   price: 180.0,  estoque: 6,  desc: "Acabamento de alto brilho que parece vidro.",                           img: "https://placehold.co/400x400/005eff/fff?text=Vitrificar",      sugestoes: [12, 22, 14] },
     // --- PREPARAÇÃO ---
-    { id: 19, name: "Massa Corrida",               category: "interior",    sub: "acrilica",     brand: "suvinil", price: 35.0,  oldPrice: 58.0,   promo: true,  estoque: 35, desc: "Fácil de lixar, ideal para nivelar paredes internas.",                  img: "https://placehold.co/400x400/005eff/fff?text=Massa+Corrida",   sugestoes: [21, 15, 30] },
-    { id: 20, name: "Selador Acrílico",            category: "interior",    sub: "acrilica",     brand: "coral",   price: 38.0,  oldPrice: 63.0,   promo: true,  estoque: 30, desc: "Uniformiza a absorção da parede, economizando tinta.",                  img: "https://placehold.co/400x400/005eff/fff?text=Selador",         sugestoes: [11, 13, 1]  },
-    { id: 27, name: "Massa Acrílica (Externa)",    category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 45.0,  oldPrice: 75.0,   promo: true,  estoque: 20, desc: "Resistente à umidade, perfeita para fachadas.",                         img: "https://placehold.co/400x400/005eff/fff?text=Massa+Acrilica",  sugestoes: [21, 28, 30] },
+    { id: 19, name: "Massa Corrida",               category: "interior",    sub: "acrilica",     brand: "suvinil", price: 35.0,  estoque: 35, desc: "Fácil de lixar, ideal para nivelar paredes internas.",                  img: "https://placehold.co/400x400/005eff/fff?text=Massa+Corrida",   sugestoes: [21, 15, 30] },
+    { id: 20, name: "Selador Acrílico",            category: "interior",    sub: "acrilica",     brand: "coral",   price: 38.0,  estoque: 30, desc: "Uniformiza a absorção da parede, economizando tinta.",                  img: "https://placehold.co/400x400/005eff/fff?text=Selador",         sugestoes: [11, 13, 1]  },
+    { id: 27, name: "Massa Acrílica (Externa)",    category: "exterior",    sub: "acrilica-ext", brand: "suvinil", price: 45.0,  estoque: 20, desc: "Resistente à umidade, perfeita para fachadas.",                         img: "https://placehold.co/400x400/005eff/fff?text=Massa+Acrilica",  sugestoes: [21, 28, 30] },
     // --- FERRAMENTAS ---
-    { id: 11, name: "Rolo de Lã Antirespingo",     category: "ferramentas", sub: "rolos",        brand: "atlas",   price: 28.0,  oldPrice: 47.0,   promo: true,  estoque: 60, desc: "Pintura limpa e uniforme para superfícies lisas.",                      img: "https://placehold.co/400x400/005eff/fff?text=Rolo+Atlas",      sugestoes: [13, 16, 14] },
-    { id: 12, name: "Trincha Pro de Cerdas",       category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 12.5,  oldPrice: 21.0,   promo: true,  estoque: 45, desc: "Cerdas sintéticas para acabamentos e recortes.",                        img: "https://placehold.co/400x400/005eff/fff?text=Pincel+Tigre",    sugestoes: [14, 22, 15] },
-    { id: 13, name: "Bandeja para Pintura G",      category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 15.0,  oldPrice: 25.0,   promo: true,  estoque: 38, desc: "Capacidade para 2 litros, bico escorredor.",                            img: "https://placehold.co/400x400/005eff/fff?text=Bandeja+G",       sugestoes: [11, 12, 29] },
-    { id: 21, name: "Espátula de Aço Inox",        category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 18.0,  oldPrice: 30.0,   promo: true,  estoque: 25, desc: "Para aplicação de massas e remoção de resíduos.",                       img: "https://placehold.co/400x400/005eff/fff?text=Espatula+Inox",   sugestoes: [19, 27, 15] },
-    { id: 28, name: "Desempenadeira de Aço",       category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 32.0,  oldPrice: 53.0,   promo: true,  estoque: 18, desc: "Ideal para aplicar massa corrida e texturas.",                          img: "https://placehold.co/400x400/005eff/fff?text=Desempenadeira",  sugestoes: [27, 21, 30] },
+    { id: 11, name: "Rolo de Lã Antirespingo",     category: "ferramentas", sub: "rolos",        brand: "atlas",   price: 28.0,  estoque: 60, desc: "Pintura limpa e uniforme para superfícies lisas.",                      img: "https://placehold.co/400x400/005eff/fff?text=Rolo+Atlas",      sugestoes: [13, 16, 14] },
+    { id: 12, name: "Trincha Pro de Cerdas",       category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 12.5,  estoque: 45, desc: "Cerdas sintéticas para acabamentos e recortes.",                        img: "https://placehold.co/400x400/005eff/fff?text=Pincel+Tigre",    sugestoes: [14, 22, 15] },
+    { id: 13, name: "Bandeja para Pintura G",      category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 15.0,  estoque: 38, desc: "Capacidade para 2 litros, bico escorredor.",                            img: "https://placehold.co/400x400/005eff/fff?text=Bandeja+G",       sugestoes: [11, 12, 29] },
+    { id: 21, name: "Espátula de Aço Inox",        category: "ferramentas", sub: "pinceis",      brand: "tigre",   price: 18.0,  estoque: 25, desc: "Para aplicação de massas e remoção de resíduos.",                       img: "https://placehold.co/400x400/005eff/fff?text=Espatula+Inox",   sugestoes: [19, 27, 15] },
+    { id: 28, name: "Desempenadeira de Aço",       category: "ferramentas", sub: "bandejas",     brand: "atlas",   price: 32.0,  estoque: 18, desc: "Ideal para aplicar massa corrida e texturas.",                          img: "https://placehold.co/400x400/005eff/fff?text=Desempenadeira",  sugestoes: [27, 21, 30] },
     // --- ACESSÓRIOS E PROTEÇÃO ---
-    { id: 14, name: "Fita Crepe Azul UV",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 15.9,  oldPrice: 26.5,   promo: true,  estoque: 80, desc: "Resistente ao sol, não deixa cola por até 14 dias.",                    img: "https://placehold.co/400x400/005eff/fff?text=Fita+Azul+3M",   sugestoes: [29, 11, 1]  },
-    { id: 15, name: "Kit Lixas Grão Variado",      category: "acessorios",  sub: "lixas",        brand: "norton",  price: 8.5,   oldPrice: 14.0,   promo: true,  estoque: 70, desc: "Pack com 5 unidades para diversos acabamentos.",                        img: "https://placehold.co/400x400/005eff/fff?text=Kit+Lixas",       sugestoes: [19, 21, 30] },
-    { id: 16, name: "Extensor Telescópico",        category: "acessorios",  sub: "extensores",   brand: "atlas",   price: 35.0,  oldPrice: 58.0,   promo: true,  estoque: 22, desc: "Estrutura leve de alumínio reforçado.",                                 img: "https://placehold.co/400x400/005eff/fff?text=Extensor",        sugestoes: [11, 13, 6]  },
-    { id: 22, name: "Aguarrás Mineral 900ml",      category: "acessorios",  sub: "fitas",        brand: "suvinil", price: 22.0,  oldPrice: 37.0,   promo: true,  estoque: 33, desc: "Solvente ideal para diluir esmaltes e limpar ferramentas.",              img: "https://placehold.co/400x400/005eff/fff?text=Aguarras",        sugestoes: [7, 8, 12]   },
-    { id: 29, name: "Lona Plástica 4x4m",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 12.0,  oldPrice: 20.0,   promo: true,  estoque: 42, desc: "Proteção de móveis e pisos contra respingos.",                          img: "https://placehold.co/400x400/005eff/fff?text=Lona+Protecao",   sugestoes: [14, 11, 30] },
-    { id: 30, name: "Máscara Respiratória PFF2",   category: "acessorios",  sub: "extensores",   brand: "norton",  price: 7.5,   oldPrice: 12.5,   promo: true,  estoque: 55, desc: "Proteção contra poeira de lixamento e odores.",                         img: "https://placehold.co/400x400/005eff/fff?text=Mascara+EPI",     sugestoes: [15, 19, 27] }
+    { id: 14, name: "Fita Crepe Azul UV",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 15.9,  estoque: 80, desc: "Resistente ao sol, não deixa cola por até 14 dias.",                    img: "https://placehold.co/400x400/005eff/fff?text=Fita+Azul+3M",   sugestoes: [29, 11, 1]  },
+    { id: 15, name: "Kit Lixas Grão Variado",      category: "acessorios",  sub: "lixas",        brand: "norton",  price: 8.5,  estoque: 70, desc: "Pack com 5 unidades para diversos acabamentos.",                        img: "https://placehold.co/400x400/005eff/fff?text=Kit+Lixas",       sugestoes: [19, 21, 30] },
+    { id: 16, name: "Extensor Telescópico",        category: "acessorios",  sub: "extensores",   brand: "atlas",   price: 35.0,  estoque: 22, desc: "Estrutura leve de alumínio reforçado.",                                 img: "https://placehold.co/400x400/005eff/fff?text=Extensor",        sugestoes: [11, 13, 6]  },
+    { id: 22, name: "Aguarrás Mineral 900ml",      category: "acessorios",  sub: "fitas",        brand: "suvinil", price: 22.0,  estoque: 33, desc: "Solvente ideal para diluir esmaltes e limpar ferramentas.",              img: "https://placehold.co/400x400/005eff/fff?text=Aguarras",        sugestoes: [7, 8, 12]   },
+    { id: 29, name: "Lona Plástica 4x4m",          category: "acessorios",  sub: "fitas",        brand: "3m",      price: 12.0,  estoque: 42, desc: "Proteção de móveis e pisos contra respingos.",                          img: "https://placehold.co/400x400/005eff/fff?text=Lona+Protecao",   sugestoes: [14, 11, 30] },
+    { id: 30, name: "Máscara Respiratória PFF2",   category: "acessorios",  sub: "extensores",   brand: "norton",  price: 7.5,  estoque: 55, desc: "Proteção contra poeira de lixamento e odores.",                         img: "https://placehold.co/400x400/005eff/fff?text=Mascara+EPI",     sugestoes: [15, 19, 27] }
 ];
 
 /* ==========================================================================
@@ -3504,14 +4022,21 @@ function processarCompraFinal() {
     const totalItens = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const totalFinal = totalItens + freteValor;
 
+    const agora = new Date();
     const novoPedido = {
         id:       Math.floor(Math.random() * 9000) + 1000,
-        data:     new Date().toLocaleDateString('pt-BR'),
+        data:     agora.toLocaleDateString('pt-BR'),
+        hora:     agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        dataHora: agora.toISOString(),
         itens:    [...cart],
+        subtotal: totalItens,
         total:    totalFinal,
         frete:    { nome: freteNome, prazo: fretePrazo, valor: freteValor, label: freteLabel },
         endereco:  enderecoCompleto,
-        pagamento: metodoPagamento
+        pagamento: metodoPagamento,
+        status:    'Confirmado',
+        userId:    _getUsuarioSessao()?.id || null,
+        email:     _getUsuarioSessao()?.email || null,
     };
 
     let historico = JSON.parse(localStorage.getItem('fixtintas_orders')) || [];
@@ -5382,3 +5907,218 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+/* ==========================================================================
+   FIXBOT — Chatbot de Atendimento ao Cliente
+   ========================================================================== */
+
+/** Base de conhecimento do FixBot */
+const FIXBOT_KB = [
+    // Saudações
+    {
+        gatilhos: ['oi', 'olá', 'ola', 'boa tarde', 'bom dia', 'boa noite', 'hey', 'hello', 'hi'],
+        resposta: () => `Olá! 👋 Sou o <strong>FixBot</strong>, assistente da FixTintas.<br>
+Como posso te ajudar hoje?<br><br>
+<em>Diga algo como: "como escolher tinta", "ver promoções", "prazo de entrega"</em>`
+    },
+    // Tintas interior
+    {
+        gatilhos: ['tinta interior', 'sala', 'quarto', 'interior', 'ambiente interno', 'casa'],
+        resposta: () => `Para <strong>ambientes internos</strong> recomendamos:<br><br>
+🎨 <strong>Acrílica Premium</strong> — alta cobertura e lavável<br>
+🎨 <strong>Fosca</strong> — ideal para disfarçar imperfeições<br>
+🎨 <strong>Látex Standard</strong> — custo-benefício para tetos<br><br>
+Quer ver esses produtos? <a href="javascript:void(0)" onclick="filterCategory('interior');_fixbotClose()">Ver tintas internas →</a>`
+    },
+    // Tintas exterior
+    {
+        gatilhos: ['exterior', 'fachada', 'externo', 'quintal', 'varanda', 'área externa'],
+        resposta: () => `Para <strong>áreas externas</strong> e fachadas:<br><br>
+🏠 <strong>Acrílica Emborrachada</strong> — flexível contra fissuras<br>
+🏠 <strong>Impermeabilizante</strong> — proteção contra infiltrações<br>
+🏠 <strong>Textura Rústica</strong> — efeito decorativo durável<br><br>
+<a href="javascript:void(0)" onclick="filterCategory('exterior');_fixbotClose()">Ver tintas externas →</a>`
+    },
+    // Como escolher
+    {
+        gatilhos: ['como escolher', 'qual tinta', 'me indica', 'me indique', 'me recomenda', 'me ajuda escolher'],
+        resposta: () => `Para escolher a tinta certa, considere:<br><br>
+1️⃣ <strong>Local:</strong> interno ou externo?<br>
+2️⃣ <strong>Superfície:</strong> parede, madeira, metal ou piso?<br>
+3️⃣ <strong>Acabamento:</strong> fosco, acetinado ou brilhante?<br>
+4️⃣ <strong>Orçamento:</strong> temos opções de R$&nbsp;39 a R$&nbsp;250<br><br>
+Use nossa <a href="javascript:void(0)" onclick="document.querySelector('[data-bs-target=\'#calcModal\']')?.click();_fixbotClose()">
+🧮 Calculadora de Tinta</a> para saber a quantidade exata!`
+    },
+    // Frete
+    {
+        gatilhos: ['frete', 'entrega', 'prazo', 'quanto tempo', 'quando chega', 'cep'],
+        resposta: () => `Nossas opções de frete:<br><br>
+🚚 <strong>PAC</strong> — econômico, 7-12 dias úteis<br>
+⚡ <strong>SEDEX</strong> — expresso, 1-3 dias úteis<br>
+📅 <strong>Agendado</strong> — você escolhe o dia<br><br>
+O frete é calculado pelo CEP no checkout. <strong>Compras acima de R$&nbsp;299 ganham frete grátis!</strong> 🎉`
+    },
+    // Promoções
+    {
+        gatilhos: ['promo', 'desconto', 'oferta', 'barato', 'liquidação', 'em oferta'],
+        resposta: () => {
+            const emPromo = (typeof products !== 'undefined') ? products.filter(p => p.promo) : [];
+            if (!emPromo.length) return `No momento não há promoções ativas. Fique de olho! 👀`;
+            const lista = emPromo.slice(0, 3).map(p =>
+                `• <a href="javascript:void(0)" onclick="showProductDetails(${p.id});_fixbotClose()"><strong>${p.name}</strong></a> — R$&nbsp;${p.price.toFixed(2)}`
+            ).join('<br>');
+            return `🔥 Temos <strong>${emPromo.length} produto(s) em promoção</strong>!<br><br>${lista}<br><br>
+<a href="javascript:void(0)" onclick="filterPromo();_fixbotClose()">Ver todas as promoções →</a>`;
+        }
+    },
+    // Pagamento
+    {
+        gatilhos: ['pagamento', 'pagar', 'pix', 'cartão', 'boleto', 'forma de pagamento'],
+        resposta: () => `Aceitamos:<br><br>
+💳 <strong>Cartão de crédito/débito</strong><br>
+📱 <strong>PIX</strong> — aprovação instantânea<br>
+📄 <strong>Boleto bancário</strong> — vencimento em 3 dias úteis<br><br>
+Todas as compras são processadas com <strong>segurança SSL</strong> 🔒`
+    },
+    // Devolução / troca
+    {
+        gatilhos: ['devolução', 'troca', 'devolver', 'trocar', 'arrependimento', 'errei'],
+        resposta: () => `Temos <strong>7 dias</strong> para devolução por arrependimento.<br><br>
+📋 <strong>Condições:</strong><br>
+• Produto sem abertura<br>
+• Nota fiscal em mão<br>
+• Entrar em contato via <a href="contato.html">nossa página de contato</a><br><br>
+Para tintas já abertas, avaliamos caso a caso. Posso te conectar ao suporte humano! 🤝`
+    },
+    // Marca
+    {
+        gatilhos: ['suvinil', 'coral', 'sherwin', 'marca', 'melhor marca'],
+        resposta: () => `Trabalhamos com as 3 maiores marcas do Brasil:<br><br>
+🔵 <strong>Suvinil</strong> — maior variedade, ótimo custo-benefício<br>
+🟠 <strong>Coral</strong> — alta qualidade para exigentes<br>
+🟢 <strong>Sherwin-Williams</strong> — premium, durabilidade superior<br><br>
+Todas com garantia de fábrica. Qual te interessa?`
+    },
+    // Login / conta
+    {
+        gatilhos: ['login', 'conta', 'cadastro', 'cadastrar', 'entrar', 'senha'],
+        resposta: () => `Para criar sua conta ou fazer login:<br><br>
+👤 Clique em <strong>"Entrar"</strong> no topo da página<br>
+📧 Use um e-mail Gmail, Outlook ou similar<br>
+🔐 Senha com mínimo 6 caracteres<br><br>
+Com conta você acessa:<br>
+• Histórico de pedidos<br>
+• Favoritos salvos<br>
+• Dados de endereço`
+    },
+    // Carrinho
+    {
+        gatilhos: ['carrinho', 'comprar', 'compra', 'pedido', 'finalizar'],
+        resposta: () => `Para finalizar sua compra:<br><br>
+1️⃣ Adicione produtos ao 🛒 carrinho<br>
+2️⃣ Faça login (se ainda não fez)<br>
+3️⃣ Confirme seu endereço com CEP<br>
+4️⃣ Escolha o método de pagamento<br>
+5️⃣ Pronto! Você recebe o comprovante 📄<br><br>
+<a href="javascript:void(0)" onclick="showCart();_fixbotClose()">Abrir meu carrinho →</a>`
+    },
+    // Sobre a loja
+    {
+        gatilhos: ['quem são', 'sobre vocês', 'sobre a loja', 'empresa', 'fixtintas'],
+        resposta: () => `A <strong>FixTintas</strong> é uma loja especializada em tintas e revestimentos.<br><br>
+🎯 <strong>Missão:</strong> facilitar sua escolha com qualidade e preço justo<br>
+📦 Mais de 30 produtos disponíveis<br>
+🏷️ Marcas: Suvinil, Coral e Sherwin-Williams<br>
+🌐 <a href="sobre.html">Leia mais sobre nós →</a>`
+    },
+    // Fallback
+    {
+        gatilhos: ['__fallback__'],
+        resposta: (msg) => `Não entendi bem <em>"${msg}"</em>. 🤔<br><br>
+Posso te ajudar com:<br>
+• <em>Como escolher tinta</em><br>
+• <em>Promoções e ofertas</em><br>
+• <em>Prazo de entrega e frete</em><br>
+• <em>Formas de pagamento</em><br>
+• <em>Sobre a loja</em>`
+    }
+];
+
+/** Processa mensagem e retorna resposta do bot */
+function _fixbotProcessar(msgRaw) {
+    const msg  = msgRaw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const item = FIXBOT_KB.find(entry =>
+        entry.gatilhos[0] !== '__fallback__' &&
+        entry.gatilhos.some(g => msg.includes(g.normalize('NFD').replace(/[\u0300-\u036f]/g, '')))
+    );
+    if (item) return item.resposta(msgRaw);
+    return FIXBOT_KB[FIXBOT_KB.length - 1].resposta(msgRaw);
+}
+
+/** Estado do chat */
+const _fixbotState = { aberto: false, historico: [] };
+
+/** Abre/fecha o chat */
+function toggleFixbot() {
+    const painel = document.getElementById('fixbot-painel');
+    if (!painel) return;
+    _fixbotState.aberto = !_fixbotState.aberto;
+    painel.classList.toggle('fixbot-aberto', _fixbotState.aberto);
+    if (_fixbotState.aberto && _fixbotState.historico.length === 0) {
+        setTimeout(() => _fixbotAdicionarMsg('bot', _fixbotProcessar('oi')), 350);
+    }
+    if (_fixbotState.aberto) {
+        document.getElementById('fixbot-input')?.focus();
+    }
+}
+
+function _fixbotClose() {
+    const painel = document.getElementById('fixbot-painel');
+    _fixbotState.aberto = false;
+    painel?.classList.remove('fixbot-aberto');
+}
+
+/** Adiciona mensagem ao histórico e render */
+function _fixbotAdicionarMsg(de, texto) {
+    _fixbotState.historico.push({ de, texto });
+    _fixbotRender();
+}
+
+/** Renderiza histórico no DOM */
+function _fixbotRender() {
+    const lista = document.getElementById('fixbot-msgs');
+    if (!lista) return;
+    lista.innerHTML = _fixbotState.historico.map(m => `
+        <div class="fixbot-msg fixbot-msg-${m.de}">
+            ${m.de === 'bot'
+                ? `<div class="fixbot-avatar"><i class="fas fa-robot"></i></div>`
+                : ''}
+            <div class="fixbot-balao">${m.texto}</div>
+        </div>`).join('');
+    lista.scrollTop = lista.scrollHeight;
+}
+
+/** Envia mensagem do usuário */
+function fixbotEnviar() {
+    const input = document.getElementById('fixbot-input');
+    const msg   = input?.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    _fixbotAdicionarMsg('user', msg);
+
+    // Simula digitação do bot
+    setTimeout(() => {
+        _fixbotAdicionarMsg('bot', _fixbotProcessar(msg));
+    }, 480);
+}
+
+/** Enter para enviar */
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement?.id === 'fixbot-input') fixbotEnviar();
+});
+
+/* ==========================================================================
+   FIM FIXBOT
+   ========================================================================== */
