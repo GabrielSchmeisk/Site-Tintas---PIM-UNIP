@@ -2,6 +2,1202 @@
    1. BANCO DE DADOS DE PRODUTOS
    ========================================================================== */
 // Array principal de produtos da loja
+/* ==========================================================================
+   MÓDULO: AUTENTICAÇÃO, BANCO LOCAL, ADMIN, PERSISTÊNCIA, SEGURANÇA
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CONSTANTES E CHAVES DE ARMAZENAMENTO
+   -------------------------------------------------------------------------- */
+const DB = {
+    USERS    : 'fixtintas_users',
+    SESSION  : 'fixtintas_sessao',
+    PRODUCTS : 'fixtintas_products_override', // overrides de estoque/promo
+    ORDERS   : 'fixtintas_orders',
+    INTEGRITY: 'fixtintas_integrity',
+    EXTRA_PRODUCTS: 'fixtintas_extra_products', // produtos criados pelo admin
+    REMOVED_IDS   : 'fixtintas_removed_ids',    // IDs de produtos removidos pelo admin
+};
+
+/* --------------------------------------------------------------------------
+   2. INTEGRIDADE — Detecta alteração manual do localStorage
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   UTILITÁRIO — AVATAR (gera iniciais e cor determinística para um nome)
+   -------------------------------------------------------------------------- */
+
+function _gerarDadosAvatar(nome) {
+    const cores = ['#005eff','#e74c3c','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#c0392b','#2980b9'];
+    const safeName = nome || 'FT';
+    const partes   = safeName.trim().split(/\s+/).filter(Boolean);
+    const iniciais  = partes.length >= 2
+        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+        : safeName.substring(0, 2).toUpperCase();
+    // Cor determinística baseada no nome (mesmo nome → mesma cor sempre)
+    let hash = 0;
+    for (let i = 0; i < safeName.length; i++) {
+        hash = (hash * 31 + safeName.charCodeAt(i)) | 0;
+    }
+    const cor = cores[Math.abs(hash) % cores.length];
+    return { iniciais, cor };
+}
+
+/** Gera checksum simples do banco de usuários */
+function _checksum(data) {
+    const str  = JSON.stringify(data);
+    let hash   = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(36);
+}
+
+/** Salva checksum após qualquer escrita no banco de usuários */
+function _saveIntegrity(users) {
+    localStorage.setItem(DB.INTEGRITY, _checksum(users));
+}
+
+/** Valida a integridade do banco. Retorna true se íntegro */
+function _verificarIntegridade() {
+    const users    = _getRawUsers();
+    const salvo    = localStorage.getItem(DB.INTEGRITY);
+    if (!salvo && users.length === 0) return true; // banco vazio, sem problema
+    return _checksum(users) === salvo;
+}
+
+/** Retorna o banco bruto sem validação */
+function _getRawUsers() {
+    try { return JSON.parse(localStorage.getItem(DB.USERS)) || []; }
+    catch { return []; }
+}
+
+/* --------------------------------------------------------------------------
+   3. BANCO DE USUÁRIOS
+   -------------------------------------------------------------------------- */
+
+function _getUsers() {
+    if (!_verificarIntegridade()) {
+        console.warn('[FixTintas] Integridade do banco de usuários comprometida.');
+        showToast('⚠️ Dados de usuário corrompidos. Faça login novamente.', 'danger');
+        _encerrarSessao();
+        return [];
+    }
+    return _getRawUsers();
+}
+
+function _saveUsers(users) {
+    localStorage.setItem(DB.USERS, JSON.stringify(users));
+    _saveIntegrity(users);
+}
+
+/* --------------------------------------------------------------------------
+   4. HASH DE SENHA
+   Proteção local — para produção use bcrypt via backend
+   -------------------------------------------------------------------------- */
+function _hashSenha(senha) {
+    const salt = 'fixtintas_salt_2026';
+    const str  = senha + salt;
+    let hash   = 0;
+    for (let i = 0; i < str.length; i++) {
+        const ch = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + ch;
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(36) + str.length.toString(36);
+}
+
+/* --------------------------------------------------------------------------
+   4B. VALIDAÇÃO DE E-MAIL (domínios permitidos)
+   -------------------------------------------------------------------------- */
+
+const _DOMINIOS_PERMITIDOS = [
+    'gmail.com', 'googlemail.com',
+    'outlook.com', 'outlook.com.br', 'hotmail.com', 'hotmail.com.br',
+    'live.com', 'live.com.br', 'msn.com',
+    'yahoo.com', 'yahoo.com.br',
+    'icloud.com', 'me.com', 'mac.com',
+    'protonmail.com', 'pm.me',
+    'uol.com.br', 'bol.com.br', 'terra.com.br', 'ig.com.br', 'r7.com',
+    'fixtintas.com.br', // domínio interno
+];
+
+/**
+ * Valida se o e-mail usa um domínio permitido.
+ * Retorna true se válido, ou string de erro se inválido.
+ */
+function _validarDominioEmail(email) {
+    if (!email || !email.includes('@')) return 'E-mail inválido.';
+    const partes  = email.toLowerCase().trim().split('@');
+    if (partes.length !== 2 || !partes[1]) return 'E-mail inválido.';
+    const dominio = partes[1];
+    if (_DOMINIOS_PERMITIDOS.includes(dominio)) return true;
+    return `Utilize um e-mail válido (Gmail, Outlook, Hotmail, Yahoo, etc.).`;
+}
+
+/* --------------------------------------------------------------------------
+   5. CRUD DE USUÁRIOS
+   -------------------------------------------------------------------------- */
+
+function _findUserByEmail(email) {
+    return _getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+}
+
+function _criarUsuario({ nome, email, senha }) {
+    const users = _getUsers();
+    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+        return { ok: false, erro: 'Este e-mail já está cadastrado.' };
+    }
+    const usuario = {
+        id:        Date.now().toString(36) + Math.random().toString(36).slice(2),
+        nome,
+        email,
+        senhaHash: _hashSenha(senha),
+        foto:      null,
+        isAdmin:   users.length === 0, // primeiro usuário é admin
+        createdAt: new Date().toISOString(),
+        endereco:  null,
+    };
+    users.push(usuario);
+    _saveUsers(users);
+    return { ok: true, usuario };
+}
+
+function _autenticarUsuario(email, senha) {
+    const usuario = _findUserByEmail(email);
+    if (!usuario)                                 return { ok: false, erro: 'E-mail não encontrado. Crie uma conta.' };
+    if (usuario.senhaHash !== _hashSenha(senha))  return { ok: false, erro: 'Senha incorreta.' };
+    return { ok: true, usuario };
+}
+
+function _atualizarUsuario(campos) {
+    const sessao = _getSessaoRaw();
+    if (!sessao?.userId) return false;
+    const users = _getUsers();
+    const idx   = users.findIndex(u => u.id === sessao.userId);
+    if (idx === -1) return false;
+    Object.assign(users[idx], campos);
+    _saveUsers(users);
+    if (campos.nome)  localStorage.setItem('usuario_nome',  campos.nome);
+    if (campos.email) localStorage.setItem('usuario_email', campos.email);
+    return true;
+}
+
+/* --------------------------------------------------------------------------
+   6. SESSÃO
+   -------------------------------------------------------------------------- */
+
+function _getSessaoRaw() {
+    try {
+        return JSON.parse(localStorage.getItem(DB.SESSION))
+            || JSON.parse(sessionStorage.getItem(DB.SESSION));
+    } catch { return null; }
+}
+
+function _getUsuarioSessao() {
+    const sessao = _getSessaoRaw();
+    if (!sessao?.userId) return null;
+
+    // SEGURANÇA: usa _getUsers() com verificação de integridade.
+    // Se o localStorage foi adulterado, retorna null e invalida a sessão.
+    const users = _getUsers();
+    if (!users.length && _getSessaoRaw()) {
+        // Integridade comprometida → encerra sessão silenciosamente
+        _encerrarSessao();
+        return null;
+    }
+    const usuario = users.find(u => u.id === sessao.userId);
+    if (!usuario) {
+        // Sessão aponta para usuário inexistente → encerra
+        _encerrarSessao();
+        return null;
+    }
+    return usuario;
+}
+
+function _iniciarSessao(usuario, lembrar = true) {
+    const sessao = { userId: usuario.id, email: usuario.email };
+    const storage = lembrar ? localStorage : sessionStorage;
+    storage.setItem(DB.SESSION, JSON.stringify(sessao));
+    localStorage.setItem('usuario_nome',  usuario.nome);
+    localStorage.setItem('usuario_email', usuario.email);
+}
+
+function _encerrarSessao() {
+    localStorage.removeItem(DB.SESSION);
+    localStorage.removeItem('usuario_nome');
+    localStorage.removeItem('usuario_email');
+    sessionStorage.removeItem(DB.SESSION);
+}
+
+/* --------------------------------------------------------------------------
+   7. MIGRAÇÃO DO SISTEMA LEGADO
+   -------------------------------------------------------------------------- */
+function _migrarUsuarioLegado() {
+    const nomeLegado  = localStorage.getItem('usuario_nome');
+    const emailLegado = localStorage.getItem('usuario_email');
+    if (!nomeLegado || !emailLegado) return;
+    if (localStorage.getItem(DB.SESSION)) return;
+
+    let usuario = _findUserByEmail(emailLegado);
+    if (!usuario) {
+        const res = _criarUsuario({ nome: nomeLegado, email: emailLegado, senha: '_legado_' + nomeLegado.length });
+        if (res.ok) usuario = res.usuario;
+    }
+    if (usuario) _iniciarSessao(usuario, true);
+}
+
+/* --------------------------------------------------------------------------
+   8. PERSISTÊNCIA DE PRODUTOS (estoque + promo)
+   Salva apenas os campos mutáveis — não replica o catálogo inteiro.
+   Estrutura: { [productId]: { estoque, promo, oldPrice } }
+   -------------------------------------------------------------------------- */
+
+function _getProductOverrides() {
+    try { return JSON.parse(localStorage.getItem(DB.PRODUCTS)) || {}; }
+    catch { return {}; }
+}
+
+function _saveProductOverrides(overrides) {
+    localStorage.setItem(DB.PRODUCTS, JSON.stringify(overrides));
+}
+
+/** Retorna produtos extras criados pelo admin */
+function _getExtraProducts() {
+    try { return JSON.parse(localStorage.getItem(DB.EXTRA_PRODUCTS)) || []; }
+    catch { return []; }
+}
+
+/** Salva produtos extras criados pelo admin */
+function _saveExtraProducts(lista) {
+    localStorage.setItem(DB.EXTRA_PRODUCTS, JSON.stringify(lista));
+}
+
+/** Retorna IDs de produtos removidos pelo admin */
+function _getRemovedIds() {
+    try { return JSON.parse(localStorage.getItem(DB.REMOVED_IDS)) || []; }
+    catch { return []; }
+}
+
+/** Marca um produto como removido */
+function _marcarProdutoRemovido(id) {
+    const removidos = _getRemovedIds();
+    if (!removidos.includes(id)) {
+        removidos.push(id);
+        localStorage.setItem(DB.REMOVED_IDS, JSON.stringify(removidos));
+    }
+    // Remove dos extras se estiver lá
+    const extras = _getExtraProducts().filter(p => p.id !== id);
+    _saveExtraProducts(extras);
+}
+
+/** Aplica overrides salvos (estoque, promo) ao array global de produtos.
+ *  Também carrega produtos extras criados pelo admin e remove os excluídos. */
+function _aplicarOverridesProdutos() {
+    if (typeof products === 'undefined') return;
+
+    // 1. Aplica overrides de estoque/promo nos produtos base
+    const overrides = _getProductOverrides();
+    products.forEach(p => {
+        const o = overrides[p.id];
+        if (!o) return;
+        if (o.estoque  !== undefined) p.estoque  = o.estoque;
+        if (o.promo    !== undefined) p.promo    = o.promo;
+        if (o.oldPrice !== undefined) p.oldPrice = o.oldPrice;
+    });
+
+    // 2. Remove produtos que o admin excluiu
+    const removidos = _getRemovedIds();
+    removidos.forEach(id => {
+        const idx = products.findIndex(p => p.id === id);
+        if (idx !== -1) products.splice(idx, 1);
+    });
+
+    // 3. Adiciona produtos criados pelo admin (que não estejam no base)
+    const extras = _getExtraProducts();
+    extras.forEach(ep => {
+        if (!products.find(p => p.id === ep.id)) {
+            // Aplica override de estoque/promo se existir
+            const o = overrides[ep.id];
+            if (o) {
+                if (o.estoque  !== undefined) ep.estoque  = o.estoque;
+                if (o.promo    !== undefined) ep.promo    = o.promo;
+                if (o.oldPrice !== undefined) ep.oldPrice = o.oldPrice;
+            }
+            products.push(ep);
+        }
+    });
+}
+
+/** Persiste o estado atual de um produto (estoque + promo) */
+function _persistirProduto(productId) {
+    const p = (typeof products !== 'undefined') && products.find(p => p.id === productId);
+    if (!p) return;
+    const overrides    = _getProductOverrides();
+    overrides[p.id]    = { estoque: p.estoque ?? 0, promo: !!p.promo, oldPrice: p.oldPrice ?? null };
+    _saveProductOverrides(overrides);
+}
+
+/** Persiste todos os produtos de uma vez */
+function _persistirTodosProdutos() {
+    if (typeof products === 'undefined') return;
+    const overrides = {};
+    products.forEach(p => {
+        overrides[p.id] = { estoque: p.estoque ?? 0, promo: !!p.promo, oldPrice: p.oldPrice ?? null };
+    });
+    _saveProductOverrides(overrides);
+}
+
+/* --------------------------------------------------------------------------
+   9. CONTROLE DE ESTOQUE
+   -------------------------------------------------------------------------- */
+
+function getEstoque(productId) {
+    const p = (typeof products !== 'undefined') && products.find(p => p.id === productId);
+    return p ? (p.estoque ?? 0) : 0;
+}
+
+function decrementarEstoque(itens) {
+    itens.forEach(item => {
+        const p = (typeof products !== 'undefined') && products.find(p => p.id === item.productId);
+        if (p) p.estoque = Math.max(0, (p.estoque ?? 0) - item.quantity);
+    });
+    _persistirTodosProdutos();
+}
+
+function validarEstoqueCarrinho() {
+    if (typeof cart === 'undefined') return [];
+    return cart.filter(item => {
+        const est = getEstoque(item.productId);
+        return item.quantity > est;
+    }).map(item => ({
+        nome: item.name, solicitado: item.quantity, disponivel: getEstoque(item.productId)
+    }));
+}
+
+/** Verifica se pode adicionar N unidades ao carrinho */
+function podeAdicionarAoCarrinho(productId, qtdSolicitada = 1) {
+    const p       = (typeof products !== 'undefined') && products.find(p => p.id === productId);
+    if (!p) return { ok: false, erro: 'Produto não encontrado.' };
+    const estoque = p.estoque ?? 0;
+    if (estoque <= 0) return { ok: false, erro: 'Produto sem estoque.' };
+
+    // Quantidade já no carrinho
+    const noCarrinho = (typeof cart !== 'undefined')
+        ? cart.filter(i => i.productId === productId).reduce((s, i) => s + i.quantity, 0)
+        : 0;
+
+    if (noCarrinho + qtdSolicitada > estoque) {
+        return { ok: false, erro: `Estoque insuficiente. Disponível: ${estoque - noCarrinho} un.` };
+    }
+    return { ok: true };
+}
+
+/* --------------------------------------------------------------------------
+   10. PAINEL ADMIN — RENDERIZAÇÃO
+   -------------------------------------------------------------------------- */
+
+function abrirPainelAdmin() {
+    const usuario = _getUsuarioSessao();
+    if (!usuario?.isAdmin) {
+        showToast('⛔ Acesso restrito a administradores.', 'danger');
+        return;
+    }
+    // Fecha modal de perfil se estiver aberto
+    const perfilEl   = document.getElementById('minhaContaModal');
+    const perfilInst = perfilEl && bootstrap.Modal.getInstance(perfilEl);
+    if (perfilInst) perfilInst.hide();
+
+    const adminEl = document.getElementById('adminModal');
+    if (!adminEl) return;
+
+    const url = new URL(window.location);
+    url.searchParams.set('painel', 'admin');
+    window.history.pushState({ painel: 'admin' }, '', url);
+
+    renderAdminAba('produtos');
+    const adminModal = bootstrap.Modal.getOrCreateInstance(adminEl);
+
+    adminEl.addEventListener('hidden.bs.modal', () => {
+        const clean = new URL(window.location);
+        clean.searchParams.delete('painel');
+        window.history.pushState({}, '', clean);
+    }, { once: true });
+
+    perfilInst
+        ? perfilEl.addEventListener('hidden.bs.modal', () => adminModal.show(), { once: true })
+        : adminModal.show();
+}
+
+function renderAdminAba(aba) {
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.toggle('ativa', btn.dataset.aba === aba);
+    });
+    const body = document.getElementById('adminTabContent');
+    if (!body) return;
+    const map = {
+        produtos : _renderAdminProdutos,
+        usuarios : _renderAdminUsuarios,
+        pedidos  : _renderAdminPedidos,
+        adicionar: _renderAdminAdicionarProduto,
+        exportar : _renderAdminExportar,
+    };
+    body.innerHTML = map[aba] ? map[aba]() : '';
+}
+
+/* Aba Produtos */
+function _renderAdminProdutos() {
+    const rows = (typeof products !== 'undefined' ? products : []).map(p => {
+        const est   = p.estoque ?? 0;
+        const cls   = est === 0 ? 'text-danger' : est <= 5 ? 'text-warning' : 'text-success';
+        const icon  = est === 0 ? '⛔' : est <= 5 ? '⚠️' : '✅';
+        return `
+        <tr>
+            <td><img src="${p.img}" width="36" height="36" class="rounded" style="object-fit:cover;"></td>
+            <td style="font-size:0.77rem;max-width:140px;">
+                <div class="fw-bold text-truncate">${p.name}</div>
+                <small class="text-muted">${p.category} › ${p.sub}</small>
+            </td>
+            <td><span class="badge bg-secondary" style="font-size:0.58rem;">${p.brand.toUpperCase()}</span></td>
+            <td style="font-size:0.78rem;white-space:nowrap;">R$&nbsp;${p.price.toFixed(2)}</td>
+            <td>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="${cls}" style="font-size:0.7rem;">${icon}</span>
+                    <input type="number" min="0" value="${est}"
+                           class="form-control form-control-sm p-0 text-center admin-estoque-input"
+                           style="width:48px;font-size:0.73rem;"
+                           onchange="adminAtualizarEstoque(${p.id}, this.value)">
+                </div>
+            </td>
+            <td>
+                <button class="badge border-0 ${p.promo ? 'bg-danger' : 'bg-secondary bg-opacity-25 text-dark'}"
+                        style="cursor:pointer;font-size:0.63rem;"
+                        onclick="adminAlternarPromo(${p.id})"
+                        title="${p.promo ? 'Remover promoção' : 'Promover'}">
+                    ${p.promo ? '🔥 Promo' : 'Normal'}
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="adminRemoverProduto(${p.id})" title="Remover">
+                    <i class="fas fa-trash" style="font-size:0.65rem;"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-box me-2"></i>Catálogo (${(typeof products !== 'undefined' ? products.length : 0)} produtos)</h6>
+            <button class="btn btn-sm btn-warning" onclick="renderAdminAba('adicionar')">
+                <i class="fas fa-plus me-1"></i> Novo
+            </button>
+        </div>
+        <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th style="width:44px;"></th>
+                        <th>Produto</th>
+                        <th>Marca</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th style="width:34px;"></th>
+                    </tr>
+                </thead>
+                <tbody>${rows || '<tr><td colspan="7" class="text-center text-muted py-3">Nenhum produto.</td></tr>'}</tbody>
+            </table>
+        </div>`;
+}
+
+/* Aba Usuários */
+function _renderAdminUsuarios() {
+    const users = _getUsers();
+    if (!users.length) return `<div class="text-center text-muted py-4"><i class="fas fa-users fa-2x mb-2 d-block"></i>Nenhum usuário cadastrado.</div>`;
+
+    const rows = users.map(u => {
+        const av = _gerarDadosAvatar(u.nome);
+        return `
+        <tr>
+            <td><div class="usuario-avatar-mini" style="background:${av.cor};">${av.iniciais}</div></td>
+            <td>
+                <div class="fw-bold" style="font-size:0.79rem;">${u.nome}</div>
+                <div class="text-muted" style="font-size:0.68rem;">${u.email}</div>
+            </td>
+            <td style="font-size:0.7rem;">${new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
+            <td>${u.isAdmin
+                ? '<span class="badge bg-warning text-dark" style="font-size:0.62rem;">Admin</span>'
+                : '<span class="badge bg-light text-muted border" style="font-size:0.62rem;">Usuário</span>'}</td>
+            <td>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="_renderAdminDetalheUsuario('${u.id}')" title="Relatório">
+                        <i class="fas fa-chart-line" style="font-size:0.65rem;"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-${u.isAdmin ? 'secondary' : 'warning'} py-0 px-1"
+                            onclick="adminAlternarAdmin('${u.id}')"
+                            title="${u.isAdmin ? 'Remover admin' : 'Tornar admin'}">
+                        <i class="fas fa-${u.isAdmin ? 'user-minus' : 'user-shield'}" style="font-size:0.65rem;"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-users me-2"></i>Usuários (${users.length})</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr><th></th><th>Usuário</th><th>Cadastro</th><th>Perfil</th><th></th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+}
+
+/* Relatório detalhado de usuário */
+function _renderAdminDetalheUsuario(userId) {
+    const u = _getUsers().find(u => u.id === userId);
+    if (!u) return;
+
+    const todos   = JSON.parse(localStorage.getItem(DB.ORDERS) || '[]');
+    const pedidos = todos.filter(p => p.email === u.email || p.userId === u.id);
+
+    const totalGasto   = pedidos.reduce((s, p) => s + (p.total || 0), 0);
+    const pagamentos   = {};
+    const produtosFreq = {};
+
+    pedidos.forEach(ped => {
+        const pag = ped.pagamento || 'Não informado';
+        pagamentos[pag] = (pagamentos[pag] || 0) + 1;
+        (ped.itens || []).forEach(item => {
+            produtosFreq[item.name] = (produtosFreq[item.name] || 0) + item.quantity;
+        });
+    });
+
+    const av = _gerarDadosAvatar(u.nome);
+    const body = document.getElementById('adminTabContent');
+    if (!body) return;
+
+    const topPagamentos = Object.entries(pagamentos)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => `<span class="badge bg-primary me-1 mb-1">${k} (${v}x)</span>`).join('');
+
+    const topProdutos = Object.entries(produtosFreq)
+        .sort((a, b) => b[1] - a[1]).slice(0, 5)
+        .map(([k, v]) => `<li class="small py-1 border-bottom">${k} — <strong>${v} un.</strong></li>`).join('');
+
+    body.innerHTML = `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-user me-2"></i>${u.nome}</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('usuarios')">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div class="row g-3 p-2">
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border h-100">
+                    <div class="usuario-avatar-mini mb-2" style="width:48px;height:48px;font-size:1rem;background:${av.cor};">${av.iniciais}</div>
+                    <div class="fw-bold">${u.nome}</div>
+                    <div class="text-muted small">${u.email}</div>
+                    <div class="small mt-2"><i class="fas fa-calendar me-1 text-primary"></i>Cadastro: ${new Date(u.createdAt).toLocaleDateString('pt-BR')}</div>
+                    <div class="small mt-1"><i class="fas fa-shield-alt me-1 text-warning"></i><strong>${u.isAdmin ? 'Administrador' : 'Usuário'}</strong></div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row g-2 mb-3">
+                    <div class="col-4"><div class="p-2 rounded border text-center"><div class="fw-bold fs-5 text-primary">${pedidos.length}</div><div class="small text-muted">Pedidos</div></div></div>
+                    <div class="col-4"><div class="p-2 rounded border text-center"><div class="fw-bold text-success" style="font-size:0.85rem;">R$&nbsp;${totalGasto.toFixed(2)}</div><div class="small text-muted">Gasto total</div></div></div>
+                    <div class="col-4"><div class="p-2 rounded border text-center"><div class="fw-bold fs-5">${Object.keys(produtosFreq).length}</div><div class="small text-muted">Produtos únicos</div></div></div>
+                </div>
+                ${topPagamentos ? `<div class="mb-2"><small class="fw-bold text-muted d-block mb-1">PAGAMENTOS:</small>${topPagamentos}</div>` : ''}
+                ${topProdutos   ? `<div><small class="fw-bold text-muted d-block mb-1">MAIS COMPRADOS:</small><ul class="mb-0 list-unstyled">${topProdutos}</ul></div>` : '<p class="text-muted small">Sem compras.</p>'}
+            </div>
+            ${pedidos.length > 0 ? `
+            <div class="col-12">
+                <small class="fw-bold text-muted">HISTÓRICO:</small>
+                <div class="table-responsive mt-1" style="max-height:180px;overflow-y:auto;">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top"><tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Pagamento</th><th></th></tr></thead>
+                        <tbody>
+                            ${pedidos.map(p => `
+                            <tr>
+                                <td class="text-primary fw-bold">#${p.id}</td>
+                                <td>${p.data}</td>
+                                <td>${(p.itens||[]).length}</td>
+                                <td>R$&nbsp;${(p.total||0).toFixed(2)}</td>
+                                <td>${p.pagamento||'—'}</td>
+                                <td><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="abrirModalComprovante(${JSON.stringify(p).replace(/"/g,'&quot;')})" title="Ver comprovante"><i class="fas fa-receipt" style="font-size:0.65rem;"></i></button></td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>` : ''}
+        </div>`;
+}
+
+/* Aba Pedidos */
+function _renderAdminPedidos() {
+    let todos = [];
+    try { todos = JSON.parse(localStorage.getItem(DB.ORDERS)) || []; } catch {}
+
+    if (!todos.length) return `<div class="text-center text-muted py-4"><i class="fas fa-receipt fa-2x mb-2 d-block"></i>Nenhum pedido registrado.</div>`;
+
+    const receita = todos.reduce((s, p) => s + (p.total || 0), 0);
+    const rows    = todos.map(p => `
+        <tr>
+            <td class="fw-bold text-primary" style="font-size:0.78rem;">#${p.id}</td>
+            <td style="font-size:0.73rem;">${p.data}</td>
+            <td style="font-size:0.73rem;">${(p.itens||[]).length} item(ns)</td>
+            <td class="fw-bold" style="font-size:0.78rem;">R$&nbsp;${(p.total||0).toFixed(2)}</td>
+            <td><span class="badge bg-success" style="font-size:0.62rem;">Concluído</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary py-0 px-1"
+                        onclick="abrirModalComprovante(${JSON.stringify(p).replace(/"/g,'&quot;')})"
+                        title="Ver comprovante">
+                    <i class="fas fa-receipt" style="font-size:0.65rem;"></i>
+                </button>
+            </td>
+        </tr>`).join('');
+
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Pedidos (${todos.length})</h6>
+            <span class="badge bg-success">Receita: R$&nbsp;${receita.toFixed(2)}</span>
+        </div>
+        <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+}
+
+/* Aba Exportar/Importar */
+function _renderAdminExportar() {
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-database me-2"></i>Backup e Restauração</h6>
+        </div>
+        <div class="p-3">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 border rounded-3">
+                        <h6 class="fw-bold mb-1"><i class="fas fa-download me-2 text-success"></i>Exportar dados</h6>
+                        <p class="small text-muted mb-3">Gera um arquivo JSON com todos os dados do sistema para backup.</p>
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-sm btn-outline-success" onclick="adminExportar('tudo')"><i class="fas fa-file-export me-1"></i> Exportar tudo</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="adminExportar('produtos')"><i class="fas fa-box me-1"></i> Apenas produtos</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="adminExportar('usuarios')"><i class="fas fa-users me-1"></i> Apenas usuários</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="adminExportar('pedidos')"><i class="fas fa-receipt me-1"></i> Apenas pedidos</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 border rounded-3">
+                        <h6 class="fw-bold mb-1"><i class="fas fa-upload me-2 text-warning"></i>Importar dados</h6>
+                        <p class="small text-muted mb-2">Selecione um JSON exportado anteriormente. Os dados atuais serão substituídos.</p>
+                        <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:0.75rem;">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Esta ação é irreversível. Faça um backup antes.
+                        </div>
+                        <input type="file" id="importFileInput" accept=".json" class="form-control form-control-sm mb-2" onchange="adminImportar(this)">
+                        <div id="importStatus" class="small"></div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+}
+
+/* Aba Novo Produto */
+function _renderAdminAdicionarProduto() {
+    return `
+        <div class="admin-section-header">
+            <h6 class="mb-0"><i class="fas fa-plus me-2"></i>Novo Produto</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('produtos')">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div class="p-2">
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label small fw-bold mb-1">Nome *</label>
+                    <input type="text" id="adminNomeProd" class="form-control form-control-sm" placeholder="Ex: Tinta Látex Premium">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Marca *</label>
+                    <select id="adminMarcaProd" class="form-select form-select-sm">
+                        <option value="suvinil">Suvinil</option>
+                        <option value="coral">Coral</option>
+                        <option value="sherwin">Sherwin-Williams</option>
+                        <option value="atlas">Atlas</option>
+                        <option value="tigre">Tigre</option>
+                        <option value="norton">Norton</option>
+                        <option value="3m">3M</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Preço (R$) *</label>
+                    <input type="number" id="adminPrecoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Categoria *</label>
+                    <select id="adminCategoriaProd" class="form-select form-select-sm" onchange="adminAtualizarSubcategoria()">
+                        <option value="interior">Interior</option>
+                        <option value="exterior">Exterior</option>
+                        <option value="moveis">Móveis</option>
+                        <option value="especial">Especial</option>
+                        <option value="ferramentas">Ferramentas</option>
+                        <option value="acessorios">Acessórios</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Sub-categoria *</label>
+                    <select id="adminSubProd" class="form-select form-select-sm">
+                        <option value="acrilica">Tinta Acrílica</option>
+                        <option value="latex">Tinta Látex</option>
+                        <option value="fosca">Tinta Fosca</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold mb-1">Descrição *</label>
+                    <textarea id="adminDescProd" class="form-control form-control-sm" rows="2" placeholder="Descrição curta"></textarea>
+                </div>
+                <div class="col-7">
+                    <label class="form-label small fw-bold mb-1">URL da Imagem</label>
+                    <input type="url" id="adminImgProd" class="form-control form-control-sm" placeholder="https://...">
+                </div>
+                <div class="col-5">
+                    <label class="form-label small fw-bold mb-1">Preço Antigo (R$)</label>
+                    <input type="number" id="adminPrecoAntigoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold mb-1">Estoque inicial</label>
+                    <input type="number" id="adminEstoqueProd" class="form-control form-control-sm" placeholder="0" min="0" value="10">
+                </div>
+                <div class="col-6 d-flex align-items-end pb-1">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="adminPromoProd">
+                        <label class="form-check-label small" for="adminPromoProd">Em promoção</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div id="adminErroNovoProd" class="text-danger small mb-1"></div>
+                    <button class="btn btn-warning w-100" onclick="adminSalvarNovoProduto()">
+                        <i class="fas fa-save me-2"></i>Salvar Produto
+                    </button>
+                </div>
+            </div>
+        </div>`;
+}
+
+/* --------------------------------------------------------------------------
+   11. AÇÕES DO ADMIN
+   -------------------------------------------------------------------------- */
+
+const _adminSubcategorias = {
+    interior    : [['acrilica','Tinta Acrílica'],['latex','Tinta Látex'],['fosca','Tinta Fosca']],
+    exterior    : [['acrilica-ext','Acrílica Externa'],['impermeavel','Impermeável'],['exterior','Exterior Geral']],
+    moveis      : [['esmalte','Esmalte'],['verniz','Verniz']],
+    especial    : [['epoxi','Epóxi'],['termica','Térmica']],
+    ferramentas : [['rolos','Rolos'],['pinceis','Pincéis'],['bandejas','Bandejas'],['extensores','Extensores']],
+    acessorios  : [['lixas','Lixas'],['fitas','Fitas'],['acessorios','Geral']],
+};
+
+function adminAtualizarSubcategoria() {
+    const cat   = document.getElementById('adminCategoriaProd')?.value;
+    const subEl = document.getElementById('adminSubProd');
+    if (!subEl || !cat) return;
+    const opts  = _adminSubcategorias[cat] || [];
+    subEl.innerHTML = opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+}
+
+function adminSalvarNovoProduto() {
+    const nome      = document.getElementById('adminNomeProd')?.value.trim();
+    const marca     = document.getElementById('adminMarcaProd')?.value;
+    const preco     = parseFloat(document.getElementById('adminPrecoProd')?.value);
+    const precoAnt  = parseFloat(document.getElementById('adminPrecoAntigoProd')?.value) || null;
+    const categoria = document.getElementById('adminCategoriaProd')?.value;
+    const sub       = document.getElementById('adminSubProd')?.value;
+    const desc      = document.getElementById('adminDescProd')?.value.trim();
+    const img       = document.getElementById('adminImgProd')?.value.trim();
+    const promo     = document.getElementById('adminPromoProd')?.checked;
+    const estoque   = parseInt(document.getElementById('adminEstoqueProd')?.value) || 0;
+    const erroEl    = document.getElementById('adminErroNovoProd');
+
+    const setErro = msg => { if (erroEl) erroEl.textContent = msg; };
+    setErro('');
+
+    if (!nome || !marca || isNaN(preco) || preco < 0 || !desc) { setErro('Preencha os campos obrigatórios.'); return; }
+    if (promo && (!precoAnt || precoAnt <= preco)) { setErro('Preço antigo deve ser maior que o atual.'); return; }
+
+    if (typeof products === 'undefined') { setErro('Array de produtos não disponível.'); return; }
+
+    const novoId = Math.max(...products.map(p => p.id), 100) + 1;
+    const novo   = {
+        id: novoId, name: nome, brand: marca, category: categoria, sub,
+        price: preco, oldPrice: promo && precoAnt ? precoAnt : null,
+        promo, estoque, desc,
+        img: img || `https://placehold.co/400x400/005eff/fff?text=${encodeURIComponent(nome)}`,
+        sugestoes: [],
+    };
+    products.push(novo);
+
+    // Salva produto completo na lista de extras (persiste entre recarregamentos)
+    const extras = _getExtraProducts();
+    extras.push(novo);
+    _saveExtraProducts(extras);
+    _persistirProduto(novoId); // salva também os overrides de estoque/promo
+
+    if (typeof renderProducts === 'function') renderProducts(products);
+    showToast(`Produto "${nome}" criado!`, 'success');
+    renderAdminAba('produtos');
+}
+
+function adminRemoverProduto(id) {
+    if (typeof products === 'undefined') return;
+    const idx = products.findIndex(p => p.id === id);
+    if (idx === -1) return;
+    const nome = products[idx].name;
+    products.splice(idx, 1);
+
+    // Remove override do produto excluído
+    const overrides = _getProductOverrides();
+    delete overrides[id];
+    _saveProductOverrides(overrides);
+
+    // Persiste remoção: marca como removido e remove dos extras
+    _marcarProdutoRemovido(id);
+
+    if (typeof renderProducts === 'function') renderProducts(products);
+    showToast(`"${nome}" removido.`, 'warning');
+    renderAdminAba('produtos');
+}
+
+function adminAlternarPromo(id) {
+    const produto = (typeof products !== 'undefined') && products.find(p => p.id === id);
+    if (!produto) return;
+    produto.promo = !produto.promo;
+    _persistirProduto(id);
+    if (typeof renderProducts === 'function') renderProducts(products);
+    showToast(produto.promo ? `"${produto.name}" em promoção! 🔥` : `"${produto.name}" saiu da promoção.`, produto.promo ? 'success' : 'warning');
+    renderAdminAba('produtos');
+}
+
+function adminAtualizarEstoque(id, novoValor) {
+    const produto = (typeof products !== 'undefined') && products.find(p => p.id === id);
+    if (!produto) return;
+    produto.estoque = Math.max(0, parseInt(novoValor) || 0);
+    _persistirProduto(id);
+    if (typeof renderProducts === 'function') renderProducts(products);
+    showToast(`Estoque de "${produto.name}": ${produto.estoque} un.`, 'success');
+}
+
+function adminAlternarAdmin(userId) {
+    const sessaoAtual = _getUsuarioSessao();
+    if (sessaoAtual?.id === userId) {
+        showToast('⚠️ Você não pode alterar sua própria permissão.', 'warning');
+        return;
+    }
+    const users = _getUsers();
+    const idx   = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+    users[idx].isAdmin = !users[idx].isAdmin;
+    _saveUsers(users);
+    showToast(`${users[idx].nome}: ${users[idx].isAdmin ? 'promovido a Admin ✅' : 'revertido para Usuário'}`, users[idx].isAdmin ? 'success' : 'warning');
+    renderAdminAba('usuarios');
+}
+
+/* --------------------------------------------------------------------------
+   12. EXPORTAR / IMPORTAR
+   -------------------------------------------------------------------------- */
+
+function adminExportar(tipo) {
+    let dados = {};
+    const ts  = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
+
+    if (tipo === 'tudo' || tipo === 'usuarios') {
+        dados.usuarios = _getUsers().map(u => { const c = {...u}; delete c.senhaHash; return c; });
+    }
+    if (tipo === 'tudo' || tipo === 'produtos') {
+        dados.produtos       = typeof products !== 'undefined' ? products : [];
+        dados.produtoConfig  = _getProductOverrides();
+        dados.extraProdutos  = _getExtraProducts();
+        dados.removidosIds   = _getRemovedIds();
+    }
+    if (tipo === 'tudo' || tipo === 'pedidos') {
+        dados.pedidos = JSON.parse(localStorage.getItem(DB.ORDERS) || '[]');
+    }
+    dados._meta = { exportadoEm: new Date().toISOString(), versao: '2.0', tipo };
+
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `fixtintas_backup_${tipo}_${ts}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast(`Backup "${tipo}" exportado!`, 'success');
+}
+
+function adminImportar(inputEl) {
+    const file = inputEl?.files?.[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById('importStatus');
+    if (statusEl) statusEl.innerHTML = '<span class="text-muted">Lendo arquivo...</span>';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const dados = JSON.parse(e.target.result);
+
+            // Validação básica da estrutura
+            if (!dados._meta) throw new Error('Arquivo inválido: sem metadados.');
+            if (!['2.0'].includes(dados._meta.versao)) throw new Error('Versão incompatível.');
+
+            let msg = [];
+
+            if (dados.usuarios) {
+                // Não sobrescreve senhas — mantém as atuais se o e-mail existir
+                const atuais = _getUsers();
+                const merged = dados.usuarios.map(importado => {
+                    const existente = atuais.find(a => a.email === importado.email);
+                    return existente ? { ...importado, senhaHash: existente.senhaHash } : importado;
+                });
+                _saveUsers(merged);
+                msg.push(`${merged.length} usuários`);
+            }
+
+            if (dados.produtoConfig) {
+                _saveProductOverrides(dados.produtoConfig);
+                msg.push('configurações de produtos');
+            }
+            if (dados.extraProdutos) {
+                _saveExtraProducts(dados.extraProdutos);
+                msg.push(`${dados.extraProdutos.length} produto(s) extra(s)`);
+            }
+            if (dados.removidosIds) {
+                localStorage.setItem(DB.REMOVED_IDS, JSON.stringify(dados.removidosIds));
+            }
+            // Re-aplica tudo
+            if (dados.produtoConfig || dados.extraProdutos || dados.removidosIds) {
+                _aplicarOverridesProdutos();
+                if (typeof renderProducts === 'function') renderProducts(products);
+            }
+
+            if (dados.pedidos) {
+                localStorage.setItem(DB.ORDERS, JSON.stringify(dados.pedidos));
+                msg.push(`${dados.pedidos.length} pedidos`);
+            }
+
+            if (statusEl) statusEl.innerHTML = `<span class="text-success fw-bold">✅ Importado: ${msg.join(', ')}.</span>`;
+            showToast('Importação concluída!', 'success');
+
+        } catch (err) {
+            if (statusEl) statusEl.innerHTML = `<span class="text-danger">❌ Erro: ${err.message}</span>`;
+            showToast('Erro na importação: ' + err.message, 'danger');
+        }
+    };
+    reader.readAsText(file);
+    // Limpa o input para permitir reimportar o mesmo arquivo
+    inputEl.value = '';
+}
+
+/* --------------------------------------------------------------------------
+   13. MODAL DE COMPROVANTE (pós-compra e histórico de pedidos)
+   -------------------------------------------------------------------------- */
+
+function abrirModalComprovante(pedido) {
+    // Normaliza: aceita objeto ou string JSON
+    if (typeof pedido === 'string') {
+        try { pedido = JSON.parse(pedido); } catch { return; }
+    }
+
+    const isDark     = document.body.classList.contains('dark-mode');
+    const bgCard     = isDark ? '#1e2240' : '#f8f9fa';
+    const textColor  = isDark ? '#e2e8f0' : '#333';
+    const borderCol  = isDark ? '#2d2d4e' : '#dee2e6';
+
+    const subtotal   = (pedido.itens || []).reduce((s, i) => s + i.price * i.quantity, 0);
+    const freteVal   = pedido.frete?.valor ?? 0;
+    const freteNome  = pedido.frete?.nome  ?? 'Padrão';
+    const fretePrazo = pedido.frete?.prazo ?? '';
+
+    const itensHtml  = (pedido.itens || []).map(item => `
+        <div class="d-flex align-items-center gap-2 py-2 border-bottom" style="border-color:${borderCol}!important;">
+            <img src="${item.img || 'https://placehold.co/40x40/ccc/fff?text=?'}"
+                 width="40" height="40" class="rounded" style="object-fit:cover;flex-shrink:0;">
+            <div class="flex-grow-1 overflow-hidden">
+                <div class="fw-bold text-truncate" style="font-size:0.82rem;">${item.name}</div>
+                <div class="text-muted" style="font-size:0.72rem;">
+                    ${item.quantity}x R$&nbsp;${item.price.toFixed(2)}
+                    ${item.opcoes?.cor ? ` · ${item.opcoes.cor}` : ''}
+                </div>
+            </div>
+            <div class="fw-bold text-primary" style="font-size:0.85rem;white-space:nowrap;">
+                R$&nbsp;${(item.price * item.quantity).toFixed(2)}
+            </div>
+        </div>`).join('');
+
+    // Reutiliza ou cria o modal
+    let modalEl = document.getElementById('comprovanteModal');
+    if (!modalEl) {
+        modalEl = document.createElement('div');
+        modalEl.id        = 'comprovanteModal';
+        modalEl.className = 'modal fade';
+        modalEl.tabIndex  = -1;
+        document.body.appendChild(modalEl);
+    }
+
+    modalEl.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px;">
+            <div class="modal-content border-0 shadow-lg" style="background:${isDark ? '#1a1a2e' : '#fff'};color:${textColor};">
+                <div class="modal-header border-0" style="background:linear-gradient(135deg,#005eff,#0040cc);color:#fff;border-radius:calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0;">
+                    <div>
+                        <h6 class="modal-title fw-bold mb-0">
+                            <i class="fas fa-receipt me-2"></i>Comprovante #${pedido.id}
+                        </h6>
+                        <small style="opacity:0.75;">${pedido.data} · ${pedido.pagamento || 'Pagamento'}</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;">
+                        ${itensHtml}
+                    </div>
+                    <div class="p-3 rounded-3" style="background:${bgCard};border:1px solid ${borderCol};">
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem;">
+                            <span class="text-muted">Subtotal</span>
+                            <span>R$&nbsp;${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2" style="font-size:0.82rem;">
+                            <span class="text-muted">Frete (${freteNome}${fretePrazo ? ' · ' + fretePrazo : ''})</span>
+                            <span class="${freteVal === 0 ? 'text-success fw-bold' : ''}">${freteVal === 0 ? 'GRÁTIS' : 'R$&nbsp;' + freteVal.toFixed(2)}</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold pt-2" style="border-top:1px solid ${borderCol};font-size:0.95rem;">
+                            <span>Total</span>
+                            <span class="text-primary">R$&nbsp;${pedido.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    ${pedido.endereco ? `<div class="mt-2 small text-muted"><i class="fas fa-map-marker-alt me-1"></i>${pedido.endereco}</div>` : ''}
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+                    <button class="btn btn-primary btn-sm" onclick="gerarComprovantePDF(${JSON.stringify(pedido).replace(/"/g,'&quot;')})">
+                        <i class="fas fa-download me-1"></i>Baixar PDF
+                    </button>
+                </div>
+            </div>
+        </div>`;
+
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+/* --------------------------------------------------------------------------
+   14. COMPROVANTE PDF — gerado via botão no modal
+   -------------------------------------------------------------------------- */
+
+function gerarComprovantePDF(pedido) {
+    if (typeof pedido === 'string') { try { pedido = JSON.parse(pedido); } catch { return; } }
+    if (!window.jspdf) { showToast('PDF não disponível. Tente novamente.', 'danger'); return; }
+
+    const { jsPDF } = window.jspdf;
+    const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W    = 210, ML = 15, MR = 195;
+    const AZUL = [0, 94, 255], ESCURO = [30, 30, 50], CINZA = [120, 130, 150], LARANJA = [255, 122, 0];
+    let y = 0;
+
+    // Cabeçalho
+    doc.setFillColor(...AZUL);
+    doc.rect(0, 0, W, 36, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+    doc.text('FixTintas', ML, 15);
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(200, 220, 255);
+    doc.text('Comprovante de Pedido', ML, 22);
+    doc.setTextColor(255, 193, 7); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.text(`#${pedido.id}`, MR, 15, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(200, 220, 255);
+    doc.text(pedido.data, MR, 22, { align: 'right' });
+    y = 44;
+
+    // Cliente
+    const usuario = _getUsuarioSessao();
+    if (usuario) {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...CINZA);
+        doc.text('CLIENTE', ML, y); y += 5;
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(...ESCURO);
+        doc.text(usuario.nome,  ML, y); y += 4;
+        doc.text(usuario.email, ML, y); y += 4;
+        if (pedido.endereco) { doc.text(pedido.endereco, ML, y); y += 4; }
+        y += 3;
+    }
+
+    doc.setDrawColor(220, 220, 235); doc.line(ML, y, MR, y); y += 6;
+
+    // Cabeçalho da tabela de itens
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...CINZA);
+    doc.text('ITENS', ML, y); y += 4;
+    doc.setFillColor(240, 242, 255);
+    doc.roundedRect(ML, y, MR - ML, 7, 1, 1, 'F');
+    doc.setTextColor(...ESCURO);
+    doc.text('Produto',      ML + 2, y + 4.5);
+    doc.text('Qtd',         MR - 42, y + 4.5, { align: 'right' });
+    doc.text('Unit.',       MR - 22, y + 4.5, { align: 'right' });
+    doc.text('Total',       MR,      y + 4.5, { align: 'right' });
+    y += 9;
+
+    (pedido.itens || []).forEach((item, i) => {
+        if (y > 255) { doc.addPage(); y = 20; }
+        if (i % 2 === 0) { doc.setFillColor(250, 251, 255); doc.rect(ML, y - 1, MR - ML, 7, 'F'); }
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...ESCURO);
+        const nm = item.name.length > 40 ? item.name.slice(0, 38) + '…' : item.name;
+        doc.text(nm,                                       ML + 2,  y + 4.5);
+        doc.text(String(item.quantity),                    MR - 42, y + 4.5, { align: 'right' });
+        doc.text(`R$ ${item.price.toFixed(2)}`,            MR - 22, y + 4.5, { align: 'right' });
+        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, MR, y + 4.5, { align: 'right' });
+        y += 7;
+    });
+
+    y += 4; doc.setDrawColor(220, 220, 235); doc.line(ML, y, MR, y); y += 5;
+
+    const subtotal  = (pedido.itens || []).reduce((s, i) => s + i.price * i.quantity, 0);
+    const freteVal  = pedido.frete?.valor ?? 0;
+    const freteNome = pedido.frete?.nome  ?? '';
+    const fretePrz  = pedido.frete?.prazo ?? '';
+
+    const _linha = (label, valor, destaque = false) => {
+        if (destaque) {
+            doc.setFillColor(...ESCURO); doc.roundedRect(ML, y, MR - ML, 10, 1.5, 1.5, 'F');
+            doc.setTextColor(255, 255, 255);
+        } else { doc.setTextColor(...CINZA); }
+        doc.setFont('helvetica', destaque ? 'bold' : 'normal');
+        doc.setFontSize(destaque ? 9 : 8);
+        doc.text(label, ML + 2, y + (destaque ? 6.5 : 5.5));
+        if (destaque) doc.setTextColor(...LARANJA);
+        doc.text(valor, MR, y + (destaque ? 6.5 : 5.5), { align: 'right' });
+        y += destaque ? 12 : 8;
+    };
+
+    _linha('Subtotal', `R$ ${subtotal.toFixed(2)}`);
+    _linha(`Frete${freteNome ? ': ' + freteNome : ''}${fretePrz ? ' — ' + fretePrz : ''}`,
+           freteVal === 0 ? 'GRÁTIS' : `R$ ${freteVal.toFixed(2)}`);
+    _linha('TOTAL GERAL', `R$ ${pedido.total.toFixed(2)}`, true);
+
+    y += 3;
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...CINZA);
+    doc.text(`Pagamento: ${pedido.pagamento || 'Não informado'}`, ML, y);
+    y += 10;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...AZUL);
+    doc.text('Obrigado por comprar na FixTintas! 🎨', W / 2, y, { align: 'center' });
+
+    doc.save(`FixTintas_${pedido.id}.pdf`);
+}
+
 const products = [
     // --- TINTAS INTERIOR ---
     { id: 1,  name: "Tinta Premium Acrílica",       category: "interior",    sub: "acrilica",     brand: "suvinil", price: 50.0,  oldPrice: 83.0,   promo: true,  estoque: 30, desc: "Alta cobertura, lavável e rendimento superior.",                        img: "https://placehold.co/400x400/005eff/fff?text=Suvinil+Premium", sugestoes: [11, 14, 19] },
@@ -144,6 +1340,9 @@ const wallTypes = [
     }
 ];
 
+// Aplica overrides de estoque/promo salvos no painel admin
+_aplicarOverridesProdutos();
+
 /* ==========================================================================
    4. FUNÇÕES UTILITÁRIAS
    ========================================================================== */
@@ -271,19 +1470,38 @@ function renderProducts(items) {
                </div>`
             : `<h5 class="text-primary fw-bold mb-0">R$ ${p.price.toFixed(2)}</h5>`;
 
+        // Badge de estoque
+        const est = p.estoque ?? 0;
+        const semEstoque = est === 0;
+        const ultimasUnidades = !semEstoque && est <= 5;
+        const estoqueBadge = semEstoque
+            ? `<span class="badge bg-danger position-absolute bottom-0 start-0 m-2 shadow-sm" style="z-index:3;font-size:0.62rem;">
+                   <i class="fas fa-ban me-1"></i>Sem estoque
+               </span>`
+            : ultimasUnidades
+                ? `<span class="badge bg-warning text-dark position-absolute bottom-0 start-0 m-2 shadow-sm" style="z-index:3;font-size:0.62rem;">
+                       <i class="fas fa-exclamation-triangle me-1"></i>Últimas ${est} un.
+                   </span>`
+                : '';
+
+        const cardClick = semEstoque
+            ? `showToast('⚠️ Este produto está fora de estoque.','warning')`
+            : `showProductDetails(${p.id})`;
+
         return `
         <div class="col-12 col-sm-6 col-lg-4 mb-4">
-            <div class="card product-card h-100 shadow-sm border-0" onclick="showProductDetails(${p.id})" style="cursor: pointer;">
+            <div class="card product-card h-100 shadow-sm border-0${semEstoque ? ' sem-estoque-card' : ''}" onclick="${cardClick}" style="cursor: pointer;">
                 <div class="position-relative">
                     <img src="${p.img}"
                          class="card-img-top img-fluid"
                          alt="${p.name}"
-                         style="height: 250px; object-fit: cover;">
+                         style="height: 220px; object-fit: cover;${semEstoque ? 'filter:grayscale(40%);opacity:0.8;' : ''}">
 
                     ${promoBadge}
+                    ${estoqueBadge}
 
-                    <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center gap-2" style="z-index: 3;">
-                        <span class="badge bg-warning text-dark text-uppercase">
+                    <div class="position-absolute top-0 end-0 m-2 d-flex align-items-center gap-1" style="z-index: 3;">
+                        <span class="badge bg-warning text-dark text-uppercase d-none d-sm-inline" style="font-size:0.6rem;">
                             ${p.brand}
                         </span>
                         <button onclick="toggleFavorite(${p.id}, event); event.stopPropagation();"
@@ -294,15 +1512,15 @@ function renderProducts(items) {
                     </div>
                 </div>
 
-                <div class="card-body d-flex flex-column p-3">
+                <div class="card-body d-flex flex-column p-2 p-sm-3">
                     <h5 class="fw-bold mb-1 h6 text-truncate">${p.name}</h5>
-                    <p class="text-muted small mb-3" style="height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    <p class="text-muted small mb-2 product-card-desc" style="height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                         ${p.desc}
                     </p>
-                    <div class="mt-auto d-flex align-items-center justify-content-between">
+                    <div class="mt-auto d-flex align-items-center justify-content-between gap-1 flex-wrap">
                         ${priceHTML}
-                        <button class="btn-ver-mais">
-                            VER MAIS <i class="fas fa-arrow-right ms-1" style="font-size: 0.75rem;"></i>
+                        <button class="btn-ver-mais${semEstoque ? ' btn-ver-mais-disabled' : ''}" ${semEstoque ? 'disabled' : ''}>
+                            ${semEstoque ? 'INDISPONÍVEL' : 'VER MAIS <i class="fas fa-arrow-right ms-1" style="font-size:0.7rem;"></i>'}
                         </button>
                     </div>
                 </div>
@@ -439,8 +1657,7 @@ function renderOrdersProfile() {
     const ordersContainer = document.getElementById('orders-list');
     if (!ordersContainer) return;
 
-    const pedidosBrutos = localStorage.getItem('fixtintas_orders');
-    const pedidos       = pedidosBrutos ? JSON.parse(pedidosBrutos) : [];
+    const pedidos = JSON.parse(localStorage.getItem('fixtintas_orders') || '[]');
 
     if (pedidos.length === 0) {
         ordersContainer.innerHTML = '<p class="text-muted small text-center py-2 mb-0">Você ainda não fez pedidos.</p>';
@@ -448,19 +1665,27 @@ function renderOrdersProfile() {
     }
 
     ordersContainer.innerHTML = pedidos.map(p => `
-        <div class="bg-white p-2 rounded shadow-sm mb-2 border-start border-primary border-4 text-dark">
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold" style="font-size: 0.75rem;">Pedido #${p.id}</span>
-                <span class="text-muted" style="font-size: 0.65rem;">${p.data}</span>
+        <div class="pedido-card p-2 rounded mb-2 border-start border-primary border-4">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold" style="font-size:0.75rem;">Pedido #${p.id}</span>
+                        <span class="text-muted" style="font-size:0.65rem;">${p.data}</span>
+                    </div>
+                    <div class="text-muted my-1" style="font-size:0.7rem;line-height:1.3;">
+                        ${(p.itens || []).slice(0, 3).map(i => `${i.quantity}x ${i.name}`).join(' · ')}
+                        ${(p.itens || []).length > 3 ? ` <em>+${(p.itens.length - 3)} mais</em>` : ''}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-primary" style="font-size:0.8rem;">R$&nbsp;${p.total.toFixed(2)}</span>
+                        <button class="btn btn-outline-primary btn-sm py-0 px-2"
+                                style="font-size:0.68rem;"
+                                onclick="abrirModalComprovante(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+                            <i class="fas fa-receipt me-1"></i>Comprovante
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="small text-muted my-1" style="font-size: 0.7rem; line-height: 1.2;">
-                ${p.itens.map(i => `${i.quantity}x ${i.name}`).join('<br>')}
-            </div>
-            <div class="small mb-1" style="font-size: 0.7rem;">
-                <i class="fas fa-credit-card me-1 text-muted"></i>
-                <strong>Pagamento:</strong> ${p.pagamento || 'Não informado'}
-            </div>
-            <div class="fw-bold text-primary" style="font-size: 0.8rem;">Total: R$ ${p.total.toFixed(2)}</div>
         </div>
     `).join('');
 }
@@ -841,8 +2066,32 @@ function showProductDetails(id) {
                             </a>
                         </div>
                     </div>
-                    <button class="btn btn-warning w-100 fw-bold p-3 shadow-sm mt-auto" onclick="addToCartFromModal(${product.id})">
-                        <i class="fas fa-cart-plus me-2"></i> ADICIONAR AO CARRINHO
+                    <div class="mt-2 mb-2">
+                        ${(() => {
+                            const est = product.estoque ?? 0;
+                            if (est === 0) return `
+                                <div class="alert alert-danger py-2 px-3 mb-0 d-flex align-items-center gap-2" style="font-size:0.82rem;">
+                                    <i class="fas fa-times-circle"></i>
+                                    <strong>Produto fora de estoque</strong>
+                                </div>`;
+                            if (est <= 5) return `
+                                <div class="alert alert-warning py-2 px-3 mb-0 d-flex align-items-center gap-2" style="font-size:0.82rem;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>⚡ Últimas <strong>${est}</strong> unidade${est > 1 ? 's' : ''} em estoque!</span>
+                                </div>`;
+                            return `
+                                <div class="text-muted d-flex align-items-center gap-1" style="font-size:0.78rem;">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>${est} unidades disponíveis</span>
+                                </div>`;
+                        })()}
+                    </div>
+                    <button class="btn btn-warning w-100 fw-bold p-3 shadow-sm mt-auto"
+                            onclick="addToCartFromModal(${product.id})"
+                            ${(product.estoque ?? 0) === 0 ? 'disabled' : ''}>
+                        ${(product.estoque ?? 0) === 0
+                            ? '<i class="fas fa-ban me-2"></i> SEM ESTOQUE'
+                            : '<i class="fas fa-cart-plus me-2"></i> ADICIONAR AO CARRINHO'}
                     </button>
                 </div>
             </div>
@@ -964,9 +2213,16 @@ function addToCartFromModal(id) {
     const product = products.find(p => p.id === id);
     if (!product) return;
 
-    const qtyInput   = document.getElementById('modal-qty');
-    const quantity   = qtyInput ? parseInt(qtyInput.value) : 1;
+    const qtyInput    = document.getElementById('modal-qty');
+    const quantity    = qtyInput ? parseInt(qtyInput.value) : 1;
     const isAcessorio = isProdutoAcessorio(product);
+
+    // Validação de estoque antes de qualquer ação
+    const check = podeAdicionarAoCarrinho(product.id, quantity);
+    if (!check.ok) {
+        showToast(`⚠️ ${check.erro}`, 'warning');
+        return;
+    }
 
     // Fecha o modal de detalhes antes de prosseguir
     const modalDetailsEl = document.getElementById('productModal');
@@ -1580,8 +2836,12 @@ function adicionarOuAgrupar(novoItem) {
 // Adiciona um produto simples (acessório) ao carrinho sem configurações
 function addToCartSimple(id, quantity = 1) {
     const product = products.find(p => p.id === id);
-    if (!product) {
-        console.error("Produto não encontrado!");
+    if (!product) return;
+
+    // Validação de estoque
+    const check = podeAdicionarAoCarrinho(product.id, quantity);
+    if (!check.ok) {
+        showToast(`⚠️ ${check.erro}`, 'warning');
         return;
     }
 
@@ -1611,7 +2871,7 @@ function addToCartSimple(id, quantity = 1) {
         const nameEl = document.getElementById('toast-item-name');
         const infoEl = document.getElementById('toast-item-info');
         if (nameEl) nameEl.textContent = product.name;
-        if (infoEl) infoEl.textContent = "Acessório adicionado ao carrinho.";
+        if (infoEl) infoEl.textContent = 'Adicionado ao carrinho!';
         new bootstrap.Toast(toastEl).show();
     }
 }
@@ -2261,8 +3521,8 @@ function processarCompraFinal() {
     // Decrementa estoque dos itens comprados
     decrementarEstoque(cart);
 
-    // Gera comprovante PDF automaticamente
-    setTimeout(() => gerarComprovantePDF(novoPedido), 800);
+    // Abre o modal de comprovante (usuário baixa o PDF se quiser)
+    setTimeout(() => abrirModalComprovante(novoPedido), 600);
 
     const resumoItensHtml = cart.map(item => `- ${item.name} (x${item.quantity})`).join('<br>');
     const totalFormatado  = totalFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -2330,193 +3590,25 @@ function toggleFavorite(id, event) {
     renderOrdersProfile();
 }
 
+
+// Alterna entre os painéis "entrar" e "cadastro" no modal de login
 /* ==========================================================================
-   14. SISTEMA DE USUÁRIO (LOGIN, LOGOUT, PERSISTÊNCIA)
+   AUTENTICAÇÃO — UI (login, perfil, sessão visual)
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   BANCO LOCAL DE USUÁRIOS
-   Estrutura escalável — pronta para migração para backend real.
-   Chave: 'fixtintas_users' → Array<UserRecord>
-   Sessão: 'fixtintas_sessao' → { userId, expiresAt }
-   -------------------------------------------------------------------------- */
-
-/**
- * Recupera o banco completo de usuários do localStorage.
- * Retorna array vazio se não existir.
- */
-function _getUsers() {
-    try {
-        return JSON.parse(localStorage.getItem('fixtintas_users')) || [];
-    } catch {
-        return [];
-    }
+// Encerra sessão e atualiza a interface
+function logout() {
+    _encerrarSessao();
+    localStorage.removeItem('usuario_endereco');
+    localStorage.removeItem('usuario_endereco_obj');
+    checkLoginPersistence();
+    showToast('Você saiu da conta.', 'warning');
 }
 
-/**
- * Persiste o banco de usuários no localStorage.
- */
-function _saveUsers(users) {
-    localStorage.setItem('fixtintas_users', JSON.stringify(users));
-}
-
-/**
- * Hash simples e determinístico de senha.
- * Não é criptografia real — para produção use bcrypt via backend.
- * Suficiente para proteger dados locais de leitura casual.
- */
-function _hashSenha(senha) {
-    let hash = 0;
-    const salt = 'fixtintas_2026';
-    const str  = senha + salt;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0;
-    }
-    return Math.abs(hash).toString(36) + str.length.toString(36);
-}
-
-/**
- * Encontra um usuário pelo e-mail (case-insensitive).
- */
-function _findUserByEmail(email) {
-    return _getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
-}
-
-/**
- * Cria e persiste um novo usuário no banco local.
- */
-function _criarUsuario({ nome, email, senha }) {
-    const users = _getUsers();
-
-    if (_findUserByEmail(email)) return { ok: false, erro: 'Este e-mail já está cadastrado.' };
-
-    const novoUsuario = {
-        id:        Date.now().toString(36) + Math.random().toString(36).slice(2),
-        nome,
-        email,
-        senhaHash: _hashSenha(senha),
-        foto:      null,
-        isAdmin:   users.length === 0, // primeiro usuário é admin
-        createdAt: new Date().toISOString(),
-        endereco:  null
-    };
-
-    users.push(novoUsuario);
-    _saveUsers(users);
-    return { ok: true, usuario: novoUsuario };
-}
-
-/**
- * Autentica um usuário verificando e-mail e senha.
- */
-function _autenticarUsuario(email, senha) {
-    const usuario = _findUserByEmail(email);
-    if (!usuario)                             return { ok: false, erro: 'E-mail não encontrado. Crie uma conta.' };
-    if (usuario.senhaHash !== _hashSenha(senha)) return { ok: false, erro: 'Senha incorreta.' };
-    return { ok: true, usuario };
-}
-
-/**
- * Inicia sessão após autenticação bem-sucedida.
- * Se lembrar = true → persiste em localStorage (permanente).
- * Se lembrar = false → persiste em sessionStorage (fecha com o navegador).
- */
-function _iniciarSessao(usuario, lembrar = true) {
-    const sessao = { userId: usuario.id, email: usuario.email };
-    if (lembrar) {
-        localStorage.setItem('fixtintas_sessao', JSON.stringify(sessao));
-        localStorage.setItem('usuario_nome',  usuario.nome);
-        localStorage.setItem('usuario_email', usuario.email);
-    } else {
-        sessionStorage.setItem('fixtintas_sessao', JSON.stringify(sessao));
-        localStorage.setItem('usuario_nome',  usuario.nome);
-        localStorage.setItem('usuario_email', usuario.email);
-    }
-}
-
-/**
- * Retorna o usuário da sessão ativa (localStorage ou sessionStorage).
- * Retorna null se não houver sessão.
- */
-function _getUsuarioSessao() {
-    let sessao = null;
-    try {
-        sessao = JSON.parse(localStorage.getItem('fixtintas_sessao'))
-              || JSON.parse(sessionStorage.getItem('fixtintas_sessao'));
-    } catch { return null; }
-    if (!sessao?.userId) return null;
-    return _getUsers().find(u => u.id === sessao.userId) || null;
-}
-
-/**
- * Encerra a sessão ativa sem apagar o banco de usuários.
- */
-function _encerrarSessao() {
-    localStorage.removeItem('fixtintas_sessao');
-    localStorage.removeItem('usuario_nome');
-    localStorage.removeItem('usuario_email');
-    sessionStorage.removeItem('fixtintas_sessao');
-}
-
-/**
- * Atualiza dados do usuário atual no banco.
- */
-function _atualizarUsuario(campos) {
-    const sessao = JSON.parse(localStorage.getItem('fixtintas_sessao') || sessionStorage.getItem('fixtintas_sessao') || 'null');
-    if (!sessao?.userId) return false;
-
-    const users   = _getUsers();
-    const idx     = users.findIndex(u => u.id === sessao.userId);
-    if (idx === -1) return false;
-
-    Object.assign(users[idx], campos);
-    _saveUsers(users);
-
-    // Atualiza chaves de compatibilidade
-    if (campos.nome)  localStorage.setItem('usuario_nome',  campos.nome);
-    if (campos.email) localStorage.setItem('usuario_email', campos.email);
-
-    return true;
-}
-
-/**
- * Migra usuários registrados no sistema legado (só localStorage simples)
- * para o novo banco local. Executado uma única vez na inicialização.
- */
-function _migrarUsuarioLegado() {
-    const nomeLegado  = localStorage.getItem('usuario_nome');
-    const emailLegado = localStorage.getItem('usuario_email');
-    if (!nomeLegado || !emailLegado) return;
-
-    // Se já existe banco e já tem sessão nova → não faz nada
-    const sessaoNova = localStorage.getItem('fixtintas_sessao');
-    if (sessaoNova) return;
-
-    // Se o e-mail já está no banco → só inicia sessão
-    let usuario = _findUserByEmail(emailLegado);
-    if (!usuario) {
-        // Cria o usuário com senha temporária (ele precisará definir nova senha)
-        const res = _criarUsuario({
-            nome:  nomeLegado,
-            email: emailLegado,
-            senha: '_legado_' + nomeLegado.length
-        });
-        if (res.ok) usuario = res.usuario;
-    }
-
-    if (usuario) {
-        _iniciarSessao(usuario, true);
-        console.info('[FixTintas] Usuário legado migrado para o banco local.');
-    }
-}
-
-// Verifica e aplica o estado de login persistido no localStorage
+// Aplica o estado de login nos dois botões (desktop + mobile)
 function checkLoginPersistence() {
     const usuario = _getUsuarioSessao();
 
-    // Helper: aplica estado logado/deslogado em qualquer botão de login
     function _renderLoginBtn(btn, logado, u) {
         if (!btn) return;
         const spanEl = btn.querySelector('span');
@@ -2546,7 +3638,6 @@ function checkLoginPersistence() {
         }
     }
 
-    // Atualiza desktop e mobile
     _renderLoginBtn(document.getElementById('btnLoginHeader'),       !!usuario, usuario);
     _renderLoginBtn(document.getElementById('btnLoginHeaderMobile'), !!usuario, usuario);
 
@@ -2557,7 +3648,6 @@ function checkLoginPersistence() {
         if (displayEmail) displayEmail.innerText = usuario.email;
 
         atualizarAvatarPerfil();
-
         document.getElementById('btnSair')?.classList.remove('d-none');
         document.getElementById('btnIrLogin')?.classList.add('d-none');
 
@@ -2565,7 +3655,6 @@ function checkLoginPersistence() {
         const btnAdminModal = document.getElementById('btnAbrirAdminModal');
         if (btnAdmin)      btnAdmin.style.display = usuario.isAdmin ? 'flex' : 'none';
         if (btnAdminModal) btnAdminModal.classList.toggle('d-none', !usuario.isAdmin);
-
     } else {
         document.getElementById('btnSair')?.classList.add('d-none');
         document.getElementById('btnIrLogin')?.classList.remove('d-none');
@@ -2577,112 +3666,55 @@ function checkLoginPersistence() {
     }
 }
 
-// Encerra a sessão sem apagar o banco de usuários
-function logout() {
-    _encerrarSessao();
-    localStorage.removeItem('usuario_endereco');
-    localStorage.removeItem('usuario_endereco_obj');
-    checkLoginPersistence();
-    showToast("Você saiu da conta.", 'warning');
-}
-
-// Abre o modal correto (login ou perfil) conforme o estado de autenticação
+// Abre o modal correto conforme estado de autenticação
 function handleProfileClick() {
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.searchParams.set('aba', 'perfil');
     window.history.pushState({}, '', url);
 
-    // Usa o banco local para decidir qual modal abrir
     const usuario = _getUsuarioSessao();
     const modalId = usuario ? 'minhaContaModal' : 'loginModal';
+    const modalEl = document.getElementById(modalId);
+    if (!modalEl) return;
 
-    const modalEl       = document.getElementById(modalId);
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-    modalInstance.show();
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
 
     modalEl.addEventListener('hidden.bs.modal', () => {
-        const cleanUrl = new URL(window.location);
-        cleanUrl.searchParams.delete('aba');
-        window.history.pushState({}, '', cleanUrl);
+        const clean = new URL(window.location.href);
+        clean.searchParams.delete('aba');
+        window.history.pushState({}, '', clean);
     }, { once: true });
 }
 
-/* ==========================================================================
-   15. FUNÇÕES AUXILIARES DE USUÁRIO
-   ========================================================================== */
-
-/**
- * Gera iniciais e cor de fundo determinística a partir do nome.
- * Ex: "João Silva" → "JS" com cor baseada no código do nome.
- */
-function _gerarDadosAvatar(nome) {
-    if (!nome) return { iniciais: 'FT', cor: '#005eff' };
-
-    const partes   = nome.trim().split(' ').filter(Boolean);
-    const iniciais = partes.length >= 2
-        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
-        : partes[0].substring(0, 2).toUpperCase();
-
-    // Paleta determinística — mesma entrada = mesma cor sempre
-    const cores = [
-        '#005eff', '#e74c3c', '#27ae60', '#e67e22',
-        '#8e44ad', '#16a085', '#2980b9', '#c0392b'
-    ];
-    let hash = 0;
-    for (let i = 0; i < nome.length; i++) {
-        hash = nome.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const cor = cores[Math.abs(hash) % cores.length];
-
-    return { iniciais, cor };
-}
-
-// Atualiza o avatar no modal "Minha Conta" com foto ou iniciais do usuário
+// Atualiza o avatar no modal de perfil
 function atualizarAvatarPerfil() {
     const usuario   = _getUsuarioSessao();
     const container = document.getElementById('userAvatarContainer');
     if (!container) return;
 
     if (usuario?.foto) {
-        container.innerHTML = `<img src="${usuario.foto}" alt="${usuario.nome}" class="usuario-avatar-foto-grande">`;
+        container.innerHTML    = `<img src="${usuario.foto}" alt="${usuario.nome}" class="usuario-avatar-foto-grande">`;
         container.style.background = 'transparent';
-        container.style.border     = '3px solid #005eff';
     } else {
-        const nome            = usuario?.nome || localStorage.getItem('usuario_nome') || '';
+        const nome              = usuario?.nome || '';
         const { iniciais, cor } = _gerarDadosAvatar(nome);
-        container.textContent      = iniciais;
         container.style.background = cor;
         container.innerHTML        = iniciais;
     }
 }
 
-/* --------------------------------------------------------------------------
-   GERENCIAMENTO DE PERFIL — Upload de foto, edição de nome/e-mail
-   -------------------------------------------------------------------------- */
-
-/**
- * Abre o seletor de arquivo para upload da foto de perfil.
- * Converte para Base64, salva no banco local e atualiza a UI.
- */
+// Upload de foto de perfil via FileReader
 function uploadFotoPerfil() {
-    const input = document.createElement('input');
-    input.type   = 'file';
-    input.accept = 'image/*';
-
+    const input   = document.createElement('input');
+    input.type    = 'file';
+    input.accept  = 'image/*';
     input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        if (file.size > 2 * 1024 * 1024) {
-            showToast('⚠️ A imagem deve ter no máximo 2 MB.', 'danger');
-            return;
-        }
-
+        if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Imagem deve ter no máximo 2 MB.', 'danger'); return; }
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const base64 = ev.target.result;
-            const ok = _atualizarUsuario({ foto: base64 });
-            if (ok) {
+            if (_atualizarUsuario({ foto: ev.target.result })) {
                 atualizarAvatarPerfil();
                 checkLoginPersistence();
                 showToast('Foto de perfil atualizada!', 'success');
@@ -2690,35 +3722,25 @@ function uploadFotoPerfil() {
         };
         reader.readAsDataURL(file);
     };
-
     input.click();
 }
 
-/**
- * Remove a foto de perfil, voltando para as iniciais.
- */
+// Remove foto de perfil e volta para iniciais
 function removerFotoPerfil() {
-    const ok = _atualizarUsuario({ foto: null });
-    if (ok) {
+    if (_atualizarUsuario({ foto: null })) {
         atualizarAvatarPerfil();
         checkLoginPersistence();
         showToast('Foto removida.', 'warning');
-        // Fecha o dropdown do avatar se estiver aberto
-        document.getElementById('avatarDropdown')?.classList.add('d-none');
     }
 }
 
-/**
- * Entra no modo de edição do nome do usuário no modal de perfil.
- */
+// Ativa edição inline do nome no modal de perfil
 function editarNomePerfil() {
-    const usuario     = _getUsuarioSessao();
-    const displayEl   = document.getElementById('userDisplayName');
-    const editWrap    = document.getElementById('editNomeWrap');
-    const editInput   = document.getElementById('editNomeInput');
-
+    const usuario   = _getUsuarioSessao();
+    const displayEl = document.getElementById('userDisplayName');
+    const editWrap  = document.getElementById('editNomeWrap');
+    const editInput = document.getElementById('editNomeInput');
     if (!displayEl || !editWrap || !editInput || !usuario) return;
-
     editInput.value = usuario.nome;
     displayEl.classList.add('d-none');
     editWrap.classList.remove('d-none');
@@ -2726,89 +3748,120 @@ function editarNomePerfil() {
     editInput.select();
 }
 
-/**
- * Salva o novo nome após edição.
- */
+// Salva o novo nome
 function salvarNomePerfil() {
     const novoNome  = document.getElementById('editNomeInput')?.value.trim();
     const displayEl = document.getElementById('userDisplayName');
     const editWrap  = document.getElementById('editNomeWrap');
-
-    if (!novoNome || novoNome.length < 2) {
-        showToast('⚠️ Digite um nome válido.', 'danger');
-        return;
-    }
-
-    const ok = _atualizarUsuario({ nome: novoNome });
-    if (ok) {
-        if (displayEl) {
-            displayEl.innerText = `Olá, ${novoNome}!`;
-            displayEl.classList.remove('d-none');
-        }
-        if (editWrap) editWrap.classList.add('d-none');
+    if (!novoNome || novoNome.length < 2) { showToast('⚠️ Digite um nome válido.', 'danger'); return; }
+    if (_atualizarUsuario({ nome: novoNome })) {
+        if (displayEl) { displayEl.innerText = `Olá, ${novoNome}!`; displayEl.classList.remove('d-none'); }
+        if (editWrap)  editWrap.classList.add('d-none');
         atualizarAvatarPerfil();
         checkLoginPersistence();
         showToast('Nome atualizado!', 'success');
     }
 }
 
-/**
- * Cancela a edição do nome sem salvar.
- */
+// Cancela edição do nome
 function cancelarEdicaoNome() {
     const usuario   = _getUsuarioSessao();
     const displayEl = document.getElementById('userDisplayName');
     const editWrap  = document.getElementById('editNomeWrap');
-    if (displayEl) {
-        displayEl.innerText = `Olá, ${usuario?.nome || ''}!`;
-        displayEl.classList.remove('d-none');
-    }
-    if (editWrap) editWrap.classList.add('d-none');
+    if (displayEl) { displayEl.innerText = `Olá, ${usuario?.nome || ''}!`; displayEl.classList.remove('d-none'); }
+    if (editWrap)  editWrap.classList.add('d-none');
 }
 
-/**
- * Altera a senha do usuário logado.
- */
+// Altera senha com verificação da atual
 function alterarSenha() {
     const senhaAtual = document.getElementById('senhaAtualInput')?.value;
     const novaSenha  = document.getElementById('novaSenhaInput')?.value;
     const confSenha  = document.getElementById('confSenhaInput')?.value;
     const erroEl     = document.getElementById('erroAlterarSenha');
-
-    const setErro = (msg) => { if (erroEl) erroEl.textContent = msg; };
+    const setErro    = (msg) => { if (erroEl) erroEl.textContent = msg; };
     setErro('');
 
-    if (!senhaAtual || !novaSenha || !confSenha) {
-        setErro('Preencha todos os campos.'); return;
-    }
-    if (novaSenha.length < 6) {
-        setErro('A nova senha deve ter pelo menos 6 caracteres.'); return;
-    }
-    if (novaSenha !== confSenha) {
-        setErro('As senhas não coincidem.'); return;
-    }
+    if (!senhaAtual || !novaSenha || !confSenha) { setErro('Preencha todos os campos.'); return; }
+    if (novaSenha.length < 6)                    { setErro('Nova senha deve ter pelo menos 6 caracteres.'); return; }
+    if (novaSenha !== confSenha)                  { setErro('As senhas não coincidem.'); return; }
 
     const usuario = _getUsuarioSessao();
     if (!usuario) return;
+    if (_hashSenha(senhaAtual) !== usuario.senhaHash) { setErro('Senha atual incorreta.'); return; }
 
-    if (_hashSenha(senhaAtual) !== usuario.senhaHash) {
-        setErro('Senha atual incorreta.'); return;
-    }
-
-    const ok = _atualizarUsuario({ senhaHash: _hashSenha(novaSenha) });
-    if (ok) {
+    if (_atualizarUsuario({ senhaHash: _hashSenha(novaSenha) })) {
         ['senhaAtualInput', 'novaSenhaInput', 'confSenhaInput'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
         showToast('Senha alterada com sucesso!', 'success');
-        // Fecha o collapse de senha
         const collapseEl = document.getElementById('collapseSenha');
         if (collapseEl) bootstrap.Collapse.getInstance(collapseEl)?.hide();
     }
 }
 
-// Alterna entre os painéis "entrar" e "cadastro" no modal de login
+// Formulário de login
+// Formulário de login
+document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const emailValido = _validarCampo('loginEmail', 'erro-loginEmail', v => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Digite um e-mail válido.';
+        const dom = _validarDominioEmail(v);
+        return dom === true ? true : dom;
+    });
+    const senhaValida = _validarCampo('loginSenha', 'erro-loginSenha', v =>
+        v.length >= 1 || 'Digite sua senha.');
+    if (!emailValido || !senhaValida) return;
+
+    const email   = document.getElementById('loginEmail').value.trim();
+    const senha   = document.getElementById('loginSenha').value;
+    const lembrar = document.getElementById('loginLembrar')?.checked !== false;
+    const result  = _autenticarUsuario(email, senha);
+
+    if (!result.ok) {
+        const campo  = result.erro.includes('E-mail') ? 'loginEmail' : 'loginSenha';
+        const erroEl = document.getElementById(`erro-${campo}`);
+        document.getElementById(campo)?.classList.add('invalido');
+        if (erroEl) erroEl.textContent = result.erro;
+        if (result.erro.includes('não encontrado')) setTimeout(() => alternarAbaLogin('cadastro'), 1200);
+        return;
+    }
+    _iniciarSessao(result.usuario, lembrar);
+    checkLoginPersistence();
+    bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
+    showToast(`Bem-vindo de volta, ${result.usuario.nome.split(' ')[0]}! 👋`, 'success');
+});
+
+// Formulário de cadastro
+document.getElementById('cadastroForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nomeValido  = _validarCampo('cadNome',  'erro-cadNome',  v => v.length >= 2 ? true : 'Digite seu nome completo.');
+    const emailValido = _validarCampo('cadEmail', 'erro-cadEmail', v => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'E-mail inválido.';
+        const dom = _validarDominioEmail(v);
+        return dom === true ? true : dom;
+    });
+    const senhaValida = _validarCampo('cadSenha',     'erro-cadSenha',     v => v.length >= 6 ? true : 'Mínimo 6 caracteres.');
+    const senha       = document.getElementById('cadSenha').value;
+    const confValida  = _validarCampo('cadSenhaConf', 'erro-cadSenhaConf', v => v === senha ? true : 'As senhas não coincidem.');
+    if (!nomeValido || !emailValido || !senhaValida || !confValida) return;
+
+    const nome   = document.getElementById('cadNome').value.trim();
+    const email  = document.getElementById('cadEmail').value.trim();
+    const result = _criarUsuario({ nome, email, senha });
+
+    if (!result.ok) {
+        const erroEl = document.getElementById('erro-cadEmail');
+        document.getElementById('cadEmail')?.classList.add('invalido');
+        if (erroEl) erroEl.textContent = result.erro;
+        return;
+    }
+    _iniciarSessao(result.usuario, true);
+    checkLoginPersistence();
+    bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
+    showToast(`Conta criada! Bem-vindo, ${nome.split(' ')[0]}! 🎉`, 'success');
+});
+
 function alternarAbaLogin(painel) {
     document.querySelectorAll('.login-tab').forEach(tab => {
         tab.classList.toggle('ativa', tab.id === `tab-${painel}`);
@@ -2905,14 +3958,16 @@ function saveAddress() {
     const bairro = document.getElementById('addrBairro').value.trim();
     const cidade = document.getElementById('addrCidade').value.trim();
 
-    if (!rua || !num || !bairro || !cidade) {
-        showToast("⚠️ Preencha todos os campos obrigatórios.", "danger");
+    // CEP é obrigatório para calcular frete
+    const cepLimpo = cep ? cep.replace(/\D/g, '') : '';
+    if (!cep || cepLimpo.length !== 8) {
+        showToast('⚠️ CEP é obrigatório. Digite os 8 dígitos.', 'danger');
+        document.getElementById('addrCEP')?.focus();
         return;
     }
 
-    const cepLimpo = cep ? cep.replace(/\D/g, '') : '';
-    if (cep && cepLimpo.length !== 8) {
-        showToast("⚠️ CEP inválido. Digite os 8 dígitos.", "danger");
+    if (!rua || !num || !bairro || !cidade) {
+        showToast('⚠️ Preencha todos os campos obrigatórios.', 'danger');
         return;
     }
 
@@ -4046,558 +5101,9 @@ window.addEventListener('scroll', () => {
     lastScrollY = currentScrollY;
 }, { passive: true });
 
-// Formulário de login — evento de submit com banco local
-document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
+// [Listeners de login e cadastro consolidados acima — duplicata removida]
 
-    const emailValido = _validarCampo('loginEmail', 'erro-loginEmail', v =>
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Digite um e-mail válido.'
-    );
-    const senhaValida = _validarCampo('loginSenha', 'erro-loginSenha', v =>
-        v.length >= 1 || 'Digite sua senha.'
-    );
-    if (!emailValido || !senhaValida) return;
 
-    const email  = document.getElementById('loginEmail').value.trim();
-    const senha  = document.getElementById('loginSenha').value;
-    const lembrar = document.getElementById('loginLembrar')?.checked !== false;
-
-    const resultado = _autenticarUsuario(email, senha);
-
-    if (!resultado.ok) {
-        const campoErr = resultado.erro.includes('E-mail') ? 'loginEmail' : 'loginSenha';
-        const erroId   = `erro-${campoErr}`;
-        document.getElementById(campoErr)?.classList.add('invalido');
-        const erroEl = document.getElementById(erroId);
-        if (erroEl) erroEl.textContent = resultado.erro;
-
-        // Se conta não existe → redirecionar para cadastro
-        if (resultado.erro.includes('não encontrado')) {
-            setTimeout(() => alternarAbaLogin('cadastro'), 1200);
-        }
-        return;
-    }
-
-    _iniciarSessao(resultado.usuario, lembrar);
-    checkLoginPersistence();
-    bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
-    showToast(`Bem-vindo de volta, ${resultado.usuario.nome.split(' ')[0]}! 👋`, 'success');
-});
-
-// Formulário de cadastro — evento de submit com banco local
-document.getElementById('cadastroForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const nomeValido  = _validarCampo('cadNome',  'erro-cadNome',  v => v.length >= 2 ? true : 'Digite seu nome completo.');
-    const emailValido = _validarCampo('cadEmail', 'erro-cadEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? true : 'Digite um e-mail válido.');
-    const senhaValida = _validarCampo('cadSenha', 'erro-cadSenha', v => v.length >= 6 ? true : 'A senha deve ter pelo menos 6 caracteres.');
-
-    const senha     = document.getElementById('cadSenha').value;
-    const confValida = _validarCampo('cadSenhaConf', 'erro-cadSenhaConf', v =>
-        v === senha ? true : 'As senhas não coincidem.'
-    );
-
-    if (!nomeValido || !emailValido || !senhaValida || !confValida) return;
-
-    const nome  = document.getElementById('cadNome').value.trim();
-    const email = document.getElementById('cadEmail').value.trim();
-
-    const resultado = _criarUsuario({ nome, email, senha });
-
-    if (!resultado.ok) {
-        const erroEl = document.getElementById('erro-cadEmail');
-        document.getElementById('cadEmail').classList.add('invalido');
-        if (erroEl) erroEl.textContent = resultado.erro;
-        return;
-    }
-
-    _iniciarSessao(resultado.usuario, true);
-    checkLoginPersistence();
-    bootstrap.Modal.getInstance(document.getElementById('loginModal'))?.hide();
-    showToast(`Conta criada! Bem-vindo, ${nome.split(' ')[0]}! 🎉`, 'success');
-});
-
-/* ==========================================================================
-   PAINEL ADMINISTRATIVO (TAREFA 7)
-   Estrutura simulada com localStorage — pronta para integração com backend.
-   Acesso restrito ao usuário admin (isAdmin: true no banco local).
-   ========================================================================== */
-
-/**
- * Abre o painel admin se o usuário tiver permissão.
- */
-function abrirPainelAdmin() {
-    const usuario = _getUsuarioSessao();
-    if (!usuario?.isAdmin) {
-        showToast('⛔ Acesso restrito a administradores.', 'danger');
-        return;
-    }
-
-    // Fecha o modal de perfil se estiver aberto
-    const perfilEl = document.getElementById('minhaContaModal');
-    const perfilInst = bootstrap.Modal.getInstance(perfilEl);
-    if (perfilInst) perfilInst.hide();
-
-    const adminEl = document.getElementById('adminModal');
-    if (!adminEl) return;
-
-    // URL personalizada para o painel admin
-    const url = new URL(window.location);
-    url.searchParams.set('painel', 'admin');
-    window.history.pushState({ painel: 'admin' }, '', url);
-
-    renderAdminAba('produtos');
-
-    const adminModal = bootstrap.Modal.getOrCreateInstance(adminEl);
-
-    // Limpa a URL ao fechar
-    adminEl.addEventListener('hidden.bs.modal', () => {
-        const clean = new URL(window.location);
-        clean.searchParams.delete('painel');
-        window.history.pushState({}, '', clean);
-    }, { once: true });
-
-    // Se o perfil ainda estiver animando, aguarda fechar antes de abrir admin
-    if (perfilInst) {
-        perfilEl.addEventListener('hidden.bs.modal', () => adminModal.show(), { once: true });
-    } else {
-        adminModal.show();
-    }
-}
-
-/**
- * Alterna entre as abas do painel admin.
- */
-function renderAdminAba(aba) {
-    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-        btn.classList.toggle('ativa', btn.dataset.aba === aba);
-    });
-
-    const body = document.getElementById('adminTabContent');
-    if (!body) return;
-
-    if (aba === 'produtos')  body.innerHTML = _renderAdminProdutos();
-    if (aba === 'usuarios')  body.innerHTML = _renderAdminUsuarios();
-    if (aba === 'pedidos')   body.innerHTML = _renderAdminPedidos();
-    if (aba === 'adicionar') body.innerHTML = _renderAdminAdicionarProduto();
-}
-
-/** Renderiza a aba de produtos do catálogo */
-function _renderAdminProdutos() {
-    const rows = products.map(p => {
-        const estoque     = p.estoque ?? 0;
-        const estoqueClss = estoque === 0 ? 'text-danger fw-bold' : estoque <= 5 ? 'text-warning fw-bold' : 'text-success';
-        const estoqueIcon = estoque === 0 ? '⛔' : estoque <= 5 ? '⚠️' : '✅';
-        return `
-        <tr>
-            <td><img src="${p.img}" width="38" height="38" class="rounded" style="object-fit:cover;"></td>
-            <td style="font-size:0.78rem; max-width:150px;">
-                <div class="fw-bold text-truncate">${p.name}</div>
-                <small class="text-muted">${p.category} › ${p.sub}</small>
-            </td>
-            <td><span class="badge bg-secondary text-uppercase" style="font-size:0.6rem;">${p.brand}</span></td>
-            <td style="font-size:0.8rem; white-space:nowrap;">R$ ${p.price.toFixed(2)}</td>
-            <td>
-                <!-- Estoque editável inline -->
-                <div class="d-flex align-items-center gap-1">
-                    <span class="${estoqueClss}" style="font-size:0.7rem;">${estoqueIcon}</span>
-                    <input type="number" min="0" value="${estoque}"
-                           class="form-control form-control-sm p-0 text-center admin-estoque-input"
-                           style="width:48px;font-size:0.75rem;border-radius:6px;"
-                           onchange="adminAtualizarEstoque(${p.id}, this.value)"
-                           title="Editar estoque">
-                </div>
-            </td>
-            <td>
-                <button class="badge border-0 ${p.promo ? 'bg-danger' : 'bg-light text-muted'}"
-                        style="cursor:pointer;font-size:0.65rem;white-space:nowrap;"
-                        onclick="adminAlternarPromo(${p.id})"
-                        title="${p.promo ? 'Remover promoção' : 'Colocar em promoção'}">
-                    ${p.promo ? '🔥 Promo' : 'Normal'}
-                </button>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-outline-danger py-0 px-1"
-                        onclick="adminRemoverProduto(${p.id})"
-                        title="Remover produto">
-                    <i class="fas fa-trash" style="font-size:0.7rem;"></i>
-                </button>
-            </td>
-        </tr>`;
-    }).join('');
-
-    return `
-        <div class="admin-section-header">
-            <h6 class="mb-0"><i class="fas fa-box me-2"></i>Catálogo (${products.length} produtos)</h6>
-            <button class="btn btn-sm btn-warning" onclick="renderAdminAba('adicionar')">
-                <i class="fas fa-plus me-1"></i> Novo
-            </button>
-        </div>
-        <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-light sticky-top">
-                    <tr>
-                        <th style="width:46px;"></th>
-                        <th>Produto</th>
-                        <th>Marca</th>
-                        <th>Preço</th>
-                        <th>Estoque</th>
-                        <th>Status</th>
-                        <th style="width:36px;"></th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>
-    `;
-}
-
-/** Renderiza a aba de usuários cadastrados */
-function _renderAdminUsuarios() {
-    const users = _getUsers();
-
-    if (users.length === 0) {
-        return `<div class="text-center text-muted py-4"><i class="fas fa-users fa-2x mb-2 d-block"></i>Nenhum usuário cadastrado.</div>`;
-    }
-
-    const rows = users.map(u => `
-        <tr>
-            <td>
-                <div class="usuario-avatar-mini" style="background:${_gerarDadosAvatar(u.nome).cor};">
-                    ${_gerarDadosAvatar(u.nome).iniciais}
-                </div>
-            </td>
-            <td>
-                <div class="fw-bold" style="font-size:0.8rem;">${u.nome}</div>
-                <div class="text-muted" style="font-size:0.7rem;">${u.email}</div>
-            </td>
-            <td style="font-size:0.7rem;">${new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
-            <td>
-                ${u.isAdmin
-                    ? '<span class="badge bg-warning text-dark">Admin</span>'
-                    : '<span class="badge bg-light text-muted border">Usuário</span>'}
-            </td>
-            <td>
-                <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-primary py-0 px-1"
-                            onclick="_renderAdminDetalheUsuario('${u.id}')"
-                            title="Ver relatório">
-                        <i class="fas fa-chart-line" style="font-size:0.7rem;"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-${u.isAdmin ? 'secondary' : 'warning'} py-0 px-1"
-                            onclick="adminAlternarAdmin('${u.id}')"
-                            title="${u.isAdmin ? 'Remover admin' : 'Tornar admin'}">
-                        <i class="fas fa-${u.isAdmin ? 'user-minus' : 'user-shield'}" style="font-size:0.7rem;"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-
-    return `
-        <div class="admin-section-header">
-            <h6 class="mb-0"><i class="fas fa-users me-2"></i>Usuários Cadastrados (${users.length})</h6>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr><th></th><th>Usuário</th><th>Cadastro</th><th>Perfil</th><th></th></tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>
-    `;
-}
-
-/** Renderiza a aba de pedidos realizados */
-function _renderAdminPedidos() {
-    let todos = [];
-    try {
-        todos = JSON.parse(localStorage.getItem('fixtintas_orders')) || [];
-    } catch { todos = []; }
-
-    if (todos.length === 0) {
-        return `<div class="text-center text-muted py-4"><i class="fas fa-receipt fa-2x mb-2 d-block"></i>Nenhum pedido registrado.</div>`;
-    }
-
-    const totalReceita = todos.reduce((acc, p) => acc + (p.total || 0), 0);
-
-    const rows = todos.map(p => `
-        <tr>
-            <td class="fw-bold text-primary" style="font-size:0.8rem;">#${p.id}</td>
-            <td style="font-size:0.75rem;">${p.data}</td>
-            <td style="font-size:0.75rem;">${p.itens?.length || 0} item(ns)</td>
-            <td class="fw-bold" style="font-size:0.8rem;">R$ ${(p.total || 0).toFixed(2)}</td>
-            <td><span class="badge bg-success" style="font-size:0.65rem;">Concluído</span></td>
-        </tr>
-    `).join('');
-
-    return `
-        <div class="admin-section-header">
-            <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Pedidos (${todos.length})</h6>
-            <span class="badge bg-success">Receita: R$ ${totalReceita.toFixed(2)}</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Status</th></tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </div>
-    `;
-}
-
-/** Renderiza o formulário de adição de produto */
-function _renderAdminAdicionarProduto() {
-    return `
-        <div class="admin-section-header">
-            <h6 class="mb-0"><i class="fas fa-plus me-2"></i>Novo Produto</h6>
-            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('produtos')">
-                <i class="fas fa-arrow-left me-1"></i> Voltar
-            </button>
-        </div>
-        <div class="p-2">
-            <div class="row g-2">
-                <div class="col-12">
-                    <label class="form-label small fw-bold mb-1">Nome do Produto *</label>
-                    <input type="text" id="adminNomeProd" class="form-control form-control-sm" placeholder="Ex: Tinta Látex Premium">
-                </div>
-                <div class="col-6">
-                    <label class="form-label small fw-bold mb-1">Marca *</label>
-                    <select id="adminMarcaProd" class="form-select form-select-sm">
-                        <option value="suvinil">Suvinil</option>
-                        <option value="coral">Coral</option>
-                        <option value="sherwin">Sherwin-Williams</option>
-                        <option value="atlas">Atlas</option>
-                        <option value="tigre">Tigre</option>
-                        <option value="norton">Norton</option>
-                        <option value="3m">3M</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <label class="form-label small fw-bold mb-1">Preço (R$) *</label>
-                    <input type="number" id="adminPrecoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
-                </div>
-                <div class="col-6">
-                    <label class="form-label small fw-bold mb-1">Categoria *</label>
-                    <select id="adminCategoriaProd" class="form-select form-select-sm" onchange="adminAtualizarSubcategoria()">
-                        <option value="interior">Interior</option>
-                        <option value="exterior">Exterior</option>
-                        <option value="moveis">Móveis</option>
-                        <option value="especial">Especial</option>
-                        <option value="ferramentas">Ferramentas</option>
-                        <option value="acessorios">Acessórios</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <label class="form-label small fw-bold mb-1">Sub-categoria *</label>
-                    <select id="adminSubProd" class="form-select form-select-sm">
-                        <option value="acrilica">Tinta Acrílica</option>
-                        <option value="latex">Tinta Látex</option>
-                        <option value="fosca">Tinta Fosca</option>
-                    </select>
-                </div>
-                <div class="col-12">
-                    <label class="form-label small fw-bold mb-1">Descrição *</label>
-                    <textarea id="adminDescProd" class="form-control form-control-sm" rows="2" placeholder="Descrição curta do produto"></textarea>
-                </div>
-                <div class="col-7">
-                    <label class="form-label small fw-bold mb-1">URL da Imagem</label>
-                    <input type="url" id="adminImgProd" class="form-control form-control-sm" placeholder="https://...">
-                </div>
-                <div class="col-5">
-                    <label class="form-label small fw-bold mb-1">Preço antigo (R$)</label>
-                    <input type="number" id="adminPrecoAntigoProd" class="form-control form-control-sm" placeholder="0.00" min="0" step="0.01">
-                </div>
-                <div class="col-6">
-                    <label class="form-label small fw-bold mb-1">Estoque inicial</label>
-                    <input type="number" id="adminEstoqueProd" class="form-control form-control-sm" placeholder="0" min="0" value="10">
-                </div>
-                <div class="col-12 d-flex align-items-center gap-3">
-                    <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" id="adminPromoProd">
-                        <label class="form-check-label small" for="adminPromoProd">Em promoção</label>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div id="adminErroNovoProd" class="text-danger small mb-1"></div>
-                    <button class="btn btn-warning w-100" onclick="adminSalvarNovoProduto()">
-                        <i class="fas fa-save me-2"></i>Salvar Produto
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-/** Mapa de subcategorias por categoria principal */
-const _adminSubcategorias = {
-    interior:     [['acrilica','Tinta Acrílica'],['latex','Tinta Látex'],['fosca','Tinta Fosca']],
-    exterior:     [['acrilica-ext','Acrílica Externa'],['impermeavel','Tinta Impermeável'],['exterior','Exterior Geral']],
-    moveis:       [['esmalte','Esmalte'],['verniz','Verniz']],
-    especial:     [['epoxi','Tinta Epóxi'],['termica','Tinta Térmica']],
-    ferramentas:  [['rolos','Rolos'],['pinceis','Pincéis'],['bandejas','Bandejas'],['extensores','Extensores']],
-    acessorios:   [['lixas','Lixas'],['fitas','Fitas Adesivas'],['acessorios','Acessórios Gerais']]
-};
-
-/** Atualiza o select de subcategoria conforme a categoria escolhida */
-function adminAtualizarSubcategoria() {
-    const cat    = document.getElementById('adminCategoriaProd')?.value;
-    const subEl  = document.getElementById('adminSubProd');
-    if (!subEl || !cat) return;
-
-    const opcoes = _adminSubcategorias[cat] || [];
-    subEl.innerHTML = opcoes.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
-}
-
-/** Salva um novo produto no catálogo (runtime apenas — sem backend) */
-function adminSalvarNovoProduto() {
-    const nome       = document.getElementById('adminNomeProd')?.value.trim();
-    const marca      = document.getElementById('adminMarcaProd')?.value;
-    const preco      = parseFloat(document.getElementById('adminPrecoProd')?.value);
-    const precoAntigo = parseFloat(document.getElementById('adminPrecoAntigoProd')?.value) || null;
-    const categoria  = document.getElementById('adminCategoriaProd')?.value;
-    const sub        = document.getElementById('adminSubProd')?.value;
-    const desc       = document.getElementById('adminDescProd')?.value.trim();
-    const img        = document.getElementById('adminImgProd')?.value.trim();
-    const promo      = document.getElementById('adminPromoProd')?.checked;
-    const estoque    = parseInt(document.getElementById('adminEstoqueProd')?.value) || 0;
-
-    const setErro = (msg) => { if (erroEl) erroEl.textContent = msg; };
-    setErro('');
-
-    if (!nome || !marca || isNaN(preco) || preco < 0 || !desc) {
-        setErro('Preencha todos os campos obrigatórios.'); return;
-    }
-    if (promo && (!precoAntigo || precoAntigo <= preco)) {
-        setErro('Para promoção, o preço antigo deve ser maior que o preço atual.'); return;
-    }
-
-    const novoId = Math.max(...products.map(p => p.id), 100) + 1;
-
-    const novoProduto = {
-        id:       novoId,
-        name:     nome,
-        brand:    marca,
-        category: categoria,
-        sub,
-        price:    preco,
-        oldPrice: promo && precoAntigo ? precoAntigo : null,
-        promo,
-        estoque,
-        desc,
-        img:      img || `https://placehold.co/400x400/005eff/fff?text=${encodeURIComponent(nome)}`,
-        sugestoes: []
-    };
-
-    products.push(novoProduto);
-    renderProducts(products);
-    showToast(`Produto "${nome}" adicionado!`, 'success');
-    renderAdminAba('produtos');
-}
-
-/** Atualiza o estoque de um produto diretamente na tabela */
-function adminAtualizarEstoque(id, novoValor) {
-    const produto = products.find(p => p.id === id);
-    if (!produto) return;
-    const valor = Math.max(0, parseInt(novoValor) || 0);
-    produto.estoque = valor;
-    renderProducts(products);
-    showToast(`Estoque de "${produto.name}" atualizado para ${valor} un.`, 'success');
-    // Re-render sem perder o foco — não chama renderAdminAba para não resetar
-}
-
-/** Alterna o status de promoção de um produto */
-function adminAlternarPromo(id) {
-    const produto = products.find(p => p.id === id);
-    if (!produto) return;
-    produto.promo = !produto.promo;
-    renderProducts(products);
-    showToast(
-        produto.promo
-            ? `"${produto.name}" adicionado às promoções! 🔥`
-            : `"${produto.name}" removido das promoções.`,
-        produto.promo ? 'success' : 'warning'
-    );
-    renderAdminAba('produtos');
-}
-
-/** Remove um produto do catálogo (runtime) */
-function adminRemoverProduto(id) {
-    const idx = products.findIndex(p => p.id === id);
-    if (idx === -1) return;
-
-    const nome = products[idx].name;
-    products.splice(idx, 1);
-    renderProducts(products);
-    showToast(`Produto "${nome}" removido.`, 'warning');
-    renderAdminAba('produtos');
-}
-
-/** Alterna permissão admin de um usuário */
-function adminAlternarAdmin(userId) {
-    const sessaoAtual = _getUsuarioSessao();
-
-    // Impede que o admin remova a própria permissão (evita ficar sem acesso)
-    if (sessaoAtual?.id === userId) {
-        showToast('⚠️ Você não pode alterar sua própria permissão de admin.', 'warning');
-        return;
-    }
-
-    const users = _getUsers();
-    const idx   = users.findIndex(u => u.id === userId);
-    if (idx === -1) return;
-
-    users[idx].isAdmin = !users[idx].isAdmin;
-    _saveUsers(users);
-
-    // Se a sessão ativa é do usuário alterado, atualiza a UI imediatamente
-    if (sessaoAtual?.id === userId) checkLoginPersistence();
-
-    showToast(
-        `${users[idx].nome}: perfil ${users[idx].isAdmin ? 'promovido a Admin ✅' : 'revertido para Usuário'}`,
-        users[idx].isAdmin ? 'success' : 'warning'
-    );
-    renderAdminAba('usuarios');
-}
-
-/* ==========================================================================
-   MÓDULO: CONTROLE DE ESTOQUE
-   Administração via painel admin. Impede compra sem estoque.
-   ========================================================================== */
-
-// Retorna estoque disponível do produto (em runtime)
-function getEstoque(productId) {
-    const p = products.find(p => p.id === productId);
-    return p ? (p.estoque ?? 0) : 0;
-}
-
-// Decrementa estoque ao confirmar compra
-function decrementarEstoque(itens) {
-    itens.forEach(item => {
-        const p = products.find(p => p.id === item.productId);
-        if (p && p.estoque > 0) {
-            p.estoque = Math.max(0, p.estoque - item.quantity);
-        }
-    });
-}
-
-// Verifica se carrinho tem itens com estoque insuficiente
-function validarEstoqueCarrinho() {
-    const problemas = [];
-    cart.forEach(item => {
-        const estoque = getEstoque(item.productId);
-        if (item.quantity > estoque) {
-            problemas.push({
-                nome: item.name,
-                solicitado: item.quantity,
-                disponivel: estoque
-            });
-        }
-    });
-    return problemas; // vazio = tudo OK
-}
 
 /* ==========================================================================
    MÓDULO: CARRINHO ABANDONADO
@@ -4667,263 +5173,7 @@ function _exibirAlertaAbandonado() {
     setTimeout(() => el.remove(), 20000);
 }
 
-/* ==========================================================================
-   MÓDULO: RELATÓRIO DETALHADO DE USUÁRIO (ADMIN)
-   ========================================================================== */
 
-function _renderAdminDetalheUsuario(userId) {
-    const users  = _getUsers();
-    const u      = users.find(u => u.id === userId);
-    if (!u) return;
-
-    const todos   = JSON.parse(localStorage.getItem('fixtintas_orders') || '[]');
-    const pedidos = todos.filter(p => p.email === u.email || p.userId === u.id);
-
-    const totalGasto    = pedidos.reduce((s, p) => s + (p.total || 0), 0);
-    const pagamentos    = {};
-    const produtosFreq  = {};
-
-    pedidos.forEach(ped => {
-        const pag = ped.pagamento || 'Não informado';
-        pagamentos[pag] = (pagamentos[pag] || 0) + 1;
-
-        (ped.itens || []).forEach(item => {
-            produtosFreq[item.name] = (produtosFreq[item.name] || 0) + item.quantity;
-        });
-    });
-
-    const topPagamentos = Object.entries(pagamentos)
-        .sort((a, b) => b[1] - a[1])
-        .map(([k, v]) => `<span class="badge bg-primary me-1">${k} (${v}x)</span>`).join('');
-
-    const topProdutos = Object.entries(produtosFreq)
-        .sort((a, b) => b[1] - a[1]).slice(0, 5)
-        .map(([k, v]) => `<li class="small">${k} — <strong>${v} un.</strong></li>`).join('');
-
-    const body = document.getElementById('adminTabContent');
-    if (!body) return;
-
-    body.innerHTML = `
-        <div class="admin-section-header">
-            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Detalhes: ${u.nome}</h6>
-            <button class="btn btn-sm btn-outline-secondary" onclick="renderAdminAba('usuarios')">
-                <i class="fas fa-arrow-left me-1"></i> Voltar
-            </button>
-        </div>
-        <div class="row g-3 p-2">
-            <div class="col-md-4">
-                <div class="p-3 rounded-3 border h-100">
-                    <div class="usuario-avatar-mini mb-2"
-                         style="width:48px;height:48px;font-size:1rem;background:${_gerarDadosAvatar(u.nome).cor};">
-                        ${_gerarDadosAvatar(u.nome).iniciais}
-                    </div>
-                    <div class="fw-bold">${u.nome}</div>
-                    <div class="text-muted small">${u.email}</div>
-                    <div class="small mt-2">
-                        <i class="fas fa-calendar me-1 text-primary"></i>
-                        Cadastro: ${new Date(u.createdAt).toLocaleDateString('pt-BR')}
-                    </div>
-                    <div class="small mt-1">
-                        <i class="fas fa-shield-alt me-1 text-warning"></i>
-                        Perfil: <strong>${u.isAdmin ? 'Administrador' : 'Usuário'}</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="row g-2 mb-3">
-                    <div class="col-4">
-                        <div class="p-2 rounded-3 border text-center">
-                            <div class="fw-bold fs-5 text-primary">${pedidos.length}</div>
-                            <div class="small text-muted">Pedidos</div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-2 rounded-3 border text-center">
-                            <div class="fw-bold fs-6 text-success">R$ ${totalGasto.toFixed(2)}</div>
-                            <div class="small text-muted">Total gasto</div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-2 rounded-3 border text-center">
-                            <div class="fw-bold fs-5">${Object.keys(produtosFreq).length}</div>
-                            <div class="small text-muted">Produtos únicos</div>
-                        </div>
-                    </div>
-                </div>
-                ${topPagamentos ? `<div class="mb-2"><small class="fw-bold text-muted">PAGAMENTOS USADOS:</small><div class="mt-1">${topPagamentos}</div></div>` : ''}
-                ${topProdutos ? `<div><small class="fw-bold text-muted">PRODUTOS MAIS COMPRADOS:</small><ul class="mt-1 mb-0">${topProdutos}</ul></div>` : '<p class="text-muted small">Sem compras registradas.</p>'}
-            </div>
-            ${pedidos.length > 0 ? `
-            <div class="col-12">
-                <small class="fw-bold text-muted">HISTÓRICO DE PEDIDOS:</small>
-                <div class="table-responsive mt-1" style="max-height:200px;overflow-y:auto;">
-                    <table class="table table-sm table-hover align-middle mb-0">
-                        <thead class="table-light sticky-top">
-                            <tr><th>#</th><th>Data</th><th>Itens</th><th>Total</th><th>Pagamento</th></tr>
-                        </thead>
-                        <tbody>
-                            ${pedidos.map(p => `
-                                <tr>
-                                    <td class="text-primary fw-bold">#${p.id}</td>
-                                    <td>${p.data}</td>
-                                    <td>${(p.itens||[]).length} item(ns)</td>
-                                    <td>R$ ${(p.total||0).toFixed(2)}</td>
-                                    <td>${p.pagamento || '—'}</td>
-                                </tr>`).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>` : ''}
-        </div>
-    `;
-}
-
-/* ==========================================================================
-   MÓDULO: COMPROVANTE PDF PÓS-COMPRA
-   Gerado automaticamente após finalizar pedido.
-   ========================================================================== */
-
-function gerarComprovantePDF(pedido) {
-    if (!window.jspdf) { console.warn('jsPDF não disponível'); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const AZUL    = [0, 94, 255];
-    const ESCURO  = [30, 30, 50];
-    const CINZA   = [120, 130, 150];
-    const LARANJA = [255, 122, 0];
-    const W       = 210;
-    const ML      = 15;
-    const MR      = W - 15;
-    let y         = 0;
-
-    // Cabeçalho
-    doc.setFillColor(...AZUL);
-    doc.rect(0, 0, W, 38, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.setTextColor(255, 255, 255);
-    doc.text('FixTintas', ML, 17);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(200, 220, 255);
-    doc.text('Comprovante de Pedido', ML, 24);
-    doc.setTextColor(255, 193, 7);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text(`#${pedido.id}`, MR, 17, { align: 'right' });
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(200, 220, 255);
-    doc.text(pedido.data, MR, 24, { align: 'right' });
-
-    y = 46;
-
-    // Dados do cliente
-    const usuario = _getUsuarioSessao();
-    if (usuario) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(8);
-        doc.setTextColor(...CINZA);
-        doc.text('CLIENTE', ML, y);
-        y += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(...ESCURO);
-        doc.text(usuario.nome,  ML, y); y += 4;
-        doc.text(usuario.email, ML, y); y += 4;
-        if (pedido.endereco) {
-            doc.text(pedido.endereco, ML, y); y += 4;
-        }
-        y += 4;
-    }
-
-    // Linha divisória
-    doc.setDrawColor(230, 230, 240);
-    doc.line(ML, y, MR, y); y += 6;
-
-    // Itens
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...CINZA);
-    doc.text('ITENS DO PEDIDO', ML, y); y += 5;
-
-    doc.setFillColor(245, 247, 255);
-    doc.roundedRect(ML, y - 1, W - 30, 7, 1, 1, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...ESCURO);
-    doc.text('Produto',       ML + 2,      y + 4.5);
-    doc.text('Qtd',           MR - 40,     y + 4.5, { align: 'right' });
-    doc.text('Unit.',         MR - 22,     y + 4.5, { align: 'right' });
-    doc.text('Total',         MR,          y + 4.5, { align: 'right' });
-    y += 9;
-
-    pedido.itens.forEach((item, i) => {
-        if (y > 260) { doc.addPage(); y = 20; }
-        if (i % 2 === 0) {
-            doc.setFillColor(250, 251, 255);
-            doc.rect(ML, y - 1, W - 30, 7, 'F');
-        }
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(7.5);
-        doc.setTextColor(...ESCURO);
-        const nomeTrunc = item.name.length > 38 ? item.name.slice(0, 35) + '...' : item.name;
-        doc.text(nomeTrunc,                             ML + 2,  y + 4.5);
-        doc.text(String(item.quantity),                 MR - 40, y + 4.5, { align: 'right' });
-        doc.text(`R$ ${item.price.toFixed(2)}`,         MR - 22, y + 4.5, { align: 'right' });
-        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, MR, y + 4.5, { align: 'right' });
-        y += 7;
-    });
-
-    y += 4;
-    doc.setDrawColor(230, 230, 240);
-    doc.line(ML, y, MR, y); y += 6;
-
-    // Subtotal, frete e total
-    const subtotal = pedido.itens.reduce((s, i) => s + i.price * i.quantity, 0);
-
-    const _linhaTotal = (label, valor, destaque = false) => {
-        if (destaque) {
-            doc.setFillColor(...ESCURO);
-            doc.roundedRect(ML, y - 1, W - 30, 9, 1.5, 1.5, 'F');
-            doc.setTextColor(255, 255, 255);
-        } else {
-            doc.setTextColor(...CINZA);
-        }
-        doc.setFont('helvetica', destaque ? 'bold' : 'normal');
-        doc.setFontSize(destaque ? 9 : 8);
-        doc.text(label, ML + 2, y + 5);
-        if (destaque) doc.setTextColor(...LARANJA);
-        doc.text(valor, MR, y + 5, { align: 'right' });
-        y += destaque ? 11 : 8;
-    };
-
-    _linhaTotal('Subtotal', `R$ ${subtotal.toFixed(2)}`);
-    if (pedido.frete) {
-        const fv = pedido.frete.valor;
-        _linhaTotal(
-            `Frete (${pedido.frete.nome}${pedido.frete.prazo ? ' — ' + pedido.frete.prazo : ''})`,
-            fv === 0 ? 'GRÁTIS' : `R$ ${fv.toFixed(2)}`
-        );
-    }
-    _linhaTotal('TOTAL GERAL', `R$ ${pedido.total.toFixed(2)}`, true);
-
-    y += 4;
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(7);
-    doc.setTextColor(...CINZA);
-    doc.text(`Pagamento: ${pedido.pagamento || 'Não informado'}`, ML, y);
-
-    y += 10;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...AZUL);
-    doc.text('Obrigado por comprar na FixTintas! 🎨', W / 2, y, { align: 'center' });
-
-    doc.save(`FixTintas_Pedido_${pedido.id}.pdf`);
-}
-
-/* Chamada automática após finalizar pedido — injeta gerarComprovantePDF */
 
 document.addEventListener('DOMContentLoaded', () => {
 
