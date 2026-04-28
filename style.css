@@ -1887,6 +1887,10 @@ footer {
     background-color: #0f172a !important;
     position:         relative;
     overflow:         hidden;
+    margin-bottom:    0 !important;
+    padding-bottom:   2rem;
+    /* FIX: garante que não haja espaço preto abaixo */
+    display:          block;
 }
 
 footer h5 {
@@ -3376,4 +3380,222 @@ body.dark-mode .faixa-frete-gratis {
 @keyframes slideUpBanner {
     from { opacity: 0; transform: translateY(30px); }
     to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ==========================================================================
+   FIXES v5 — Dark Mode Admin completo, pedido-card, estoque badge
+   ========================================================================== */
+
+/* Pedido card no perfil — dark mode */
+.pedido-card {
+    background: #fff;
+    transition: background 0.2s;
+}
+body.dark-mode .pedido-card {
+    background: #1e2240;
+    color: #e2e8f0;
+}
+body.dark-mode .pedido-card .text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — tabela de produtos completa */
+body.dark-mode #adminModal .table-light,
+body.dark-mode #adminModal thead.table-light th,
+body.dark-mode #adminModal thead.table-light {
+    background: #12122a !important;
+    color: #94a3b8 !important;
+}
+body.dark-mode #adminModal tbody tr {
+    background: transparent;
+    color: #e2e8f0;
+}
+body.dark-mode #adminModal tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover td {
+    background: rgba(96,165,250,0.08);
+    color: #60a5fa;
+}
+body.dark-mode #adminModal .text-muted {
+    color: #64748b !important;
+}
+body.dark-mode #adminModal small.text-muted {
+    color: #64748b !important;
+}
+
+/* Admin dark mode — exportar/importar */
+body.dark-mode #adminModal .alert-warning {
+    background: rgba(255,193,7,0.08);
+    border-color: rgba(255,193,7,0.2);
+    color: #ffc107;
+}
+body.dark-mode #adminModal .btn-outline-success {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+body.dark-mode #adminModal .btn-outline-success:hover {
+    background: #22c55e;
+    color: #fff;
+}
+body.dark-mode #adminModal .btn-outline-secondary {
+    border-color: #4b5563;
+    color: #9ca3af;
+}
+
+/* Admin dark mode — input de estoque */
+body.dark-mode .admin-estoque-input {
+    background: #0d0d1a !important;
+    border-color: #2d2d4e !important;
+    color: #e2e8f0 !important;
+}
+
+/* Badge de estoque no modal de produto */
+.badge-sem-estoque {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+body.dark-mode .badge-sem-estoque {
+    background: rgba(220,38,38,0.15);
+    border-color: rgba(220,38,38,0.3);
+    color: #f87171;
+}
+
+/* Admin dark mode — detalhe de usuário */
+body.dark-mode #adminTabContent .col-md-4 .border,
+body.dark-mode #adminTabContent .col-md-8 .border,
+body.dark-mode #adminTabContent .border {
+    border-color: #2d2d4e !important;
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .text-center.p-2 {
+    background: #1e2240 !important;
+}
+body.dark-mode #adminTabContent .fw-bold.fs-5,
+body.dark-mode #adminTabContent .fw-bold.fs-6 {
+    color: #e2e8f0;
+}
+body.dark-mode #adminTabContent ul li {
+    color: #cbd5e1;
+    border-color: #2d2d4e !important;
+}
+
+/* Admin dark mode — badge de promo na tabela */
+body.dark-mode #adminModal .bg-secondary.bg-opacity-25 {
+    background: rgba(148,163,184,0.15) !important;
+    color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   FIXES v6 — Estoque, Mobile Cards, Footer, Admin Responsivo
+   ========================================================================== */
+
+/* --- Produto sem estoque --- */
+.sem-estoque-card {
+    pointer-events: auto;
+}
+.sem-estoque-card .card-img-top {
+    filter: grayscale(40%) !important;
+    opacity: 0.8 !important;
+}
+.btn-ver-mais-disabled {
+    background: transparent !important;
+    border-color: #ccc !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    font-size: 0.72rem !important;
+}
+.btn-ver-mais-disabled:hover {
+    background: transparent !important;
+    color: #999 !important;
+    transform: none !important;
+}
+
+/* --- Mobile: cards de produto (2 colunas, sem quebra de preço) --- */
+@media (max-width: 575px) {
+    /* Oculta marca no mobile (economiza espaço) */
+    .product-card .badge.bg-warning.d-none { display: none !important; }
+
+    /* Preço e botão sem quebra */
+    .product-card .card-body .mt-auto {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+    }
+    .product-card h5.text-primary,
+    .product-card .d-flex.flex-column span,
+    .product-card .d-flex.flex-column h5 {
+        white-space: nowrap;
+        font-size: 0.9rem !important;
+    }
+    .btn-ver-mais {
+        font-size: 0.66rem !important;
+        padding: 4px 10px !important;
+        width: 100%;
+        text-align: center;
+    }
+    .product-card-desc {
+        display: none !important;
+    }
+    .product-card .card-img-top {
+        height: 140px !important;
+    }
+}
+
+/* --- Footer: corrige espaço preto embaixo --- */
+footer {
+    margin-bottom: 0 !important;
+    padding-bottom: 2rem !important;
+}
+body > footer:last-of-type {
+    margin-bottom: 0 !important;
+}
+
+/* --- Admin: tabelas responsivas com scroll horizontal --- */
+@media (max-width: 768px) {
+    #adminModal .table-responsive {
+        font-size: 0.72rem;
+    }
+    #adminModal .table td,
+    #adminModal .table th {
+        padding: 6px 4px;
+        white-space: nowrap;
+    }
+    #adminModal .admin-section-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    /* Admin novo produto: 1 coluna em mobile */
+    #adminModal .row.g-2 > .col-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* --- Dark mode: garantir background do body no footer --- */
+body.dark-mode footer {
+    background-color: #000 !important;
+}
+
+/* --- Admin dark mode: select dropdown --- */
+body.dark-mode #adminModal select option {
+    background: #1e2240;
+    color: #e2e8f0;
+}
+
+/* --- Badge de estoque no card --- */
+.badge.bg-danger[style*="bottom"] {
+    letter-spacing: 0.02em;
+}
+
+/* --- Promo price block alinhado mobile --- */
+.promo-price-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
