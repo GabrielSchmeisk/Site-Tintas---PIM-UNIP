@@ -3371,6 +3371,12 @@ body.dark-mode #adminTabContent li {
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 
+/* Dark mode: menu aberto não fica azul */
+body.dark-mode #navbarNav.show {
+    background: #0d1117 !important;
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
 /* --- Dark mode: faixa de frete no modo escuro --- */
 body.dark-mode .faixa-frete-gratis {
     background: linear-gradient(90deg, #001f6b 0%, #002fa0 60%, #003280 100%);
@@ -3599,3 +3605,573 @@ body.dark-mode #adminModal select option {
     flex-direction: column;
     gap: 0;
 }
+
+/* ==========================================================================
+   FIXES v7 — Header Dark Mode, Comprovante, Footer, Admin Dark, Chatbot
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   HEADER MOBILE DARK MODE — correção de bordas azuis e botão desproporcional
+   -------------------------------------------------------------------------- */
+body.dark-mode .navbar {
+    background-color: #0d1117 !important;
+    border-bottom: 1px solid #1e2a3a !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+}
+
+/* Remove bordas azuis/pretas indesejadas */
+body.dark-mode .navbar-toggler {
+    border-color: rgba(255,255,255,0.3) !important;
+}
+/* Ícone dos 3 pontinhos: força SVG branco visível no dark mode */
+body.dark-mode .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    filter: none !important;
+}
+
+/* Botão de login/perfil no header — tamanho proporcional */
+#btnLoginHeader,
+#btnLoginHeaderMobile {
+    font-size: 0.82rem !important;
+    padding: 6px 12px !important;
+    min-height: 36px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+body.dark-mode #btnLoginHeader,
+body.dark-mode #btnLoginHeaderMobile {
+    border-color: rgba(255,255,255,0.4) !important;
+    color: #fff !important;
+}
+body.dark-mode #btnLoginHeader:hover,
+body.dark-mode #btnLoginHeaderMobile:hover {
+    background: rgba(255,255,255,0.12) !important;
+}
+
+/* Botão admin no header */
+body.dark-mode #btnAbrirAdmin {
+    border-color: #f0ad4e !important;
+    color: #f0ad4e !important;
+}
+
+/* Avatar no header — tamanho fixo */
+.usuario-avatar-header {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    font-size: 0.62rem !important;
+}
+
+@media (max-width: 991px) {
+    #btnLoginHeaderMobile {
+        font-size: 0.75rem !important;
+        padding: 4px 9px !important;
+        min-height: 32px;
+    }
+    .usuario-avatar-header {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        margin-right: 4px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   DARK MODE ADMIN — listas, tabelas, hover, textos
+   -------------------------------------------------------------------------- */
+body.dark-mode #adminModal .modal-content {
+    background: #0f1229 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .table {
+    color: #e2e8f0 !important;
+    border-color: #2d3148 !important;
+}
+body.dark-mode #adminModal .table th,
+body.dark-mode #adminModal .table td {
+    border-color: #2d3148 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .table-light,
+body.dark-mode #adminModal .table-light th {
+    background-color: #1a1e3a !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .table-hover tbody tr:hover {
+    background-color: rgba(0,94,255,0.12) !important;
+}
+body.dark-mode #adminModal .border {
+    border-color: #2d3148 !important;
+}
+body.dark-mode #adminModal .rounded-3,
+body.dark-mode #adminModal .p-3.rounded-3 {
+    background: #161932 !important;
+}
+body.dark-mode #adminModal .text-muted {
+    color: #8a92b2 !important;
+}
+body.dark-mode #adminModal .form-control,
+body.dark-mode #adminModal .form-select {
+    background: #1e2240 !important;
+    border-color: #3a3f6e !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .admin-tab-btn {
+    color: #8a92b2 !important;
+    border-color: #2d3148 !important;
+}
+body.dark-mode #adminModal .admin-tab-btn.ativa {
+    background: #005eff !important;
+    color: #fff !important;
+    border-color: #005eff !important;
+}
+body.dark-mode #adminModal .admin-section-header {
+    background: #161932 !important;
+    border-color: #2d3148 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .btn-outline-danger {
+    color: #ff6b6b !important;
+    border-color: #ff6b6b !important;
+}
+body.dark-mode #adminModal .btn-outline-primary {
+    color: #7ba7ff !important;
+    border-color: #7ba7ff !important;
+}
+body.dark-mode #adminModal .btn-outline-success {
+    color: #69e08c !important;
+    border-color: #69e08c !important;
+}
+body.dark-mode #adminModal .fw-bold { color: #e2e8f0 !important; }
+body.dark-mode #adminModal small  { color: #8a92b2 !important; }
+body.dark-mode #adminModal .bg-light {
+    background-color: #1e2240 !important;
+}
+body.dark-mode #adminModal .badge.bg-light {
+    background-color: #2d3148 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #adminModal .input-group-text {
+    background: #1e2240 !important;
+    border-color: #3a3f6e !important;
+    color: #e2e8f0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   COMPROVANTE — redesign profissional
+   -------------------------------------------------------------------------- */
+.comprovante-dialog { max-width: 480px; }
+
+.comprovante-content {
+    border-radius: 14px !important;
+    overflow: hidden;
+}
+
+.comprovante-header {
+    background: linear-gradient(135deg, #005eff 0%, #0032cc 100%);
+    color: #fff;
+    padding: 20px 22px 18px;
+}
+
+.comprovante-numero {
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    font-size: 1rem;
+}
+
+.comprovante-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.comprovante-pgto-badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.comprovante-body {
+    padding: 18px 20px !important;
+}
+
+.comprovante-section-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.comprovante-itens-lista {
+    margin-bottom: 14px;
+    padding-right: 4px;
+}
+.comprovante-itens-lista::-webkit-scrollbar { width: 4px; }
+.comprovante-itens-lista::-webkit-scrollbar-track { background: transparent; }
+.comprovante-itens-lista::-webkit-scrollbar-thumb { background: #d0d7e2; border-radius: 2px; }
+
+.comprovante-resumo {
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.comprovante-resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.83rem;
+    margin-bottom: 6px;
+}
+
+.comprovante-resumo-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.comprovante-info-card {
+    border-radius: 8px;
+    padding: 10px 12px;
+    height: 100%;
+}
+.comprovante-info-label {
+    font-size: 0.64rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 4px;
+}
+.comprovante-info-val {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.comprovante-endereco {
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 10px;
+}
+
+.comprovante-rodape {
+    font-size: 0.72rem;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed #dee2e6;
+    opacity: 0.65;
+}
+
+.comprovante-footer {
+    padding: 12px 20px !important;
+    gap: 8px;
+    background: transparent;
+}
+
+/* Animação de entrada */
+.comprovante-dialog .modal-content {
+    animation: comprovanteSlide 0.28s ease;
+}
+@keyframes comprovanteSlide {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Dark mode comprovante */
+body.dark-mode .comprovante-rodape { border-color: #2d3148; }
+
+/* --------------------------------------------------------------------------
+   FOOTER RESPONSIVO
+   -------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+    footer .row > [class*="col-"] {
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding-bottom: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    footer .row > [class*="col-"]:last-child {
+        border-bottom: none;
+    }
+    footer h5 {
+        font-size: 0.88rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+    footer .footer-link,
+    footer li a {
+        font-size: 0.83rem;
+        line-height: 1.9;
+    }
+    footer .d-flex.gap-3 {
+        justify-content: center;
+        gap: 1rem !important;
+    }
+}
+@media (max-width: 575px) {
+    footer {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    footer .container { padding: 0 16px; }
+    footer .col-12 + .col-12 { margin-top: 0; }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+    footer .col-md-3 { flex: 0 0 50%; max-width: 50%; margin-bottom: 1.5rem; }
+}
+
+/* --------------------------------------------------------------------------
+   FIXBOT — Chatbot
+   -------------------------------------------------------------------------- */
+#fixbot-wrapper {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+}
+
+/* Botão flutuante */
+#fixbot-toggle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #005eff, #0032cc);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,94,255,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#fixbot-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(0,94,255,0.55);
+}
+#fixbot-toggle:active { transform: scale(0.96); }
+
+.fixbot-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background: #27ae60;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+/* Painel do chat */
+#fixbot-painel {
+    width: 320px;
+    max-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    background: #fff;
+    margin-bottom: 12px;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+#fixbot-painel.fixbot-aberto {
+    max-height: 480px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Dark mode */
+body.dark-mode #fixbot-painel {
+    background: #1a1a2e;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* Header do chat */
+#fixbot-header {
+    background: linear-gradient(135deg, #005eff, #0032cc);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 16px 16px 0 0;
+}
+.fixbot-header-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+.fixbot-online-dot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.fixbot-dot {
+    width: 7px;
+    height: 7px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: fixbotPulse 1.8s infinite;
+}
+@keyframes fixbotPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+.fixbot-fechar-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background 0.18s;
+}
+.fixbot-fechar-btn:hover { background: rgba(255,255,255,0.18); }
+
+/* Lista de mensagens */
+#fixbot-msgs {
+    height: 300px;
+    overflow-y: auto;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+}
+#fixbot-msgs::-webkit-scrollbar { width: 4px; }
+#fixbot-msgs::-webkit-scrollbar-thumb { background: #c5cae9; border-radius: 2px; }
+body.dark-mode #fixbot-msgs::-webkit-scrollbar-thumb { background: #3a4070; }
+
+.fixbot-msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 7px;
+    animation: fixbotMsg 0.22s ease;
+}
+@keyframes fixbotMsg {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fixbot-msg-user {
+    flex-direction: row-reverse;
+}
+.fixbot-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg,#005eff,#0032cc);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+}
+.fixbot-balao {
+    max-width: 78%;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+.fixbot-msg-bot .fixbot-balao {
+    background: #f1f3f8;
+    color: #212529;
+    border-radius: 4px 14px 14px 14px;
+}
+.fixbot-msg-user .fixbot-balao {
+    background: #005eff;
+    color: #fff;
+    border-radius: 14px 14px 4px 14px;
+    text-align: right;
+}
+body.dark-mode .fixbot-msg-bot .fixbot-balao {
+    background: #252848;
+    color: #e2e8f0;
+}
+
+/* Footer do chat */
+#fixbot-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid #eef0f5;
+    background: #fff;
+    border-radius: 0 0 16px 16px;
+}
+body.dark-mode #fixbot-footer {
+    background: #1a1a2e;
+    border-color: #2d3148;
+}
+#fixbot-input {
+    flex: 1;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+    color: #212529;
+}
+#fixbot-input:focus { border-color: #005eff; }
+body.dark-mode #fixbot-input {
+    background: #252848;
+    border-color: #3a4070;
+    color: #e2e8f0;
+}
+#fixbot-footer button {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #005eff;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.18s, transform 0.15s;
+}
+#fixbot-footer button:hover {
+    background: #0040cc;
+    transform: scale(1.08);
+}
+
+/* Ícones do botão toggle */
+#fixbot-toggle .fixbot-icon-close { display: none; }
+#fixbot-painel.fixbot-aberto ~ #fixbot-toggle .fixbot-icon-open { display: none !important; }
+#fixbot-painel.fixbot-aberto ~ #fixbot-toggle .fixbot-icon-close { display: block !important; }
+
+/* Mobile */
+@media (max-width: 480px) {
+    #fixbot-wrapper { bottom: 16px; left: 12px; }
+    #fixbot-painel  { width: calc(100vw - 24px); }
+    #fixbot-toggle  { width: 48px; height: 48px; font-size: 1.1rem; }
+}
+
+/* ==========================================================================
+   FIM FIXES v7
+   ========================================================================== */
