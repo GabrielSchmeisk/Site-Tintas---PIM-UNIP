@@ -581,10 +581,11 @@
                             <div class="col-6">
                                 <input type="text" id="addrCEP"
                                        class="form-control form-control-sm border-0 shadow-sm"
-                                       placeholder="CEP (00000-000)"
+                                       placeholder="CEP * (obrigatório)"
                                        maxlength="9"
                                        inputmode="numeric"
-                                       required>
+                                       required
+                                       aria-required="true">
                             </div>
                             <div class="col-6">
                                 <button type="button"
@@ -1432,6 +1433,9 @@
                 </button>
                 <button class="admin-tab-btn" data-aba="adicionar" onclick="renderAdminAba('adicionar')">
                     <i class="fas fa-plus me-1"></i> Novo Produto
+                </button>
+                <button class="admin-tab-btn" data-aba="exportar" onclick="renderAdminAba('exportar')">
+                    <i class="fas fa-database me-1"></i> Backup
                 </button>
             </div>
 
