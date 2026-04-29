@@ -6119,6 +6119,19 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.activeElement?.id === 'fixbot-input') fixbotEnviar();
 });
 
+// Oculta o botão do FixBot quando qualquer modal Bootstrap abrir
+document.addEventListener('show.bs.modal', () => {
+    const toggle = document.getElementById('fixbot-toggle');
+    if (toggle) toggle.style.display = 'none';
+    _fixbotClose(); // fecha o painel do chat também, se estiver aberto
+});
+
+// Reexibe o botão do FixBot quando o modal fechar
+document.addEventListener('hidden.bs.modal', () => {
+    const toggle = document.getElementById('fixbot-toggle');
+    if (toggle) toggle.style.display = '';
+});
+
 /* ==========================================================================
    FIM FIXBOT
    ========================================================================== */
