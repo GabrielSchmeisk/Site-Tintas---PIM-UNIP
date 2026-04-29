@@ -354,15 +354,15 @@ header, .navbar {
 
 .product-card {
     border-radius: 15px;
-    border:        none;
-    transition:    0.3s;
+    border:        1.5px solid transparent; /* reserva espaço — evita layout shift no hover */
+    transition:    transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     overflow:      hidden;
 }
 
 .product-card:hover {
-    transform:  translateY(-8px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-    border:     1.5px solid rgba(0, 94, 255, 0.15) !important;
+    transform:    translateY(-8px);
+    box-shadow:   0 10px 25px rgba(0,0,0,0.1) !important;
+    border-color: rgba(0, 94, 255, 0.25) !important;
 }
 
 .product-card .card-body { position: relative; }
@@ -853,20 +853,21 @@ header, .navbar {
     user-select:   none;
 }
 
-/* Avatar de iniciais do usuário — tamanho pequeno (header) */
+/* Avatar de iniciais do usuário — header da navbar */
 .usuario-avatar-header {
-    width:         24px;
-    height:        24px;
-    border-radius: 50%;
-    display:       inline-flex;
-    align-items:   center;
+    display:         inline-flex;
+    align-items:     center;
     justify-content: center;
-    font-size:     0.6rem;
-    font-weight:   800;
-    color:         #fff;
-    flex-shrink:   0;
-    vertical-align: middle;
-    margin-right:  6px;
+    width:           26px;
+    height:          26px;
+    min-width:       26px;
+    border-radius:   50%;
+    font-size:       0.62rem;
+    font-weight:     800;
+    color:           #fff;
+    flex-shrink:     0;
+    vertical-align:  middle;
+    margin-right:    6px;
 }
 
 /* Estrelas de avaliação */
@@ -2443,7 +2444,6 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
     .nav-link, .custom-menu .list-group-item, .footer-link { padding: 12px 10px; }
 }
 /* ==========================================================================
-   TAREFA 1 — PERFIL DO USUÁRIO (MODAL REFORMULADO)
    ========================================================================== */
 
 /* Header com gradiente no modal de perfil */
@@ -2487,24 +2487,12 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
     border-radius: 50%;
 }
 
-/* Foto de perfil no header da navbar */
-.usuario-avatar-header {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: #fff;
-    margin-right: 6px;
-    flex-shrink: 0;
-    vertical-align: middle;
-}
+
+/* Foto de perfil no header: sobrescreve apenas o object-fit */
 .usuario-avatar-header.usuario-avatar-foto {
     object-fit: cover;
 }
+
 
 /* Botões de ação sobre o avatar */
 .perfil-avatar-acoes {
@@ -2569,7 +2557,6 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
 }
 
 /* ==========================================================================
-   TAREFA 6 — MODAL DE PRODUTO ENRIQUECIDO
    ========================================================================== */
 
 /* Container do conteúdo extra abaixo da imagem */
@@ -2673,7 +2660,6 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
 }
 
 /* ==========================================================================
-   TAREFA 7 — PAINEL ADMINISTRATIVO
    ========================================================================== */
 
 /* Header do modal admin */
@@ -2744,7 +2730,6 @@ body.dark-mode #btn-voltar-topo     { box-shadow: 0 4px 14px rgba(0, 94, 255, 0.
 }
 
 /* ==========================================================================
-   TAREFA 5 — RESPONSIVIDADE (CORREÇÕES MOBILE/TABLET)
    ========================================================================== */
 
 /* --- MOBILE (≤ 576px) --- */
@@ -3130,10 +3115,6 @@ body.dark-mode .faixa-frete-gratis {
     background: linear-gradient(90deg, #001f6b 0%, #003ab5 60%, #004499 100%);
 }
 
-/* ==========================================================================
-   FIXES v3 — Admin dark mode, nav abas fixo, botão login mobile
-   ========================================================================== */
-
 /* --- Admin: abas fixas no topo do modal (não somem com scroll) --- */
 /* Layout flex do modal admin — tabs sempre visíveis, body scrollável */
 #adminModal .modal-dialog {
@@ -3388,10 +3369,6 @@ body.dark-mode .faixa-frete-gratis {
     to   { opacity: 1; transform: translateY(0);    }
 }
 
-/* ==========================================================================
-   FIXES v5 — Dark Mode Admin completo, pedido-card, estoque badge
-   ========================================================================== */
-
 /* Pedido card no perfil — dark mode */
 .pedido-card {
     background: #fff;
@@ -3497,10 +3474,6 @@ body.dark-mode #adminModal .bg-secondary.bg-opacity-25 {
     color: #94a3b8 !important;
 }
 
-/* ==========================================================================
-   FIXES v6 — Estoque, Mobile Cards, Footer, Admin Responsivo
-   ========================================================================== */
-
 /* --- Produto sem estoque --- */
 .sem-estoque-card {
     pointer-events: auto;
@@ -3599,17 +3572,6 @@ body.dark-mode #adminModal select option {
     letter-spacing: 0.02em;
 }
 
-/* --- Promo price block alinhado mobile --- */
-.promo-price-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-/* ==========================================================================
-   FIXES v7 — Header Dark Mode, Comprovante, Footer, Admin Dark, Chatbot
-   ========================================================================== */
-
 /* --------------------------------------------------------------------------
    HEADER MOBILE DARK MODE — correção de bordas azuis e botão desproporcional
    -------------------------------------------------------------------------- */
@@ -3654,13 +3616,6 @@ body.dark-mode #btnAbrirAdmin {
     color: #f0ad4e !important;
 }
 
-/* Avatar no header — tamanho fixo */
-.usuario-avatar-header {
-    width: 26px !important;
-    height: 26px !important;
-    min-width: 26px !important;
-    font-size: 0.62rem !important;
-}
 
 @media (max-width: 991px) {
     #btnLoginHeaderMobile {
@@ -3934,10 +3889,17 @@ body.dark-mode .comprovante-rodape { border-color: #2d3148; }
     position: fixed;
     bottom: 24px;
     left: 24px;
-    z-index: 10000;
+    z-index: 1040;   /* abaixo do modal-backdrop (1050) e modal (1060) */
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+}
+
+/* Oculta o fixbot enquanto qualquer modal estiver aberto */
+body.modal-open #fixbot-wrapper {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 /* Botão flutuante */
@@ -4167,11 +4129,10 @@ body.dark-mode #fixbot-input {
 
 /* Mobile */
 @media (max-width: 480px) {
-    #fixbot-wrapper { bottom: 16px; left: 12px; }
+    #fixbot-wrapper { bottom: 16px; left: 12px; right: auto; }
     #fixbot-painel  { width: calc(100vw - 24px); }
     #fixbot-toggle  { width: 48px; height: 48px; font-size: 1.1rem; }
 }
 
 /* ==========================================================================
-   FIM FIXES v7
    ========================================================================== */
