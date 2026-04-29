@@ -386,10 +386,7 @@ function validarEstoqueCarrinho() {
     }));
 }
 
-/**
- * Retorna até 3 produtos substitutos para um produto sem estoque.
- * Prioriza: mesma subcategoria → mesma categoria → qualquer produto com estoque.
- */
+// Retorna substitutos para produto sem estoque (mesma sub → categoria → qualquer)
 function _getProdutosSubstitutos(productId, limite = 3) {
     if (typeof products === 'undefined') return [];
     const prod = products.find(p => p.id === productId);
@@ -1130,8 +1127,7 @@ function adminAlternarPromo(id) {
     if (!produto) return;
 
     if (!produto.promo) {
-        // Verifica limite
-        const emPromo = products.filter(p => p.promo === true).length;
+            const emPromo = products.filter(p => p.promo === true).length;
         if (emPromo >= 5) {
             showToast('⚠️ Limite de 5 promoções simultâneas atingido. Remova uma antes de adicionar.', 'warning');
             return;
@@ -1436,8 +1432,7 @@ function adminImportar(inputEl) {
             if (dados.removidosIds) {
                 localStorage.setItem(DB.REMOVED_IDS, JSON.stringify(dados.removidosIds));
             }
-            // Re-aplica tudo
-            if (dados.produtoConfig || dados.extraProdutos || dados.removidosIds) {
+                    if (dados.produtoConfig || dados.extraProdutos || dados.removidosIds) {
                 _aplicarOverridesProdutos();
                 if (typeof renderProducts === 'function') renderProducts(products);
             }
@@ -1630,7 +1625,6 @@ function gerarComprovantePDF(pedido) {
     const AZUL = [0, 94, 255], ESCURO = [30, 30, 50], CINZA = [120, 130, 150], LARANJA = [255, 122, 0];
     let y = 0;
 
-    // Cabeçalho
     doc.setFillColor(...AZUL);
     doc.rect(0, 0, W, 36, 'F');
     doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
@@ -1643,7 +1637,6 @@ function gerarComprovantePDF(pedido) {
     doc.text(pedido.data, MR, 22, { align: 'right' });
     y = 44;
 
-    // Cliente
     const usuario = _getUsuarioSessao();
     if (usuario) {
         doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...CINZA);
@@ -1956,6 +1949,11 @@ function limparBackdropsTravados() {
     document.body.classList.remove('modal-open');
 }
 
+
+/* Aliases usados pelo FixBot para filtrar produtos por categoria/promoção */
+const filterCategory = (cat) => filterProducts(cat);
+const filterPromo    = ()    => filterProducts('promo');
+
 /* ==========================================================================
    5. FUNÇÕES DE RENDERIZAÇÃO (UI)
    ========================================================================== */
@@ -2258,8 +2256,6 @@ function filterProducts(tag, event) {
     const list          = document.getElementById('product-list');
     const categoryTitle = document.getElementById('category-title');
     if (!list) return;
-
-    // TAREFA 3 — Atualiza a URL sem recarregar a página
     const url = new URL(window.location);
     if (!tag || tag === 'all' || tag === '') {
         url.searchParams.delete('categoria');
@@ -2453,7 +2449,6 @@ function showProductDetails(id) {
                         }
                     </div>
 
-                    <!-- TAREFA 6: Conteúdo enriquecido abaixo da imagem -->
                     <div class="modal-extra-content mt-3">
 
                         <!-- Informações de aplicação -->
@@ -2638,10 +2633,6 @@ function showProductDetails(id) {
         window.history.pushState({ path: urlOriginal }, '', urlOriginal);
     }, { once: true });
 }
-
-/**
- * TAREFA 6 — Gera conteúdo de "Como Usar" baseado na categoria/sub do produto.
- */
 function _gerarComoUsarProduto(product) {
     const sub  = (product.sub  || '').toLowerCase();
     const cat  = (product.category || '').toLowerCase();
@@ -2670,10 +2661,6 @@ function _gerarComoUsarProduto(product) {
         </div>
     `).join('');
 }
-
-/**
- * TAREFA 6 — Gera características técnicas do produto baseado nos dados disponíveis.
- */
 function _gerarCaracteristicasProduto(product) {
     const sub = (product.sub || '').toLowerCase();
     const cat = (product.category || '').toLowerCase();
@@ -3878,7 +3865,6 @@ function showCart() {
 }
 
 /**
- * TAREFA 2 — Navega do carrinho até o produto na loja.
  * Fecha o modal do carrinho, reutiliza showProductDetails existente
  * e faz scroll suave até a seção de produtos.
  */
@@ -5607,6 +5593,9 @@ window.addEventListener('scroll', () => {
     if (!navbar) return;
     if (document.body.classList.contains('modal-open')) return;
 
+    // NÃO esconde a navbar enquanto o menu mobile estiver aberto
+    if (document.querySelector('.navbar-collapse.show')) return;
+
     const currentScrollY = window.scrollY;
 
     if (currentScrollY > lastScrollY && currentScrollY > 60) {
@@ -5627,8 +5616,6 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // [Listeners de login e cadastro consolidados acima — duplicata removida]
-
-
 
 /* ==========================================================================
    MÓDULO: CARRINHO ABANDONADO
@@ -5697,8 +5684,6 @@ function _exibirAlertaAbandonado() {
     // Remove automaticamente após 20 segundos
     setTimeout(() => el.remove(), 20000);
 }
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -5856,8 +5841,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const produtoId    = urlParams.get('produto');
     const aba          = urlParams.get('aba');
     const categoriaUrl = urlParams.get('categoria');
-
-    // TAREFA 3 — Aplica filtro de categoria da URL ao carregar
     if (categoriaUrl) {
         const list          = document.getElementById('product-list');
         const categoryTitle = document.getElementById('category-title');
@@ -5914,14 +5897,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /** Base de conhecimento do FixBot */
 const FIXBOT_KB = [
-    // Saudações
     {
         gatilhos: ['oi', 'olá', 'ola', 'boa tarde', 'bom dia', 'boa noite', 'hey', 'hello', 'hi'],
         resposta: () => `Olá! 👋 Sou o <strong>FixBot</strong>, assistente da FixTintas.<br>
 Como posso te ajudar hoje?<br><br>
 <em>Diga algo como: "como escolher tinta", "ver promoções", "prazo de entrega"</em>`
     },
-    // Tintas interior
     {
         gatilhos: ['tinta interior', 'sala', 'quarto', 'interior', 'ambiente interno', 'casa'],
         resposta: () => `Para <strong>ambientes internos</strong> recomendamos:<br><br>
@@ -5930,7 +5911,6 @@ Como posso te ajudar hoje?<br><br>
 🎨 <strong>Látex Standard</strong> — custo-benefício para tetos<br><br>
 Quer ver esses produtos? <a href="javascript:void(0)" onclick="filterCategory('interior');_fixbotClose()">Ver tintas internas →</a>`
     },
-    // Tintas exterior
     {
         gatilhos: ['exterior', 'fachada', 'externo', 'quintal', 'varanda', 'área externa'],
         resposta: () => `Para <strong>áreas externas</strong> e fachadas:<br><br>
@@ -5939,7 +5919,6 @@ Quer ver esses produtos? <a href="javascript:void(0)" onclick="filterCategory('i
 🏠 <strong>Textura Rústica</strong> — efeito decorativo durável<br><br>
 <a href="javascript:void(0)" onclick="filterCategory('exterior');_fixbotClose()">Ver tintas externas →</a>`
     },
-    // Como escolher
     {
         gatilhos: ['como escolher', 'qual tinta', 'me indica', 'me indique', 'me recomenda', 'me ajuda escolher'],
         resposta: () => `Para escolher a tinta certa, considere:<br><br>
@@ -5950,7 +5929,6 @@ Quer ver esses produtos? <a href="javascript:void(0)" onclick="filterCategory('i
 Use nossa <a href="javascript:void(0)" onclick="document.querySelector('[data-bs-target=\'#calcModal\']')?.click();_fixbotClose()">
 🧮 Calculadora de Tinta</a> para saber a quantidade exata!`
     },
-    // Frete
     {
         gatilhos: ['frete', 'entrega', 'prazo', 'quanto tempo', 'quando chega', 'cep'],
         resposta: () => `Nossas opções de frete:<br><br>
@@ -5959,7 +5937,6 @@ Use nossa <a href="javascript:void(0)" onclick="document.querySelector('[data-bs
 📅 <strong>Agendado</strong> — você escolhe o dia<br><br>
 O frete é calculado pelo CEP no checkout. <strong>Compras acima de R$&nbsp;299 ganham frete grátis!</strong> 🎉`
     },
-    // Promoções
     {
         gatilhos: ['promo', 'desconto', 'oferta', 'barato', 'liquidação', 'em oferta'],
         resposta: () => {
@@ -5972,7 +5949,6 @@ O frete é calculado pelo CEP no checkout. <strong>Compras acima de R$&nbsp;299 
 <a href="javascript:void(0)" onclick="filterPromo();_fixbotClose()">Ver todas as promoções →</a>`;
         }
     },
-    // Pagamento
     {
         gatilhos: ['pagamento', 'pagar', 'pix', 'cartão', 'boleto', 'forma de pagamento'],
         resposta: () => `Aceitamos:<br><br>
@@ -5981,7 +5957,6 @@ O frete é calculado pelo CEP no checkout. <strong>Compras acima de R$&nbsp;299 
 📄 <strong>Boleto bancário</strong> — vencimento em 3 dias úteis<br><br>
 Todas as compras são processadas com <strong>segurança SSL</strong> 🔒`
     },
-    // Devolução / troca
     {
         gatilhos: ['devolução', 'troca', 'devolver', 'trocar', 'arrependimento', 'errei'],
         resposta: () => `Temos <strong>7 dias</strong> para devolução por arrependimento.<br><br>
@@ -5991,7 +5966,6 @@ Todas as compras são processadas com <strong>segurança SSL</strong> 🔒`
 • Entrar em contato via <a href="contato.html">nossa página de contato</a><br><br>
 Para tintas já abertas, avaliamos caso a caso. Posso te conectar ao suporte humano! 🤝`
     },
-    // Marca
     {
         gatilhos: ['suvinil', 'coral', 'sherwin', 'marca', 'melhor marca'],
         resposta: () => `Trabalhamos com as 3 maiores marcas do Brasil:<br><br>
@@ -6000,7 +5974,6 @@ Para tintas já abertas, avaliamos caso a caso. Posso te conectar ao suporte hum
 🟢 <strong>Sherwin-Williams</strong> — premium, durabilidade superior<br><br>
 Todas com garantia de fábrica. Qual te interessa?`
     },
-    // Login / conta
     {
         gatilhos: ['login', 'conta', 'cadastro', 'cadastrar', 'entrar', 'senha'],
         resposta: () => `Para criar sua conta ou fazer login:<br><br>
@@ -6012,7 +5985,6 @@ Com conta você acessa:<br>
 • Favoritos salvos<br>
 • Dados de endereço`
     },
-    // Carrinho
     {
         gatilhos: ['carrinho', 'comprar', 'compra', 'pedido', 'finalizar'],
         resposta: () => `Para finalizar sua compra:<br><br>
@@ -6023,7 +5995,6 @@ Com conta você acessa:<br>
 5️⃣ Pronto! Você recebe o comprovante 📄<br><br>
 <a href="javascript:void(0)" onclick="showCart();_fixbotClose()">Abrir meu carrinho →</a>`
     },
-    // Sobre a loja
     {
         gatilhos: ['quem são', 'sobre vocês', 'sobre a loja', 'empresa', 'fixtintas'],
         resposta: () => `A <strong>FixTintas</strong> é uma loja especializada em tintas e revestimentos.<br><br>
@@ -6032,7 +6003,6 @@ Com conta você acessa:<br>
 🏷️ Marcas: Suvinil, Coral e Sherwin-Williams<br>
 🌐 <a href="sobre.html">Leia mais sobre nós →</a>`
     },
-    // Fallback
     {
         gatilhos: ['__fallback__'],
         resposta: (msg) => `Não entendi bem <em>"${msg}"</em>. 🤔<br><br>
@@ -6117,19 +6087,6 @@ function fixbotEnviar() {
 /** Enter para enviar */
 document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.activeElement?.id === 'fixbot-input') fixbotEnviar();
-});
-
-// Oculta o botão do FixBot quando qualquer modal Bootstrap abrir
-document.addEventListener('show.bs.modal', () => {
-    const toggle = document.getElementById('fixbot-toggle');
-    if (toggle) toggle.style.display = 'none';
-    _fixbotClose(); // fecha o painel do chat também, se estiver aberto
-});
-
-// Reexibe o botão do FixBot quando o modal fechar
-document.addEventListener('hidden.bs.modal', () => {
-    const toggle = document.getElementById('fixbot-toggle');
-    if (toggle) toggle.style.display = '';
 });
 
 /* ==========================================================================
